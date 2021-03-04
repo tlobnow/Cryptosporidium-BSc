@@ -1,6 +1,3 @@
-Document Name, Plate Type, User, Operator, Run Date, Last modified, Instrument Type, Comments
-Plate1-03-03, Absolute Quantification, user, user, Wednesday March 03 2021 14:23:02, Wednesday March 03 2021 16:00:20, Applied Biosystems 7300 Real-Time PCR System, SDS v1.3
-
 Well,Sample Name,Detector,Task,Ct,StdDev Ct,Qty,Mean Qty,StdDev Qty,Filtered,Tm
 A1,10_7,Crypto_18S_2,Standard,21.24,0.052,,,,,82.20
 A2,10_7,Crypto_18S_2,Standard,21.15,0.052,,,,,74.20
