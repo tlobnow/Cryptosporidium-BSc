@@ -68,7 +68,7 @@ sub_full_Data <- full_Data %>%
 
 
 # Map Data ####################################################################
-map <- map <- full_Data %>%
+map <- full_Data %>%
   leaflet() %>%
   addProviderTiles("CartoDB") %>%
   setView(lat = 52.520007, lng =13.404954, zoom = 7)
@@ -84,7 +84,7 @@ sub_full_Data_Transect <- sub_full_Data %>%
   filter(Transect  != "NA",
          Longitude != "NA",
          Latitude  != "NA")
-data_col_Transect = colorFactor(matlab.like2(6), sub_full_Data_Transect$Transect)
+data_col_Transect = colorFactor(matlab.like(6), sub_full_Data_Transect$Transect)
       Transect_Allo_PL <- sub_full_Data %>%
         filter(Transect == "Allo_PL")
       Transect_HZ_BAV <- sub_full_Data %>%
@@ -97,6 +97,111 @@ data_col_Transect = colorFactor(matlab.like2(6), sub_full_Data_Transect$Transect
         filter(Transect == "HZ_MV")
       Transect_HZ_SX <- sub_full_Data %>%
         filter(Transect == "HZ_SX")
+
+map %>%
+  addCircleMarkers(data = sub_full_Data_Transect, 
+                   col = ~data_col_Transect(Transect),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>HI State:<b>",as.character(HI_State), "<br>",
+                                  "<b>Year:<b>",    as.character(Year),"<br>",
+                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
+                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  "<b>Sex:<b>", Sex, "<br>",
+                                  sep=" "),
+                   radius = 3,
+                   group = "Transect") %>%
+  addCircleMarkers(data = Transect_Allo_PL, 
+                   col = ~data_col_Transect(Transect),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>HI State:<b>",as.character(HI_State), "<br>",
+                                  "<b>Year:<b>",    as.character(Year),"<br>",
+                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
+                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  "<b>Sex:<b>", Sex, "<br>",
+                                  sep=" "),
+                   radius = 3,
+                   group = "Allo_PL") %>%
+  addCircleMarkers(data = Transect_HZ_BAV, 
+                   col = ~data_col_Transect(Transect),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>HI State:<b>",as.character(HI_State), "<br>",
+                                  "<b>Year:<b>",    as.character(Year),"<br>",
+                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
+                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  "<b>Sex:<b>", Sex, "<br>",
+                                  sep=" "),
+                   radius = 3,
+                   group = "HZ_BAV") %>%
+  addCircleMarkers(data = Transect_HZ_BR, 
+                   col = ~data_col_Transect(Transect),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>HI State:<b>",as.character(HI_State), "<br>",
+                                  "<b>Year:<b>",    as.character(Year),"<br>",
+                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
+                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  "<b>Sex:<b>", Sex, "<br>",
+                                  sep=" "),
+                   radius = 3,
+                   group = "HZ_BR") %>%
+  addCircleMarkers(data = Transect_HZ_CZ, 
+                   col = ~data_col_Transect(Transect),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>HI State:<b>",as.character(HI_State), "<br>",
+                                  "<b>Year:<b>",    as.character(Year),"<br>",
+                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
+                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  "<b>Sex:<b>", Sex, "<br>",
+                                  sep=" "),
+                   radius = 3,
+                   group = "HZ_CZ") %>%
+  addCircleMarkers(data = Transect_HZ_MV, 
+                   col = ~data_col_Transect(Transect),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>HI State:<b>",as.character(HI_State), "<br>",
+                                  "<b>Year:<b>",    as.character(Year),"<br>",
+                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
+                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  "<b>Sex:<b>", Sex, "<br>",
+                                  sep=" "),
+                   radius = 3,
+                   group = "HZ_MV") %>%
+  addCircleMarkers(data = Transect_HZ_SX, 
+                   col = ~data_col_Transect(Transect),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>HI State:<b>",as.character(HI_State), "<br>",
+                                  "<b>Year:<b>",    as.character(Year),"<br>",
+                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
+                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  "<b>Sex:<b>", Sex, "<br>",
+                                  sep=" "),
+                   radius = 3,
+                   group = "HZ_SX") %>%
+  addLegend("bottomleft", 
+            pal = data_col_Transect, 
+            title = "Transect",
+            values = sub_full_Data_Transect$Transect, 
+            group = c("Transect","Allo_PL", "HZ_BAV", "HZ_BR", "HZ_CZ", "HZ_MV", "HZ_SX"),
+            opacity = 1) %>%
+  addLayersControl(#baseGroups = c("Transect", "Sex", "HI_State", "Year", "Oocyst_Level", "Tested_by", "Machine"),
+    overlayGroups = c("Transect","Allo_PL", "HZ_BAV", "HZ_BR", "HZ_CZ", "HZ_MV", "HZ_SX"),
+    options = layersControlOptions(collapsed = F))
+  
+  
+
 
 # Sex ####
 sub_full_Data %>%
