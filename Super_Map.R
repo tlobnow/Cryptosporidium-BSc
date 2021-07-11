@@ -1,3 +1,4 @@
+setwd("/Users/FinnLo/Documents/Programming/R/HZ_SC_and_Raw_Data/Cryptosporidium-BSc")
 # Load Libraries
 library(ggplot2)
 library(dplyr)
@@ -41,7 +42,8 @@ full_Data2 <- left_join(full_Data1, full_Data_long_pull_Crypto)
 full_Data <- full_Data2
 rm(full_Data1)
 rm(full_Data2)
-
+rm(full_Data_long_pull)
+rm(full_Data_long_pull_Crypto)
 glimpse(full_Data)
 
 # Subset Data for work ####
@@ -63,20 +65,6 @@ sub_full_Data <- full_Data %>%
 
 #sub_full_Data %>%
 #count(Ct_1_Ep_Real_Pred, Ct_2_Ep_Real_Pred)
-
-#   Ct_1_Ep_Real_Pred        Ct_2_Ep_Real_Pred    n
-#1             FALSE             FALSE            82
-#2             FALSE              TRUE            100
-#3              TRUE             FALSE            1
-#4              TRUE              TRUE           413
-#5                NA                NA           1486
-
-#sub_full_Data %>%
-#  filter(Ct_believable == T) %>%
-#  ggplot(aes(Mouse_ID, Oocyst_Predict, col = Oocyst_Predict, label = Mouse_ID)) +
-#  geom_point() +
-#  scale_color_gradient(low = "blue", high = " red") +
-#  theme(axis.text.x = element_blank())
 
 
 # Map Data ####################################################################
