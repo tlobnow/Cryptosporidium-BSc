@@ -61,12 +61,6 @@ sub_full_Data <- full_Data %>%
          mus_caught, Crypto_mus_caught
          )
 
-# visualize #### 
-
-#sub_full_Data %>%
-#count(Ct_1_Ep_Real_Pred, Ct_2_Ep_Real_Pred)
-
-
 # Map Data ####################################################################
 map <- full_Data %>%
   leaflet() %>%
@@ -76,7 +70,7 @@ map
 
 glimpse(sub_full_Data)
 
-# create Objects and Layers for later ####
+# create Objects and Layers for later ##########################################
 # Transects ####
 sub_full_Data %>%
   count(Transect)
@@ -202,7 +196,6 @@ map %>%
   
   
 
-
 # Sex ####
 sub_full_Data %>%
   count(Sex)
@@ -217,36 +210,153 @@ data_col_Sex = colorFactor(matlab.like2(2), sub_full_Data_Sex$Sex)
        filter(Sex == "M")
 
 # HI ####
-sub_full_Data %>%
-  count(HI)
 sub_full_Data_HI <- sub_full_Data %>%
   filter(HI  != "NA",
+         HI_State != "NA",
          Longitude != "NA",
          Latitude  != "NA")
-data_col_HI = colorFactor(matlab.like2(6), sub_full_Data_HI$HI)
-     HI_0 <- sub_full_Data %>%
-       filter(HI == 0)
-     HI_bl_0.25 <- sub_full_Data %>%
-       filter(HI > 0, HI <= 0.25)
-     HI_bl_0.5 <- sub_full_Data %>%
-       filter(HI > 0.25, HI <= 0.5)
-     HI_bl_0.75 <- sub_full_Data %>%
-       filter(HI > 0.5, HI <= 0.75)
-     HI_bl_1 <- sub_full_Data %>%
-       filter(HI > 0.75, HI < 1)
-     HI_1 <- sub_full_Data %>%
-       filter(HI == 1)
+data_col_HI       = colorFactor(beach(6), sub_full_Data_HI$HI_Level)
+data_col_HI_State = colorFactor(beach(6), sub_full_Data_HI$HI_State)
 
-# HI State ####
-sub_full_Data %>%
-  count(HI_State)
-sub_full_Data$HI_State <- cut(sub_full_Data$HI, c(0, 0.001, 0.5, 0.999, 1), include.lowest = T ,
+sub_full_Data_HI$HI_Level <-  cut(sub_full_Data_HI$HI, c(0, 0.001, 0.250, 0.500, 0.750, 0.999, 1), include.lowest = T ,
+                              labels = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'))
+sub_full_Data_HI$HI_State <-  cut(sub_full_Data_HI$HI, c(0, 0.001, 0.5, 0.999, 1), include.lowest = T ,
                               labels = c('pure Mmd', 'Western Hybrid', 'Eastern Hybrid', 'pure Mmm'))
 sub_full_Data_HI_State <- sub_full_Data %>%
   filter(HI_State  != "NA",
          Longitude != "NA",
          Latitude  != "NA")
-data_col_HI_State = colorFactor(matlab.like2(4), sub_full_Data_HI_State$HI_State)
+     HI_0 <- sub_full_Data_HI %>%
+       filter(HI == 0)
+     HI_bl_0.25 <- sub_full_Data_HI %>%
+       filter(HI > 0, HI <= 0.25)
+     HI_bl_0.5 <- sub_full_Data_HI %>%
+       filter(HI > 0.25, HI <= 0.5)
+     HI_bl_0.75 <- sub_full_Data_HI %>%
+       filter(HI > 0.5, HI <= 0.75)
+     HI_bl_1 <- sub_full_Data_HI %>%
+       filter(HI > 0.75, HI < 1)
+     HI_1 <- sub_full_Data_HI %>%
+       filter(HI == 1)
+map %>%
+  addCircleMarkers(data = sub_full_Data_HI, 
+                 col = ~data_col_HI(HI_Level),
+                 label = ~htmlEscape(Mouse_ID),
+                 popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                "<b>HI:<b>",      as.character(HI), "<br>",
+                                "<b>HI State:<b>",as.character(HI), "<br>",
+                                "<b>Year:<b>",    as.character(Year),"<br>",
+                                "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
+                                "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                "<b>Sex:<b>", Sex, "<br>",
+                                sep=" "),
+                 radius = 3,
+                 group = "HI") %>%
+  addCircleMarkers(data = HI_0, 
+                   col = ~data_col_HI(HI_Level),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>HI State:<b>",as.character(HI), "<br>",
+                                  "<b>Year:<b>",    as.character(Year),"<br>",
+                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
+                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  "<b>Sex:<b>", Sex, "<br>",
+                                  sep=" "),
+                   radius = 3,
+                   group = "HI_0") %>%
+  addCircleMarkers(data = HI_bl_0.25, 
+                   col = ~data_col_HI(HI_Level),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>HI State:<b>",as.character(HI), "<br>",
+                                  "<b>Year:<b>",    as.character(Year),"<br>",
+                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
+                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  "<b>Sex:<b>", Sex, "<br>",
+                                  sep=" "),
+                   radius = 3,
+                   group = "HI_bl_0.25") %>%
+  addCircleMarkers(data = HI_bl_0.5, 
+                   col = ~data_col_HI(HI_Level),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>HI State:<b>",as.character(HI), "<br>",
+                                  "<b>Year:<b>",    as.character(Year),"<br>",
+                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
+                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  "<b>Sex:<b>", Sex, "<br>",
+                                  sep=" "),
+                   radius = 3,
+                   group = "HI_bl_0.5") %>%
+  addCircleMarkers(data = HI_bl_0.75, 
+                   col = ~data_col_HI(HI_Level),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>HI State:<b>",as.character(HI), "<br>",
+                                  "<b>Year:<b>",    as.character(Year),"<br>",
+                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
+                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  "<b>Sex:<b>", Sex, "<br>",
+                                  sep=" "),
+                   radius = 3,
+                   group = "HI_bl_0.75") %>%
+  addCircleMarkers(data = HI_bl_1, 
+                   col = ~data_col_HI(HI_Level),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>HI State:<b>",as.character(HI), "<br>",
+                                  "<b>Year:<b>",    as.character(Year),"<br>",
+                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
+                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  "<b>Sex:<b>", Sex, "<br>",
+                                  sep=" "),
+                   radius = 3,
+                   group = "HI_bl_1") %>%
+  addCircleMarkers(data = HI_1, 
+                   col = ~data_col_HI(HI_Level),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>HI State:<b>",as.character(HI), "<br>",
+                                  "<b>Year:<b>",    as.character(Year),"<br>",
+                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
+                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  "<b>Sex:<b>", Sex, "<br>",
+                                  sep=" "),
+                   radius = 3,
+                   group = "HI_1") %>%
+  addCircleMarkers(data = sub_full_Data_HI, 
+                   col = ~data_col_HI_State(HI_State),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>HI State:<b>",as.character(HI_State), "<br>",
+                                  "<b>Year:<b>",    as.character(Year),"<br>",
+                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
+                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  "<b>Sex:<b>", Sex, "<br>",
+                                  sep=" "),
+                   radius = 3,
+                   group = "HI_State") %>%
+  addLegend("bottomleft", 
+            pal = data_col_HI, 
+            title = "HI",
+            values = sub_full_Data_HI$HI_Level, 
+            group = c("HI_State", "HI_0", "HI_bl_0.25", "HI_bl_0.5", "HI_bl_0.75", "HI_bl_1", "HI_1"),
+            opacity = 1) %>%
+  addLegend("bottomleft", 
+            pal = data_col_HI_State, 
+            title = "HI_State",
+            values = sub_full_Data_HI_State$HI_State, 
+            group = "HI_State",
+            opacity = 1) %>%
+  addLayersControl(overlayGroups = c("HI_State", "HI_0", "HI_bl_0.25", "HI_bl_0.5", "HI_bl_0.75", "HI_bl_1", "HI_1"),
+                   options = layersControlOptions(collapsed = F))
 
 
 # Years ####
