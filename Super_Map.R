@@ -133,7 +133,7 @@ map %>%
                    radius = 3,
                    group = "HZ_BAV") %>%
   addCircleMarkers(data = Transect_HZ_BR, 
-                   col = ~data_col_Transect(Transect),
+                   col = ~ data_col_Transect(Transect),
                    label = ~htmlEscape(Mouse_ID),
                    popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
                                   "<b>HI:<b>",      as.character(HI), "<br>",
