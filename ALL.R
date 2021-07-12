@@ -3,6 +3,7 @@ library(tidyverse)
 library(visdat)
 library(ggplot2)
 library(stringr)
+library(data.table)
 
 
 # Start with all Data ever collected in previous years and collect it in 1 .csv file
@@ -23,25 +24,36 @@ f_Gen16 <- Gen16 %>% select(Mouse_ID, Transect, Latitude, Longitude, Year, HI, S
 f_Gen17 <- Gen17 %>% select(Mouse_ID, Transect, Latitude, Longitude, Year, HI, Sex, HI_NLoci) #, HI, HI_NLoci)
 f_Gen18 <- Gen18 %>% select(Mouse_ID, Transect, Latitude, Longitude, Year, HI, Sex, HI_NLoci) #, HI, HI_NLoci)
 f_Dis19 <- Dis19 %>% select(Mouse_ID, Transect, Latitude, Longitude, Year, Sex)
+join   <- bind_rows(f_Gen16, f_Gen17, f_Gen18, f_Dis19)
 
 EmanuelData <- EmanuelData %>%
   mutate(Mouse_ID  = PIN) %>%
   select(Mouse_ID, HI, HI_NLoci, Sex)
 
-join   <- bind_rows(f_Gen16, f_Gen17, f_Gen18, f_Dis19)
 
 full_join <- full_join(join, EmanuelData, by = "Mouse_ID") %>%
-  distinct(Mouse_ID, .keep_all = T) %>%
-  mutate(HI = HI.x,
-         HI_NLoci = HI_NLoci.x) %>%
-  select(Mouse_ID, Transect, Latitude, Longitude, Sex.x, HI, HI_NLoci)
+  distinct(Mouse_ID, .keep_all = T)
+# joined missing HI, HI_NLoci, Sex data manually
+write.csv(full_join, "full_join.csv")
+full_join <- read.csv("./Cryptosporidium-BSc/full_join_Corrected.csv") %>%
+  select(Mouse_ID, Transect, Latitude, Longitude, Sex, HI.Gen.Jarda, HI_NLoci.Gen.Jarda)
+
+full_join %>% vis_miss()
+
+full_join %>% count(HI.Gen.Jarda)         # 71 unconfirmed, 207 NA / 2186 obs.
+full_join %>% count(HI_NLoci.Gen.Jarda)   # 75 unconfirmed, 321 NA /  2186 obs.
+# unconfirmed == two different HI or HI_NLoci values in Genotype vs. Jarda data
+#### Delta_max_HI = 0.14      range[0,1]
+#### Delta_max_HI_NLoci = 6   range[0,14]
+# NA == no data available: 
+#### neither table had information or Delta could not be calculated due to single value supplied
 
 
-full_join %>%
-  vis_miss()
 
-HI_Emanuel <- EmanuelData %>%
-  select(Mouse_ID, HI)
-HI_Rest <- full_join %>%
-  select(Mouse_ID, HI)
+
+
+
+
+
+
 
