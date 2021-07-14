@@ -6,19 +6,12 @@ library(stringr)
 library(data.table)
 library(reshape)
 library(ggmap)
-
-#pathToMyData = "https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/"
-#DNA_Extraction_ILWE_2019  <-  read.csv(paste0(pathToMyData, "/DNA_Extraction_ILWE_2019.csv"), na.strings=c(""," ","NA"), stringsAsFactors = FALSE)
-#JardaTable10_19           <-  read.csv(paste0(pathToMyData, "/EmanuelData.csv"), na.strings=c(""," ","NA"), stringsAsFactors = FALSE)
-
-#pathToMyData = "https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_input/"
-#DNA_Extraction_ILWE_2018  <-  read.csv(paste0(pathToMyData, "/Cryptosporidium/cryptoDetection2018.csv"), na.strings=c(""," ","NA"), stringsAsFactors = FALSE)
-#HZ10_19_Genotypes         <-  read.csv(paste0(pathToMyData, "/Mouse_data/HZ10-19_Genotypes.csv"), na.strings=c(""," ","NA"), stringsAsFactors = FALSE)
+library(stringdist)
+library(fuzzyjoin)
 
 ## 1) Start with the new HI Data 
-##    in this case we use the new HI Data we received via Email from Jarda (includes 2018-19 data)
-##    and the MiceTable from Alice (old HIJardaTable, includes up to 2018 data)
-
+##    in this case we use the new HI Data we received via Email from Jarda (JardaNew, includes new data from 2018-19)
+##    and the MiceTable from Alice (JardaTableOld, includes up to 2017 data)
 
 
 
@@ -26,87 +19,175 @@ library(ggmap)
 #### MICE TABLE ALICE **********************************************************
 
 #### BASE TABLE ################################################################
-## Jarda table genotypes 2014 -> 2019
-pathToMyData = "https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/"
-JardaTable10_19 <-  read.csv(paste0(pathToMyData, "/EmanuelData.csv"), na.strings=c(""," ","NA"), stringsAsFactors = FALSE)
-pathToMyData = "https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_input/"
-HIJardaTable              <-  read.csv(paste0(pathToMyData, "/MiceTable_fullEimeriaInfos_2014to2017.csv"))
-
+## get the data with genotype info and HI (2014-19)
+JardaTableNew   <-  read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/EmanuelData.csv", na.strings=c(""," ","NA"), stringsAsFactors = FALSE)
+JardaTableOld   <-  read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_input/MiceTable_fullEimeriaInfos_2014to2017.csv")
 
 ## filter out Column called "X" and Years 2010 & 2011
-JardaTable10_19 <- JardaTable10_19[!names(JardaTable10_19) == "X"]
-JardaTable10_19 <- JardaTable10_19[!JardaTable10_19$Year %in% c(2010, 2011),]
-HIJardaTable    <- HIJardaTable[!names(HIJardaTable) == "X"]
-HIJardaTable    <- HIJardaTable[!HIJardaTable$Year %in% c(2010, 2011),]
+JardaTableNew <- JardaTableNew[!names(JardaTableNew) == "X"]
+JardaTableNew <- JardaTableNew[!JardaTableNew$Year %in% c(2010, 2011),]
+JardaTableOld    <- JardaTableOld[!names(JardaTableOld) == "X"]
+JardaTableOld    <- JardaTableOld[!JardaTableOld$Year %in% c(2010, 2011),]
 
 ## Check if all rows are NA and delete these rows
-which(!rowSums(!is.na(JardaTable10_19)))
-which(!rowSums(!is.na(HIJardaTable)))
+which(!rowSums(!is.na(JardaTableNew)))
+which(!rowSums(!is.na(JardaTableOld)))
 
 
 ## homogenize Column names, especially Mouse_ID should be universal!
-setnames(JardaTable10_19,
-         old = c("PIN", "X_Longit", "Y_Latit"), 
-         new = c("Mouse_ID", "Longitude", "Latitude"))
-setnames(HIJardaTable,
+setnames(JardaTableNew,
          old = c("PIN", "X_Longit", "Y_Latit"), 
          new = c("Mouse_ID", "Longitude", "Latitude"))
 
 
 ## homogenize Mouse_ID Row Names, old Mouse_IDs == SK_ and new Mouse_IDs == AA_
-JardaTable10_19$Mouse_ID <- gsub(pattern = "SK", replacement = "SK_", x = JardaTable10_19$Mouse_ID)
-JardaTable10_19 <- JardaTable10_19 %>% distinct(Mouse_ID, .keep_all = T)
+JardaTableNew$Mouse_ID <- gsub(pattern = "SK", replacement = "SK_", x = JardaTableNew$Mouse_ID)
+JardaTableNew <- JardaTableNew %>% distinct(Mouse_ID, .keep_all = T)
 
-HIJardaTable$Mouse_ID <- gsub(pattern = "SK", replacement = "SK_", x = HIJardaTable$Mouse_ID)
-HIJardaTable$HI_NLoci <- gsub(pattern = "HI ", replacement = "", x = HIJardaTable$HI_NLoci)
-HIJardaTable$HI_NLoci <- as.integer(HIJardaTable$HI_NLoci)
+JardaTableOld$Mouse_ID <- gsub(pattern = "SK", replacement = "SK_", x = JardaTableOld$Mouse_ID)
+JardaTableOld$HI_NLoci <- gsub(pattern = "HI ", replacement = "", x = JardaTableOld$HI_NLoci)
+JardaTableOld$HI_NLoci <- as.integer(JardaTableOld$HI_NLoci)
 
 
 # remove Embryos (no interest for parasitic studies)
-JardaTable10_19 <- JardaTable10_19[sapply(JardaTable10_19$Mouse_ID, nchar) <= 7,]
-HIJardaTable    <- HIJardaTable[sapply(HIJardaTable$Mouse_ID, nchar) <= 7,]
+JardaTableNew   <- JardaTableNew[sapply(JardaTableNew$Mouse_ID, nchar) <= 7,]
+JardaTableOld   <- JardaTableOld[sapply(JardaTableOld$Mouse_ID, nchar) <= 7,]
 
-## check if all rows are NA and delete those
-which(!rowSums(!is.na(JardaTable10_19)))
-which(!rowSums(!is.na(HIJardaTable)))
+## check if any rows are NA only and delete those
+which(!rowSums(!is.na(JardaTableNew)))
+which(!rowSums(!is.na(JardaTableOld)))
 
-## introduce a combined table which includes Alice's old MiceTable (HIJardaTable) 
-## and new HI data (JardaTable10_19)
-JardaTable_new.old <- left_join(JardaTable10_19, HIJardaTable)
-JardaTable_new.old <- JardaTable_new.old[sapply(JardaTable_new.old$Mouse_ID, nchar) <= 7,]
-which(!rowSums(!is.na(JardaTable_new.old)))
-tail(JardaTable_new.old)
+## introduce a combined table (JardaTable) which includes Alice's old MiceTable (JardaTableOld) 
+## and new HI data (JardaTableNew)
+JardaTable <- left_join(JardaTableNew, JardaTableOld)
+JardaTable <- JardaTable[sapply(JardaTable$Mouse_ID, nchar) <= 7,]
+which(!rowSums(!is.na(JardaTable)))
 
 
 ## Number of Samples from HZ_BR, --> do we have the HI per year?
 ## all Samples remaining should be from HZ_BR
 ## all Samples remaining should be equipped with an HI value
-table(JardaTable_new.old$Transect)
-JardaTable_new.old %>% count(is.na(HI))
+table(JardaTable$Transect)
+JardaTable %>% count(is.na(HI))
+JardaTable %>% count(Year)
 
-## visualize that all basics and HI are supplied
-glimpse(JardaTable_new.old)
-JardaTable_new.old %>%
-  select(c(1:6, Year, HI, HI_NLoci)) %>%
-  vis_miss()
 
 ## Check Data for Duplicates
-JardaTable_new.old$Mouse_ID[duplicated(JardaTable_new.old$Mouse_ID)]
+JardaTable$Mouse_ID[duplicated(JardaTable$Mouse_ID)]
+
+
+## Divide huge data frame into smaller selection of 
+basics <- c("Mouse_ID", "Sex", "Longitude", "Latitude", "Year")
+
+gen.loci <- c("mtBamH", "YNPAR", "X332", "X347", "X65", "Tsx", "Btk", "Syap1",
+              "Es1", "Gpd1", "Idh1", "Mpi", "Np", "Sod1", "Es1C", "Gpd1C",
+              "Idh1C", "MpiC", "NpC", "Sod1C", "Zfy2", "SRY1", "Y", "HI_NLoci",
+              "HI")
+
+## columns originate from Dis2014 and what is contained in JardaTableNew
+dissection.cols <- c(#"Arrival", "Wean", "Death", "Dissection_date", "DaysInLab",
+                     "BW","L", "LCd", "Spleen", "Left_testis", "Right_testis",
+                     "Testes", "Lepid", "SemVes", "Sperm", "Uterus", "Ovaria", "Grav",
+                     "Litters", "NN", "MM", "FF", "Protocol")
+
+## new cols consist of abbreviations for some parasites, must be specific 
+## ASP == "Aspiculuris_tetraptera" or "Aspiculuris_Syphacia"?
+## SYP == "Syphacia_obvelata"
+## TM ==  "Trichuris_muris" or "Taenia_martis"?
+parasite.cols <- c("Aspiculuris_tetraptera", "Syphacia_obvelata", "Trichuris_muris",
+                   "Taenia_taeniformis", "Flea", "Mix_Syphacia_Aspiculuris",
+                   "Heterakis_spumosa", "Mastophorus_muris", "Hymenolepis_microstoma",
+                   "Catenotaenia_pusilla", "Cysticercus", "Ectoparasites",
+                   "Worms_presence", "Hymenolepis_diminiuta", "Taenia_martis",
+                   "Heligmosomoides_polygurus", "Taenia", "Aspiculuris_Syphacia",
+                   "Trichuris", "Heterakis", "Mastophorus")
+
+
+parasite_new.cols <- c("ASP", "SYP", "TM", "Taenia.taeniformis",
+                       "Aspiculuris_tetraptera", "Syphacia_obvelata", "Trichuris_muris",
+                       "Taenia_taeniformis", "Flea", "Mix_Syphacia_Aspiculuris",
+                       "Heterakis_spumosa", "Mastophorus_muris", "Hymenolepis_microstoma",
+                       "Catenotaenia_pusilla", "Cysticercus", "Ectoparasites",
+                       "Worms_presence", "Hymenolepis_diminiuta", "Taenia_martis",
+                       "Heligmosomoides_polygurus", "Taenia", "Aspiculuris_Syphacia",
+                       "Trichuris", "Heterakis", "Mastophorus")
+
+
+oocyst.cols <- c("counter", "Feces_g", "Date_count", "N_oocysts_sq1",
+                 "N_oocysts_sq2", "N_oocysts_sq3",  "N_oocysts_sq4",
+                 "N_oocysts_sq5", "N_oocysts_sq6", "N_oocysts_sq7",
+                 "N_oocysts_sq8", "mean_neubauer", "PBS_dil_in_mL", 
+                 "OPG", "Ncells")
+
+EqPCR.cols <- c("delta_ct_ilwe_MminusE", "delta_ct_cewe_MminusE",
+                ## from 2018 on AN IMPORTANT IMPROVEMENT!!!
+                "MC.Eimeria")
+
+EimGeno.cols <- c("n18S_Seq", "COI_Seq", "ORF470_Seq", "eimeriaSpecies")
+
+
 
 #### Complement data with previous tables ######################################
-## a) DISSECTION DATA
 
 
-## Diss15
-## Diss16
-## Diss17
-## Diss18
-## Diss19
-## b) GENOTYPE DATA
-#Genotypes_10_19
-#pathToMyData = "https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_input/"
-#HZ10_19_Genotypes <-  read.csv(paste0(pathToMyData, "/Mouse_data/HZ10-19_Genotypes.csv"), na.strings=c(""," ","NA"), stringsAsFactors = FALSE)
-## c) qPCR DATA (and DNA Extraction if available)
+## Dissection Data from 2014
+Dis2014 <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_input/Mouse_data/HZ14_Dissections_237-523.csv", na.strings=c(""," ","NA"), stringsAsFactors = FALSE)
+
+## Dissection Data from 2015
+Dis2015 <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_input/Mouse_data/HZ15_Mice_Parasite.csv", na.strings=c(""," ","NA"), stringsAsFactors = FALSE)
+
+## Dissection Data from 2016
+Dis2016 <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_input/Mouse_data/HZ16_Dissection_1-211.csv", na.strings=c(""," ","NA"), stringsAsFactors = FALSE)
+
+## Dissection Data from 2017
+Dis2017 <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_input/Mouse_data/HZ17_Dissections_237-523.csv", na.strings=c(""," ","NA"), stringsAsFactors = FALSE)
+
+## Dissection Data from 2018
+Dis2018 <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_input/Mouse_data/HZ18_Dissections.csv", na.strings=c(""," ","NA"), stringsAsFactors = FALSE)
+
+## Dissection Data from 2019
+Dis2019 <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_input/Mouse_data/HZ19_Dissections.csv", na.strings=c(""," ","NA"), stringsAsFactors = FALSE)
+
+## Genotype Data from 2010-2019
+Gen_2010_2019 <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_input/Mouse_data/HZ10-19_Genotypes.csv", na.strings=c(""," ","NA"), stringsAsFactors = FALSE)
+
+## Homogenize Mouse_ID (and maybe other necessary column names)
+Dis2014$Mouse_ID <- paste0(Dis2014$ID, "_", Dis2014$PIN)
+Dis2015$Mouse_ID <- paste0(Dis2015$ID, "_", Dis2015$PIN)
+Dis2017 %>% count(Mouse_ID)
+
+
+Dis2014$Ectoparasites <- as.integer(Dis2014$Ectoparasites)
+Dis2016$Head.taken. <- as.integer(Dis2016$Head.taken.)
+Dis2016$Ectoparasites <- as.integer(Dis2016$Ectoparasites)
+Dis2016$Tail_length <- as.integer(Dis2016$Tail_length)
+Dis2017.3$Ectoparasites <- as.integer(Dis2017.3$Ectoparasites)
+Dis2017.3$Tail_length <- as.integer(Dis2017.3$Tail_length)
+Dis2017.3$Spleen <- as.integer(Dis2017.3$Spleen)
+Dis2017.3$Left_epididymis <- as.character(Dis2017.3$Left_epididymis)
+Dis2017.3$Embryo_left <- as.character(Dis2017.3$Embryo_left)
+
+
+
+
+
+Dis_Bind <- bind_rows(Dis2014, Dis2015, Dis2016, Dis2017.3, Dis2018, Dis2019)
+which(!rowSums(!is.na(Dis_Bind)))
+which(!colSums(!is.na(Dis_Bind)))
+
+vis_miss(Dis_Bind)
+
+## eliminate duplicates
+Dis_Bind$Mouse_ID[duplicated(Dis_Bind$Mouse_ID)]
+Dis_Bind %>%
+  count(Mouse_ID)
+
+Dis_Bind <- Dis_Bind %>% distinct(Mouse_ID, .keep_all = T)
+
+## cut down the Column size to selected columns
+Dis_Bind <- Dis_Bind[, colnames(Dis_Bind)%in%c(basics, dissection.cols, parasite_new.cols), ]
+
+
 
 
 
@@ -118,27 +199,39 @@ JardaTable_new.old$Mouse_ID[duplicated(JardaTable_new.old$Mouse_ID)]
 
 
 ## COMBINE 2014 DATA --> Dissection Data + Genotype Data
-Diss14 <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_input/Mouse_data/HZ14_Dissections_237-523.csv", na.strings=c(""," ","NA"), stringsAsFactors = FALSE)
-Gen14 <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_input/Mouse_data/HZ14_Genotypes.csv", na.strings=c(""," ","NA"), stringsAsFactors = FALSE)
+Dis2014 <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_input/Mouse_data/HZ14_Dissections_237-523.csv", na.strings=c(""," ","NA"), stringsAsFactors = FALSE)
+Gen2014 <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_input/Mouse_data/HZ14_Genotypes.csv", na.strings=c(""," ","NA"), stringsAsFactors = FALSE)
 
-## Homogenize Mouse_ID, Longitude, Latitude, and other Column names
-Diss14$Mouse_ID <- paste0(Diss14$ID, "_", Diss14$PIN)
-Gen14$Mouse_ID <- paste0(Gen14$ID, "_", Gen14$PIN)
+## Homogenize Mouse_ID (and maybe other necessary column names)
+Dis2014$Mouse_ID <- paste0(Dis2014$ID, "_", Dis2014$PIN)
 
-## Merge
-HZ14_Diss_Gen <- merge(Diss14, Gen14, by = c("Mouse_ID"), all = T)
+
+Gen2014$Mouse_ID <- paste0(Gen2014$ID, "_", Gen2014$PIN)
+
+## eliminate any obs. count columns called "X"
+Dis2014 <- Dis2014[!names(Dis2014) == "X"]
+Gen2014 <- Gen2014[!names(Gen2014) == "X"]
+
+## check for empty rows
+which(!rowSums(!is.na(Dis2014)))
+which(!rowSums(!is.na(Gen2014)))
+
+
+
+## Combine Dissection and Genotype data based on selected columns to continue
+DisGen2014 <- Gen2014[, colnames(Gen2014)%in%c(basics, gen.loci), ]
 
 ## Alice used a function called fillGapsAfterMerge() to avoid the merge-problem:
 ## both tables you merge have similar columns not containing the same amount of data
 ## is this function somewhere?? otherwise some extra steps are needed..
 
-mergedMiceTable <- merge(JardaTable_new.old, HZ14_Diss_Gen, by = c("Mouse_ID"), all = T)
+## the selected columns from DisGen2014 are now directly merged into the existing JardaTable
+## without creating separate column.x + column.y
+mergedMiceTable <- merge(JardaTable, DisGen2014, by = c(1:11), all = T)
 
-glimpse(mergedMiceTable)
+## Check for rows that are all NA and delete those                                                           
+which(!rowSums(!is.na(mergedMiceTable)))
 
-  
-  # Check if all rows are NA and delete these rows
-  which(!rowSums(!is.na(mergedMiceTable)))  
   
   ## 2015 part 1
   diss2015.1 <- read.csv(paste0(pathToMyData, "Field_data/Genotypes_Bav2015.csv"), 
