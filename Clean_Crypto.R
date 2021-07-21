@@ -310,8 +310,7 @@ map %>%
 map
 
 
-colorRamp (c ("#000000", "#FFFFFF"), interpolate="spline")
-                    
+
 
 
 # mapping Samples per Year --> better ALL Samples

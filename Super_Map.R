@@ -238,6 +238,12 @@ sub_full_Data_HI_State <- sub_full_Data %>%
        filter(HI > 0.75, HI < 1)
      HI_1 <- sub_full_Data_HI %>%
        filter(HI == 1)
+     
+     
+map <- full_Data %>%
+       leaflet() %>%
+       addProviderTiles("CartoDB") %>%
+       setView(lat = 52.520007, lng =13.404954, zoom = 6) 
 map %>%
   addCircleMarkers(data = sub_full_Data_HI, 
                  col = ~data_col_HI(HI_Level),
