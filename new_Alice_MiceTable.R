@@ -1,12 +1,9 @@
 library(dplyr)
 library(tidyverse)
 library(visdat)
-library(ggplot2)
 library(stringr)
 library(data.table)
 library(reshape)
-library(ggmap)
-library(lubridate)
 
 ## start with Data from Alice from previous Years
     Alice <- read.csv("/Users/FinnLo/Documents/Programming/R/HZ_SC_and_Raw_Data/Mouse_Eimeria_Field/data_products/MiceTableMusAliceArticle.csv")
@@ -474,7 +471,7 @@ new_Alice$Feces_weight <- as.double(new_Alice$Feces_weight)
 
 basics          <- c("Mouse_ID", "Transect", "Code", "Region", "Sex", "Longitude", "Latitude", "Year", "State", "HI", "HI_NLoci")
 
-ILWE_DNA.cols <- c("ILWE_DNA_Content_ng.microliter", "ILWE_DNA_used_up")
+ILWE_DNA.cols   <- c("ILWE_DNA_Content_ng.microliter", "ILWE_DNA_used_up")
     
 Crypto.cols     <- c("Tested_by", "Machine", "Measurements", "Ct_mean", "Ct_mean_Ep", "Ct_mean_ABI", "Oocyst_Predict")
 
