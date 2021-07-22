@@ -45,5 +45,4 @@ EqPCR.cols <- c("delta_ct_ilwe_MminusE", "delta_ct_cewe_MminusE",
 EimGeno.cols <- c("n18S_Seq", "COI_Seq", "ORF470_Seq", "eimeriaSpecies")
 
 
-Alpha_Mice <- MiceTable[,order(colnames(MiceTable))]
 
