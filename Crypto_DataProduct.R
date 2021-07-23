@@ -2,7 +2,7 @@ library(dplyr)
 library(tidyverse)
 library(visdat)
 
-# Email from Jarda
+# Email from Jarda (2019)
 Jarda <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/EmanuelData.csv") 
       Jarda$HI_NLoci <- gsub(pattern = "HI ", replacement = "", x = Jarda$HI_NLoci)
       setnames(Jarda, old = c("PIN", "X_Longit", "Y_Latit"), new = c("Mouse_ID", "Longitude", "Latitude"), skip_absent = T)
