@@ -1,16 +1,58 @@
 library(dplyr)
 library(tidyverse)
 library(visdat)
-library(stringr)
-library(data.table)
-library(reshape)
 
-## start with Data from Alice from previous Years
-    Alice <- read.csv("/Users/FinnLo/Documents/Programming/R/HZ_SC_and_Raw_Data/Mouse_Eimeria_Field/data_products/MiceTableMusAliceArticle.csv")
-    ## shorten the HI_NLoci Column to ensure it's integer for comparison with new data and visualization
+
+#### Select Columns ############################################################
+basics          <- c("Mouse_ID", "Transect", "Code", "Region", "Sex", "Longitude", "Latitude", "Year", "State", "HI", "HI_NLoci")
+
+Crypto_DNA.cols <- c("ILWE_DNA_Content_ng.microliter", "ILWE_DNA_used_up")
+
+Crypto_qPCR.cols <- c("Tested_by", "Machine", "Measurements", "Ct_mean", "Ct_mean_Ep", "Ct_mean_ABI", "Oocyst_Predict")
+
+
+gen.loci        <- c("mtBamH", "YNPAR", "X332", "X347", "X65", "Tsx", "Btk", "Syap1",
+                     "Es1", "Gpd1", "Idh1", "Mpi", "Np", "Sod1", "Es1C", "Gpd1C",
+                     "Idh1C", "MpiC", "NpC", "Sod1C", "HI_NLoci",
+                     "HI", "Zfy2", "SRY1", "Y")
+
+dissection.cols <- c("Body_Weight", "Body_Length", "Tail_Length", "Spleen", 
+                     "Left_Testis", "Right_Testis", "Seminal_Vesicles_Weight", 
+                     "Sperm", "Left_Epididymis", "Right_Epididymis", 
+                     "Arrival", "Wean", "Death", "Dissection_date", "DaysInLab",
+                     "Lepid", "Uterus", "Ovaria", "Grav", "Litters", "NN", 
+                     "MM", "FF", "Protocol")
+
+parasite.cols   <- c("Aspiculuris_tetraptera", "Syphacia_obvelata", "Aspiculuris_Syphacia",
+                     "Trichuris", "Taenia", "Flea", "Mix_Syphacia_Aspiculuris", "Heligmosomoides_polygurus",
+                     "Heterakis","Heterakis", "Mastophorus","Hymenolepis",
+                     "Ectoparasites", "Ectoparasites_Count", "Ectoparasites_Logical",
+                     "Worms_presence")
+
+oocyst.cols     <- c("counter", "Feces_Weight", "Date_count", "N_oocysts_sq1",
+                     "N_oocysts_sq2", "N_oocysts_sq3",  "N_oocysts_sq4",
+                     "N_oocysts_sq5", "N_oocysts_sq6", "N_oocysts_sq7",
+                     "N_oocysts_sq8", "mean_neubauer", "PBS_dil_in_mL", 
+                     "OPG", "Ncells")
+
+EqPCR.cols      <- c("delta_ct_ilwe_MminusE", "delta_ct_cewe_MminusE",
+                     ## from 2018 on AN IMPORTANT IMPROVEMENT!!!
+                     "MC.Eimeria")
+
+EimGeno.cols    <- c("n18S_Seq", "COI_Seq", "ORF470_Seq", "eimeriaSpecies")
+
+
+
+### LOAD DATA #################################################################
+    Alice <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_input/MiceTable_fullEimeriaInfos_2014to2017.csv")
     Alice$HI_NLoci <- gsub(pattern = "HI ", replacement = "", x = Alice$HI_NLoci)
     Alice$HI_NLoci <- as.integer(Alice$HI_NLoci)
     Alice$Mouse_ID <- gsub(pattern = "Sk3173", replacement = "SK_3173", x = Alice$Mouse_ID)
+    wsh <- c(paste0("AA_000", 1:9), paste0("AA_00", 10:46))
+    apd <- c("A_0001", "A_0002", "A_0003")
+    useless <- c(wsh, apd)
+    Alice <- Alice[!(Alice$Mouse_ID %in% useless),]
+    #vis_miss(Alice)
     
     ## make sure there are no Mouse_ID duplicates in the Data
     ## if so, then group by Mouse_ID, compare the (two) sets of the same Mouse_ID
@@ -39,7 +81,7 @@ library(reshape)
     
     
     ## add "Farm" variable for better Localization
-    Alice$Farm <- paste0(Alice$Longitude, Alice$Latitude, sep = " ")
+    #Alice$Farm <- paste0(Alice$Longitude, Alice$Latitude, sep = " ")
     
     ## remove empty rows and remove duplicated rows
     Alice <- Alice[!is.na(Alice$Mouse_ID),]
@@ -59,12 +101,10 @@ library(reshape)
     
     
     
-    ## data we want to include from Jarda Data
-    new_Alice <-  full_join(Alice, newCSV)
-    #new_Alice[,order(colnames(new_Alice))]
+    new_Alice <-  left_join(Alice, newCSV) %>% select(!which(!rowSums(!is.na(Alice)))) %>% select(!which(!colSums(!is.na(Alice))))
+    #vis_miss(new_Alice, cluster = T, sort_miss = T)
+    # 39.90% present
     
-    ## fill, then remove duplicate rows
-    new_Alice <- new_Alice %>% arrange(Mouse_ID) %>% group_by(Mouse_ID) %>% fill(c(everything()), .direction = "downup") %>% ungroup() %>% distinct(Mouse_ID, .keep_all = T) 
     
     
     # correct Year
@@ -80,8 +120,7 @@ library(reshape)
     
     flot$OPG <- rowSums(flot[,paste0("N_oocysts_sq", 1:8)], na.rm = T) / flot$Ncells * 10000 / (flot$PBS_dil_in_mL * flot$Feces_g)
     
-    new_Alice = full_join(new_Alice, flot)
-    new_Alice <- new_Alice %>% arrange(Mouse_ID) %>% group_by(Mouse_ID) %>% fill(c(everything()), .direction = "downup") %>% ungroup() %>% distinct(Mouse_ID, .keep_all = T) 
+    new_Alice = full_join(new_Alice, flot) %>% arrange(Mouse_ID) %>% group_by(Mouse_ID) %>% fill(c(everything()), .direction = "downup") %>% ungroup() %>% distinct(Mouse_ID, .keep_all = T) 
     
     
     
@@ -114,19 +153,14 @@ library(reshape)
     new_Alice$eimeriaSpecies[new_Alice$Mouse_ID %in% "AA_0497"] <- "Double_tbd"
     new_Alice$eimeriaSpecies <- as.factor(new_Alice$eimeriaSpecies)
     
-    ## find, fill, remove Duplicates
-    new_Alice$Mouse_ID[duplicated(new_Alice$Mouse_ID)]
-    new_Alice <- new_Alice %>% arrange(Mouse_ID) %>%  group_by(Mouse_ID) %>% fill(c(everything()), .direction = "downup") %>% ungroup() %>% distinct(Mouse_ID, .keep_all = T) 
-    
-    
     
     
 ## add Crypto DNA Extraction Data
-    ILWE_DNA_Extraction   <- read.csv("WD_07_21/DNA_Extraction_ILWE_2018_2019.csv")
-    ILWE_DNA_Extraction   <- ILWE_DNA_Extraction[!names(ILWE_DNA_Extraction) == "X"]
+    Crypto_DNA    <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/WD_07_22/DNA_Extraction_ILWE_2018_2019.csv")
+    Crypto_DNA    <- Crypto_DNA[!names(Crypto_DNA) == "X"]
     
 ## add Crypto_qPCR Data
-    Crypto_qPCR  <- read.csv("WD_07_21/qPCR_Data_MouseID_forJoin.csv")
+    Crypto_qPCR  <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/WD_07_22/qPCR_Data_MouseID_forJoin.csv")
     Crypto_qPCR  <- Crypto_qPCR[!names(Crypto_qPCR) == "X"]
     Crypto_qPCR$Mouse_ID <- gsub(pattern = "SK", replacement = "SK_", x = Crypto_qPCR$Mouse_ID)
     Crypto_qPCR$Mouse_ID <- gsub(pattern = "SK__", replacement = "SK_", x = Crypto_qPCR$Mouse_ID)
@@ -134,28 +168,8 @@ library(reshape)
     Crypto_qPCR <- Crypto_qPCR %>% arrange(Mouse_ID) %>% group_by(Mouse_ID) %>% fill(c(everything()), .direction = "downup") %>% ungroup() %>% distinct(Mouse_ID, .keep_all = T) 
     
     
-## JOINS
-    ## Alice and new Jarda Info
-    ## contains Eimeria data already
-    new_Alice
-    
-    ## introduce the Data that was generated for Crypto
-    ## aka DNA Extraction values, and Ct values (from Eppendorf and ABI Machines) 
-    ## first join DNA Extraction Data and qPCR Data
-    Crypto <- full_join(Crypto_qPCR, ILWE_DNA_Extraction)
-    Crypto$Mouse_ID[duplicated(Crypto$Mouse_ID)]
-    Crypto <- Crypto %>% arrange(Mouse_ID) %>%  group_by(Mouse_ID) %>% fill(c(everything()), .direction = "downup") %>% ungroup() %>% distinct(Mouse_ID, .keep_all = T) 
-    
-    ## add Crypto Data to the "new_Alice" Table
-    new_Alice <- left_join(new_Alice, Crypto[c("Mouse_ID", "ILWE_DNA_Content_ng.microliter", "Ct_mean", "Oocyst_Predict")])
-    new_Alice$Mouse_ID[duplicated(new_Alice$Mouse_ID)]
-    new_Alice <- new_Alice %>% arrange(Mouse_ID) %>%  group_by(Mouse_ID) %>% fill(c(everything()), .direction = "downup") %>% ungroup() %>% distinct(Mouse_ID, .keep_all = T) 
-    
-  
-
-#### COLUMN CORRECTION #########################################################
-
-## Address
+## Column Corrections of New_Alice #############################################
+    ## Address
     MT_Address <- new_Alice %>% select(Mouse_ID, Address, Locality)
     MT_Address <- MT_Address %>% pivot_longer(names_to = "Temp", values_to = "Address", cols = c(Address, Locality)) %>% 
       arrange(Mouse_ID) %>% group_by(Mouse_ID) %>% fill(c(everything()), .direction = "downup") %>% ungroup() %>% select(Mouse_ID, Address) %>% distinct(Mouse_ID, .keep_all = T) 
@@ -167,8 +181,8 @@ library(reshape)
     new_Alice$Mouse_ID[duplicated(new_Alice$Mouse_ID)]
     new_Alice <- new_Alice %>% arrange(Mouse_ID) %>% group_by(Mouse_ID) %>% fill(c(everything()), .direction = "downup") %>% ungroup() %>% distinct(Mouse_ID, .keep_all = T) 
     
-
-## Body_Weight
+    
+    ## Body_Weight
     MT_Body_Weight <- new_Alice %>% select(Mouse_ID, BW, Body_weight)
     MT_Body_Weight <- MT_Body_Weight %>% pivot_longer(names_to = "Temp", values_to = "Body_Weight", cols = c(Body_weight, BW)) %>% 
       arrange(Mouse_ID) %>% group_by(Mouse_ID) %>% fill(c(everything()), .direction = "downup") %>% ungroup() %>% select(Mouse_ID, Body_Weight) %>% distinct(Mouse_ID, .keep_all = T) 
@@ -176,9 +190,9 @@ library(reshape)
     ## join
     new_Alice <- full_join(new_Alice, MT_Body_Weight) %>% select(-c(Body_weight, BW))
     rm(MT_Body_Weight)
-   
     
-## Body_Length == "Body_length", "Body_length1" -----> correct one super low value 8.9 or something.. --> 8.9
+    
+    ## Body_Length == "Body_length", "Body_length1" -----> correct one super low value 8.9 or something.. --> 8.9
     MT_Body_Length <- new_Alice %>% select(Mouse_ID, L, Body_length)
     MT_Body_Length <- MT_Body_Length %>% pivot_longer(names_to = "Temp", values_to = "Body_Length", cols = c(L, Body_length)) %>% 
       arrange(Mouse_ID) %>% group_by(Mouse_ID) %>% fill(c(everything()), .direction = "downup") %>% ungroup() %>% select(Mouse_ID, Body_Length) %>% distinct(Mouse_ID, .keep_all = T) 
@@ -186,15 +200,16 @@ library(reshape)
     ## join
     new_Alice <- full_join(new_Alice, MT_Body_Length) %>% select(-c(Body_length))
     rm(MT_Body_Length)
-
-## Ectoparasites == "Ectoparasites", "Ectoparasites_Logical"
+    
+    ## Ectoparasites == "Ectoparasites", "Ectoparasites_Logical"
     new_Alice$Ectoparasites_Logical <- as.logical(new_Alice$Ectoparasites)
     MT_Ectoparasites_Logical <- new_Alice %>% select(Mouse_ID, Ectoparasites) %>% pivot_longer(names_to = "Temp", values_to = "Ectoparasites_Logical", cols = c(Ectoparasites)) %>% 
       arrange(Mouse_ID) %>% group_by(Mouse_ID) %>% fill(c(everything()), .direction = "downup") %>% ungroup() %>% select(Mouse_ID, Ectoparasites_Logical) %>% distinct(Mouse_ID, .keep_all = T) 
+    MT_Ectoparasites_Logical$Ectoparasites_Logical <- as.logical(MT_Ectoparasites_Logical$Ectoparasites_Logical)
     new_Alice <- full_join(new_Alice, MT_Ectoparasites_Logical) %>% select(-c(Ectoparasites))
     rm(MT_Ectoparasites_Logical)
     
-## Epididymis
+    ## Epididymis
     ## Left_Epididymis == "Left_epididymis", "Left.epididymis.weight"
     new_Alice$Left.epididymis.weight <- as.double(new_Alice$Left.epididymis.weight)
     MT_Left_Epididymis <- new_Alice %>% select(Mouse_ID, Left.epididymis.weight) %>% pivot_longer(names_to = "Temp", values_to = "Left_Epididymis", cols = c(Left.epididymis.weight)) %>% 
@@ -203,9 +218,9 @@ library(reshape)
     ## join
     new_Alice <- full_join(new_Alice, MT_Left_Epididymis) %>% select(-c(Left.epididymis.weight))
     rm(MT_Left_Epididymis)
-   
-## Feces_weight == "Feces_weight", "Feces_g", Feces
-new_Alice$Feces_weight <- as.double(new_Alice$Feces_weight)
+    
+    ## Feces_weight == "Feces_weight", "Feces_g", Feces
+    new_Alice$Feces_weight <- as.double(new_Alice$Feces_weight)
     MT_Feces_Weight <- new_Alice %>% select(Mouse_ID, Feces_weight, Feces_g) %>% pivot_longer(names_to = "Temp",  values_to = "Feces_Weight", cols = c(Feces_weight, Feces_g)) %>%
       arrange(Mouse_ID) %>% group_by(Mouse_ID) %>% fill(c(everything()), .direction = "downup") %>% ungroup() %>% select(Mouse_ID, Feces_Weight) %>% distinct(Mouse_ID, .keep_all = T) 
     MT_Feces_Weight$Mouse_ID[duplicated(MT_Feces_Weight$Mouse_ID)]    
@@ -213,9 +228,9 @@ new_Alice$Feces_weight <- as.double(new_Alice$Feces_weight)
     new_Alice <- full_join(new_Alice, MT_Feces_Weight) %>% select(-c(Feces_g, Feces_weight))
     rm(MT_Feces_Weight)
     
-## Fleas == "Flea", "Fleas"
+    ## Fleas == "Flea", "Fleas"
     new_Alice <- new_Alice %>% mutate(Fleas_Count = ifelse(Flea %in% c("0", "1", "2", "3", "4", "5", "6", "9", "11", "12"), as.numeric(Flea),
-                                             ifelse(NA)),
+                                                           ifelse(NA)),
                                       Fleas_Logical = ifelse(Flea == "fleas", TRUE,
                                                              ifelse(Flea == "TRUE", TRUE,
                                                                     ifelse(Flea == "TRUE (collected)", TRUE,
@@ -224,10 +239,10 @@ new_Alice$Feces_weight <- as.double(new_Alice$Feces_weight)
                                                                                          ifelse(Flea == "FALSE", FALSE,
                                                                                                 ifelse(NA))))))))
     new_Alice <- new_Alice %>% select(-Flea)
-
     
-## Head_Taken == "Head_taken", "Head.taken."
-
+    
+    ## Head_Taken == "Head_taken", "Head.taken."
+    
     MT_Head_Taken <- new_Alice %>% select(Mouse_ID, Head.taken.) %>%  pivot_longer(names_to = "Temp", values_to = "Head_Taken", cols = c(Head.taken.)) %>% 
       arrange(Mouse_ID) %>% group_by(Mouse_ID) %>%  fill(c(everything()), .direction = "downup") %>%  ungroup() %>%  select(Mouse_ID, Head_Taken)
     MT_Head_Taken <- MT_Head_Taken %>% distinct(Mouse_ID, .keep_all = T) 
@@ -235,9 +250,9 @@ new_Alice$Feces_weight <- as.double(new_Alice$Feces_weight)
     ## join
     new_Alice <- full_join(new_Alice, MT_Head_Taken) %>% select(-c(Head.taken.))
     rm(MT_Head_Taken)
-   
     
-## Heterakis == "Heterakis", "Heterakis_spumosa"
+    
+    ## Heterakis == "Heterakis", "Heterakis_spumosa"
     MT_Heterakis <- new_Alice %>% select(Mouse_ID, Heterakis, Heterakis_spumosa) %>%pivot_longer(names_to = "Temp", values_to = "Heterakis", cols = c(Heterakis, Heterakis_spumosa)) %>% 
       arrange(Mouse_ID) %>%  group_by(Mouse_ID) %>%  fill(c(everything()), .direction = "downup") %>%  ungroup() %>%  select(Mouse_ID, Heterakis)
     MT_Heterakis <- MT_Heterakis %>% distinct(Mouse_ID, .keep_all = T) 
@@ -246,8 +261,8 @@ new_Alice$Feces_weight <- as.double(new_Alice$Feces_weight)
     new_Alice <- full_join(new_Alice, MT_Heterakis) %>% select(-c(Heterakis_spumosa))
     rm(MT_Heterakis)
     
- 
-## Hymenolepis == "Hymenolepis", "Hymenolepis_microstoma", "Hymenolepis_diminiuta"
+    
+    ## Hymenolepis == "Hymenolepis", "Hymenolepis_microstoma", "Hymenolepis_diminiuta"
     MT_Hymenolepis <- new_Alice %>% select(Mouse_ID, Hymenolepis, Hymenolepis_diminiuta, Hymenolepis_microstoma)
     MT_Hymenolepis <- MT_Hymenolepis %>% pivot_longer(names_to = "Temp",  values_to = "Hymenolepis", cols = c(Hymenolepis, Hymenolepis_diminiuta, Hymenolepis_microstoma)) %>%
       arrange(Mouse_ID) %>%  group_by(Mouse_ID) %>%  fill(c(everything()), .direction = "downup") %>%  ungroup() %>%  select(Mouse_ID, Hymenolepis)
@@ -256,9 +271,9 @@ new_Alice$Feces_weight <- as.double(new_Alice$Feces_weight)
     ## join
     new_Alice <- full_join(new_Alice, MT_Hymenolepis)
     rm(MT_Hymenolepis)
-  
     
-## Latitude == "Latitude", "longitude" ***** MIX UP WITH LONG *****
+    
+    ## Latitude == "Latitude", "longitude" ***** MIX UP WITH LONG *****
     MT_Latitude <- new_Alice %>% select(Mouse_ID, Latitude, longitude) %>% pivot_longer(names_to = "Temp",  values_to = "Latitude", cols = c(Latitude, longitude)) %>%
       arrange(Mouse_ID) %>%  group_by(Mouse_ID) %>%   fill(c(everything()), .direction = "downup") %>%  ungroup() %>%  select(Mouse_ID, Latitude)
     MT_Latitude <- MT_Latitude %>% distinct(Mouse_ID, .keep_all = T) 
@@ -267,34 +282,34 @@ new_Alice$Feces_weight <- as.double(new_Alice$Feces_weight)
     new_Alice <- full_join(new_Alice, MT_Latitude) %>% select(-c(longitude))
     rm(MT_Latitude)
     
-
-## Longitude == "Longitude", "latitude" ***** MIX UP WITH LAT *****
+    
+    ## Longitude == "Longitude", "latitude" ***** MIX UP WITH LAT *****
     MT_Longitude <- new_Alice %>% select(Mouse_ID, Longitude, latitude)  %>% pivot_longer(names_to = "Temp", values_to = "Longitude", cols = c(Longitude, latitude)) %>% 
       arrange(Mouse_ID) %>% group_by(Mouse_ID) %>%  fill(c(everything()), .direction = "downup") %>%  ungroup() %>%  select(Mouse_ID, Longitude)
     MT_Longitude <- MT_Longitude %>% distinct(Mouse_ID, .keep_all = T) 
     ## join
     new_Alice <- full_join(new_Alice, MT_Longitude) %>% select(-c(latitude))
     rm(MT_Longitude)
- 
     
-## Liver == "Liver", "Liver_mass"
+    
+    ## Liver == "Liver", "Liver_mass"
     MT_Liver <- new_Alice %>% select(Mouse_ID, Liver_mass) %>% pivot_longer(names_to = "Temp",  values_to = "Liver", cols = c(Liver_mass)) %>%  arrange(Mouse_ID) %>%  group_by(Mouse_ID) %>%  fill(c(everything()), .direction = "downup") %>%  ungroup() %>%  select(Mouse_ID, Liver)
     MT_Liver <- MT_Liver %>% distinct(Mouse_ID, .keep_all = T) 
     ## join
     new_Alice <- full_join(new_Alice, MT_Liver) %>% select(-c(Liver_mass))
     rm(MT_Liver)
-
-
-## Mastophorus == "Mastophorus", "Mastophorus_muris", "Mastaphorus"
+    
+    
+    ## Mastophorus == "Mastophorus", "Mastophorus_muris", "Mastaphorus"
     MT_Mastophorus <- new_Alice %>% select(Mouse_ID, Mastophorus, Mastophorus_muris) %>% pivot_longer(names_to = "Temp",  values_to = "Mastophorus", cols = c(Mastophorus, Mastophorus_muris)) %>% 
       arrange(Mouse_ID) %>%  group_by(Mouse_ID) %>%  fill(c(everything()), .direction = "downup") %>%  ungroup() %>% select(Mouse_ID, Mastophorus)
     MT_Mastophorus <- MT_Mastophorus %>% distinct(Mouse_ID, .keep_all = T) 
     ## join
     new_Alice <- full_join(new_Alice, MT_Mastophorus) %>% select(-c(Mastophorus_muris))
     rm(MT_Mastophorus)
- 
     
-## Notes == "comments", "Note", "Notes", ("Embryo")
+    
+    ## Notes == "comments", "Note", "Notes", ("Embryo")
     MT_Notes <- new_Alice %>% select(Mouse_ID, Note, Notes, comments)  %>% pivot_longer(names_to = "Temp",  values_to = "Notes", cols = c(Note, Notes, comments)) %>%  
       arrange(Mouse_ID) %>%  group_by(Mouse_ID) %>%  fill(c(everything()), .direction = "downup") %>%  ungroup() %>%  select(Mouse_ID, Notes)
     MT_Notes <- MT_Notes %>% distinct(Mouse_ID, .keep_all = T) 
@@ -305,10 +320,10 @@ new_Alice$Feces_weight <- as.double(new_Alice$Feces_weight)
     ## eliminate duplicates in new_Alice
     new_Alice$Mouse_ID[duplicated(new_Alice$Mouse_ID)]
     new_Alice <- new_Alice %>% arrange(Mouse_ID) %>% group_by(Mouse_ID) %>% fill(c(everything()), .direction = "downup") %>% ungroup() %>% distinct(Mouse_ID, .keep_all = T) 
-
-
-## Ovaria ==
-## Right_Ovarium_Weight == "Right_ovarium", Right.ovarium.weight"
+    
+    
+    ## Ovaria ==
+    ## Right_Ovarium_Weight == "Right_ovarium", Right.ovarium.weight"
     MT_Right_Ovarium_Weight <- new_Alice %>% select(Mouse_ID, Right.ovarium.weight) %>% pivot_longer(names_to = "Temp",  values_to = "Right_Ovarium_Weight", cols = c(Right.ovarium.weight)) %>%  
       arrange(Mouse_ID) %>%  group_by(Mouse_ID) %>%  fill(c(everything()), .direction = "downup") %>%  ungroup() %>%  select(Mouse_ID, Right_Ovarium_Weight) %>% distinct(Mouse_ID, .keep_all = T) 
     MT_Right_Ovarium_Weight$Mouse_ID[duplicated(MT_Right_Ovarium_Weight$Mouse_ID)]    
@@ -316,17 +331,17 @@ new_Alice$Feces_weight <- as.double(new_Alice$Feces_weight)
     new_Alice <- full_join(new_Alice, MT_Right_Ovarium_Weight) %>% select(-c(Right.ovarium.weight))
     rm(MT_Right_Ovarium_Weight)
     
-
-## Left_Ovarium_Weight == "Left_ovarium", "Left.ovarium.weight"
+    
+    ## Left_Ovarium_Weight == "Left_ovarium", "Left.ovarium.weight"
     MT_Left_Ovarium_Weight <- new_Alice %>% select(Mouse_ID, Left.ovarium.weight) %>% pivot_longer(names_to = "Temp",  values_to = "Left_Ovarium_Weight", cols = c(Left.ovarium.weight)) %>%  
       arrange(Mouse_ID) %>%  group_by(Mouse_ID) %>%  fill(c(everything()), .direction = "downup") %>%  ungroup() %>%  select(Mouse_ID, Left_Ovarium_Weight) %>% distinct(Mouse_ID, .keep_all = T) 
     MT_Left_Ovarium_Weight$Mouse_ID[duplicated(MT_Left_Ovarium_Weight$Mouse_ID)]    
     ## join
     new_Alice <- full_join(new_Alice, MT_Left_Ovarium_Weight) %>% select(-c(Left.ovarium.weight))
     rm(MT_Left_Ovarium_Weight)
-  
-
-## Region == "Region", "REGion"
+    
+    
+    ## Region == "Region", "REGion"
     MT_Region <- new_Alice %>% select(Mouse_ID, Region, REGion) %>% pivot_longer(names_to = "Temp",  values_to = "Region", cols = c(Region, REGion)) %>%
       arrange(Mouse_ID) %>%  group_by(Mouse_ID) %>%  fill(c(everything()), .direction = "downup") %>%  ungroup() %>%  select(Mouse_ID, Region)
     MT_Region <- MT_Region %>% distinct(Mouse_ID, .keep_all = T) 
@@ -337,9 +352,9 @@ new_Alice$Feces_weight <- as.double(new_Alice$Feces_weight)
     ## eliminate duplicates in new_Alice
     new_Alice$Mouse_ID[duplicated(new_Alice$Mouse_ID)]
     new_Alice <- new_Alice %>% arrange(Mouse_ID) %>% group_by(Mouse_ID) %>% fill(c(everything()), .direction = "downup") %>% ungroup() %>% distinct(Mouse_ID, .keep_all = T) 
-
     
-## Seminal_Vesicles_Weight == SemVes, Seminal.vesicle.weight, Seminal_Vesicles_Weight
+    
+    ## Seminal_Vesicles_Weight == SemVes, Seminal.vesicle.weight, Seminal_Vesicles_Weight
     MT_Seminal_Vesicles_Weight <- new_Alice %>% select(Mouse_ID, SemVes, Seminal.vesicle.weight) %>% pivot_longer(names_to = "Temp",  values_to = "Seminal_Vesicles_Weight", cols = c(SemVes, Seminal.vesicle.weight)) %>%
       arrange(Mouse_ID) %>%  group_by(Mouse_ID) %>%  fill(c(everything()), .direction = "downup") %>%  ungroup() %>%  select(Mouse_ID, Seminal_Vesicles_Weight)
     MT_Seminal_Vesicles_Weight <- MT_Seminal_Vesicles_Weight %>% distinct(Mouse_ID, .keep_all = T) 
@@ -347,9 +362,9 @@ new_Alice$Feces_weight <- as.double(new_Alice$Feces_weight)
     ## join
     new_Alice <- full_join(new_Alice, MT_Seminal_Vesicles_Weight) %>% select(-c(SemVes, Seminal.vesicle.weight))
     rm(MT_Seminal_Vesicles_Weight)
-
-
-## Spleen == "Spleen", "Spleen_mass"
+    
+    
+    ## Spleen == "Spleen", "Spleen_mass"
     new_Alice$Spleen_mass <- as.double(new_Alice$Spleen_mass)
     MT_Spleen <- new_Alice %>% select(Mouse_ID, Spleen, Spleen_mass)  %>% pivot_longer(names_to = "Temp",  values_to = "Spleen",cols = c(Spleen, Spleen_mass)) %>% 
       arrange(Mouse_ID) %>%  group_by(Mouse_ID) %>%  fill(c(everything()), .direction = "downup") %>%  ungroup() %>%  select(Mouse_ID, Spleen) %>% distinct(Mouse_ID, .keep_all = T) 
@@ -360,9 +375,9 @@ new_Alice$Feces_weight <- as.double(new_Alice$Feces_weight)
     ## eliminate duplicates in new_Alice
     new_Alice$Mouse_ID[duplicated(new_Alice$Mouse_ID)]
     new_Alice <- new_Alice %>% arrange(Mouse_ID) %>% group_by(Mouse_ID) %>% fill(c(everything()), .direction = "downup") %>% ungroup() %>% distinct(Mouse_ID, .keep_all = T) 
-
     
-## Taenia == "Taenia_martis", "Taenia_taeniformis", "Catenotaenia_pusilla", "Cysticercus"
+    
+    ## Taenia == "Taenia_martis", "Taenia_taeniformis", "Catenotaenia_pusilla", "Cysticercus"
     MT_Taenia <- new_Alice %>% select(Mouse_ID, Taenia_martis, Taenia_taeniformis, Catenotaenia_pusilla, Cysticercus, Taenia)
     MT_Taenia <- MT_Taenia %>%
       pivot_longer(names_to = "Temp", 
@@ -377,8 +392,8 @@ new_Alice$Feces_weight <- as.double(new_Alice$Feces_weight)
     new_Alice$Mouse_ID[duplicated(new_Alice$Mouse_ID)]
     new_Alice <- new_Alice %>% arrange(Mouse_ID) %>% group_by(Mouse_ID) %>% fill(c(everything()), .direction = "downup") %>% ungroup() %>% distinct(Mouse_ID, .keep_all = T) 
     
-
-## Testis_mass Separation
+    
+    ## Testis_mass Separation
     ## Wrong data input for "Testis_mass": instead of individual Left_Testis or 
     ## Right_Testis data, a combination of "Left_Testis/Right_Testis" was supplied
     ## Separation of that Column into 2 Columns, original "Testis"  col. discarded
@@ -391,7 +406,7 @@ new_Alice$Feces_weight <- as.double(new_Alice$Feces_weight)
     new_Alice <- full_join(new_Alice, new_Alice_Sep) %>% select(-Testis_mass)
     rm(new_Alice_Sep)
     
-## Testes == "Testes"
+    ## Testes == "Testes"
     ## Left_Testis  == "Left_Testis1", "Left_Testis_mass"
     MT_Left_Testis <- new_Alice %>% select(Mouse_ID, Left_Testis1, Left_Testis_mass) %>% pivot_longer(names_to = "Temp",  values_to = "Left_Testis", cols = c(Left_Testis1, Left_Testis_mass)) %>% 
       arrange(Mouse_ID) %>%  group_by(Mouse_ID) %>%  fill(c(everything()), .direction = "downup") %>%  ungroup() %>%  select(Mouse_ID, Left_Testis) %>% distinct(Mouse_ID, .keep_all = T) 
@@ -399,7 +414,7 @@ new_Alice$Feces_weight <- as.double(new_Alice$Feces_weight)
     ## join
     new_Alice <- full_join(new_Alice, MT_Left_Testis) %>% select(-c(Left_Testis_mass, Left_Testis1))
     rm(MT_Left_Testis)
-   
+    
     ## Right_Testis == Right_Testis1", "Right_Testis_mass"
     MT_Right_Testis <- new_Alice %>% select(Mouse_ID, Right_Testis1, Right_Testis_mass) %>% pivot_longer(names_to = "Temp",  values_to = "Right_Testis", cols = c(Right_Testis1, Right_Testis_mass)) %>% 
       arrange(Mouse_ID) %>%  group_by(Mouse_ID) %>%  fill(c(everything()), .direction = "downup") %>%  ungroup() %>%  select(Mouse_ID, Right_Testis) %>% distinct(Mouse_ID, .keep_all = T) 
@@ -407,9 +422,9 @@ new_Alice$Feces_weight <- as.double(new_Alice$Feces_weight)
     ## join
     new_Alice <- full_join(new_Alice, MT_Right_Testis) %>% select(-c(Right_Testis_mass, Right_Testis1))
     rm(MT_Right_Testis)
- 
-
-## Tail_Length == "Tail_length", "LCd"
+    
+    
+    ## Tail_Length == "Tail_length", "LCd"
     MT_Tail_Length <- new_Alice %>% select(Mouse_ID, Tail_length, LCd) %>% pivot_longer(names_to = "Temp",  values_to = "Tail_Length", cols = c(Tail_length, LCd)) %>% 
       arrange(Mouse_ID) %>%  group_by(Mouse_ID) %>%  fill(c(everything()), .direction = "downup") %>%  ungroup() %>%  select(Mouse_ID, Tail_Length) %>% distinct(Mouse_ID, .keep_all = T) 
     MT_Tail_Length$Mouse_ID[duplicated(MT_Tail_Length$Mouse_ID)]   
@@ -417,16 +432,16 @@ new_Alice$Feces_weight <- as.double(new_Alice$Feces_weight)
     new_Alice <- full_join(new_Alice, MT_Tail_Length) %>% select(-c(Tail_length, LCd))
     rm(MT_Tail_Length)
     
-## Trap_Date == "Capture"
+    ## Trap_Date == "Capture"
     MT_Trap_Date <- new_Alice %>% select(Mouse_ID, Capture) %>% pivot_longer(names_to = "Temp",  values_to = "Trap_Date", cols = c(Capture)) %>% 
       arrange(Mouse_ID) %>%  group_by(Mouse_ID) %>%  fill(c(everything()), .direction = "downup") %>%  ungroup() %>%  select(Mouse_ID, Trap_Date) %>% distinct(Mouse_ID, .keep_all = T) 
     MT_Trap_Date$Mouse_ID[duplicated(MT_Trap_Date$Mouse_ID)]    
     ## join
     new_Alice <- full_join(new_Alice, MT_Trap_Date) %>% select(-c(Capture))
     rm(MT_Trap_Date)
-
-
-## Trichuris == "Trichuris" "Trichuris_muris"
+    
+    
+    ## Trichuris == "Trichuris" "Trichuris_muris"
     MT_Trichuris <- new_Alice %>% select(Mouse_ID, Trichuris, Trichuris_muris) %>% pivot_longer(names_to = "Temp",  values_to = "Trichuris", cols = c(Trichuris, Trichuris_muris)) %>% 
       arrange(Mouse_ID) %>%  group_by(Mouse_ID) %>%  fill(c(everything()), .direction = "downup") %>%  ungroup() %>%  select(Mouse_ID, Trichuris) %>% distinct(Mouse_ID, .keep_all = T) 
     MT_Trichuris$Mouse_ID[duplicated(MT_Trichuris$Mouse_ID)]    
@@ -436,9 +451,9 @@ new_Alice$Feces_weight <- as.double(new_Alice$Feces_weight)
     ## eliminate duplicates in new_Alice
     new_Alice$Mouse_ID[duplicated(new_Alice$Mouse_ID)]
     new_Alice <- new_Alice %>% arrange(Mouse_ID) %>% group_by(Mouse_ID) %>% fill(c(everything()), .direction = "downup") %>% ungroup() %>% distinct(Mouse_ID, .keep_all = T) 
-
     
-## Year == "Year", "year"
+    
+    ## Year == "Year", "year"
     MT_Year <- new_Alice %>% select(Mouse_ID, Year, year) %>% pivot_longer(names_to = "Temp",  values_to = "Year", cols = c(Year, year)) %>% 
       arrange(Mouse_ID) %>%  group_by(Mouse_ID) %>%  fill(c(everything()), .direction = "downup") %>%  ungroup() %>%  select(Mouse_ID, Year)  %>% distinct(Mouse_ID, .keep_all = T) 
     MT_Year$Mouse_ID[duplicated(MT_Year$Mouse_ID)]    
@@ -448,9 +463,9 @@ new_Alice$Feces_weight <- as.double(new_Alice$Feces_weight)
     ## eliminate duplicates in new_Alice
     new_Alice$Mouse_ID[duplicated(new_Alice$Mouse_ID)]
     new_Alice <- new_Alice %>% arrange(Mouse_ID) %>% group_by(Mouse_ID) %>% fill(c(everything()), .direction = "downup") %>% ungroup() %>% distinct(Mouse_ID, .keep_all = T) 
+    
+    
 
-
-#### COLUMN INPUT CORRECTION ##################################################
     ## Status
     new_Alice <- new_Alice %>% mutate(Status = replace(Status, Status == "(pregnant)", "pregnant"),
                                       Status = replace(Status, Status == "(young)", "young"))
@@ -461,63 +476,36 @@ new_Alice$Feces_weight <- as.double(new_Alice$Feces_weight)
     ## multiple Mice per Box
     new_Alice <- new_Alice %>% mutate(Multiple_Mice_per_Box = ifelse(Mouse_ID %in% c("AA_0514", "AA_0515", "AA_0513","AA_0349", "AA_0454", "ZZ_0037", "ZZ_0038"), TRUE, FALSE))
     
-    ## this would be the full data, some columns are cut down, but it's still
-    ## pretty busy, so the next step would be direct column selection for 
-    ## manageable working Size
-    #write.csv(new_Alice, "new_Alice_MiceTable.csv")
-    
-#### Select Columns ############################################################
-    
-
-basics          <- c("Mouse_ID", "Transect", "Code", "Region", "Sex", "Longitude", "Latitude", "Year", "State", "HI", "HI_NLoci")
-
-ILWE_DNA.cols   <- c("ILWE_DNA_Content_ng.microliter", "ILWE_DNA_used_up")
-    
-Crypto.cols     <- c("Tested_by", "Machine", "Measurements", "Ct_mean", "Ct_mean_Ep", "Ct_mean_ABI", "Oocyst_Predict")
-
-
-gen.loci        <- c("mtBamH", "YNPAR", "X332", "X347", "X65", "Tsx", "Btk", "Syap1",
-                      "Es1", "Gpd1", "Idh1", "Mpi", "Np", "Sod1", "Es1C", "Gpd1C",
-                      "Idh1C", "MpiC", "NpC", "Sod1C", "HI_NLoci",
-                      "HI", "Zfy2", "SRY1", "Y")
-
-dissection.cols <- c("Body_Weight", "Body_Length", "Tail_Length", "Spleen", 
-                     "Left_Testis", "Right_Testis", "Seminal_Vesicles_Weight", 
-                     "Sperm", "Left_Epididymis", "Right_Epididymis", 
-                     "Arrival", "Wean", "Death", "Dissection_date", "DaysInLab",
-                     "Lepid", "Uterus", "Ovaria", "Grav", "Litters", "NN", 
-                     "MM", "FF", "Protocol")
-
-parasite.cols   <- c("Aspiculuris_tetraptera", "Syphacia_obvelata", "Aspiculuris_Syphacia",
-                     "Trichuris", "Taenia", "Flea", "Mix_Syphacia_Aspiculuris", "Heligmosomoides_polygurus",
-                     "Heterakis","Heterakis", "Mastophorus","Hymenolepis",
-                     "Ectoparasites", "Ectoparasites_Count", "Ectoparasites_Logical",
-                     "Worms_presence")
-
-oocyst.cols     <- c("counter", "Feces_Weight", "Date_count", "N_oocysts_sq1",
-                     "N_oocysts_sq2", "N_oocysts_sq3",  "N_oocysts_sq4",
-                     "N_oocysts_sq5", "N_oocysts_sq6", "N_oocysts_sq7",
-                     "N_oocysts_sq8", "mean_neubauer", "PBS_dil_in_mL", 
-                     "OPG", "Ncells")
-
-EqPCR.cols      <- c("delta_ct_ilwe_MminusE", "delta_ct_cewe_MminusE",
-                    ## from 2018 on AN IMPORTANT IMPROVEMENT!!!
-                    "MC.Eimeria")
-
-EimGeno.cols    <- c("n18S_Seq", "COI_Seq", "ORF470_Seq", "eimeriaSpecies")
-
     
     
-## cut down columns, deselect empty columns
-new_Alice <- new_Alice[, colnames(new_Alice) %in% c(basics, ILWE_DNA.cols, Crypto.cols ,gen.loci, dissection.cols, parasite.cols, EimGeno.cols, oocyst.cols), ]      
-new_Alice <- new_Alice %>% select(!which(!colSums(!is.na(new_Alice))))
-#vis_miss(new_Alice)
+## JOINS #####
+    ## Alice and new Jarda Info
+    ## contains Eimeria data already
+    new_Alice <- new_Alice[colnames(new_Alice) %in% c(basics, gen.loci, dissection.cols, oocyst.cols, parasite.cols, EimGeno.cols, EqPCR.cols)]
+    #vis_miss(new_Alice, cluster = T, sort_miss = T)
+    # 52.6% present
+    
+    
+    ## introduce the Data that was generated for Crypto
+    ## aka DNA Extraction values, and Ct values (from Eppendorf and ABI Machines) 
+    ## first join DNA Extraction Data and qPCR Data
+    
+    Crypto  <- full_join(Crypto_qPCR[colnames(Crypto_qPCR) %in% c(basics, Crypto_qPCR.cols)], 
+                         Crypto_DNA[colnames(Crypto_DNA) %in% c(basics, Crypto_DNA.cols)], by = "Mouse_ID")
+    ## get HI data by merging with Jarda
+    Crypto <- merge(Crypto[colnames(Crypto) %in% c("Mouse_ID", Crypto_qPCR.cols, Crypto_DNA.cols)], newCSV[colnames(newCSV) %in% c("Mouse_ID", "HI")])
 
+    
+    ## add Crypto Data to the "new_Alice" Table
+    new_Alice <- full_join(Crypto[colnames(Crypto) %in% c("Mouse_ID", Crypto_qPCR.cols, Crypto_DNA.cols, "HI")], new_Alice[colnames(new_Alice) %in% c(basics, gen.loci, dissection.cols, oocyst.cols, parasite.cols, EimGeno.cols, EqPCR.cols)])
+    new_Alice$Mouse_ID[duplicated(new_Alice$Mouse_ID)]
+    new_Alice <- new_Alice %>% 
+      arrange(Mouse_ID) %>%  
+      group_by(Mouse_ID) %>% 
+      fill(c(everything()), .direction = "downup") %>% 
+      ungroup() %>% 
+      distinct(Mouse_ID, .keep_all = T) %>%
+      filter(HI >= 0)
+    #vis_miss(new_Alice, sort_miss = T, cluster = T)
 
-#write.csv(new_Alice, "new_Alice_MiceTable_Selected_Cols.csv")
-
-
-## Select Columns that we have performed qPCR on, cut down columns
-Ct_filter_AA <- new_Alice[, colnames(new_Alice) %in% c(basics, ILWE_DNA.cols, Crypto.cols ,gen.loci, dissection.cols, parasite.cols, EimGeno.cols, oocyst.cols), ] %>% 
-  filter(Ct_mean != "NA")
-#vis_miss(Ct_filter_AA)
+#write.csv(new_Alice, "new_Alice_MiceTable.csv")
