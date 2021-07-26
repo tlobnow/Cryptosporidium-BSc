@@ -1,0 +1,8 @@
+# Experiment File Name : New_SC_Test.eds
+# Created By :tlobnow@googlemail.com
+# Last Modified Date : 2021-05-24 12:26:40 PM
+# Instrument Type : QuantStudio 1 System
+
+"Name","Plate Barcode","Experiment Run Date","Inter-plate Control Fail","FLAGS","AMPNC","AMPSCORE","BADROX","OFFSCALE","NOAMP","NOISE","SPIKE","NOSIGNAL","NOSAMPLE","EXPFAIL","BLFAIL","THOLDFAIL","CTFAIL","HIGHSD","OUTLIERRG","MTP","PRFLOW","PRFDROP","DRNMIN","CQCONF",
+"New_SC_Test.eds","","2021-05-24 01:07:48 PM","No","54.0","0.0","11.0","0.0","0.0","9.0","0.0","3.0","0.0","0.0","10.0","0.0","6.0","0.0","5.0","0.0","0.0","0.0","0.0","0.0","10.0",
+

@@ -1,0 +1,120 @@
+# File Name: Plate2_NQ.eds
+# Comment: 
+# Operator: DEFAULT
+# Barcode: 
+# Instrument Type: QuantStudio™ 1 System
+# Block Type: 96-Well 0.2-mL Block
+# Instrument Name: 2721220100840
+# Instrument Serial Number: 2721220100840
+# Heated Cover Serial Number: 
+# Block Serial Number: 
+# Run Start Date/Time: 2021-03-09 11:21:00 AM UTC
+# Run End Date/Time: 2021-03-09 12:21:49 PM UTC
+# Run Duration: 60 minutes 48 seconds
+# Sample Volume: 20.0
+# Cover Temperature: 105.0
+# Passive Reference: ROX
+# PCR Stage/Step Number: Stage 2 Step 2
+# Quantification Cycle Method: CT
+# Analysis Date/Time: 2021-03-09 02:06:53 PM UTC
+# Software Name and Version: Design & Analysis Software v2.5.0
+# Plugin Name and Version: Primary Analysis v1.5.0, Standard Curve v1.5.0
+# Exported By: guest
+# Exported On: 2021-03-09 02:07:34 PM UTC
+"Well","Well Position","Omit","Sample","Target","Task","Reporter","Quencher","Amp Status","Amp Score","Curve Quality","Result Quality Issues","Cq","Cq Confidence","Cq Mean","Cq SD","Auto Threshold","Threshold","Auto Baseline","Baseline Start","Baseline End"
+"1","A1","false","10_7","Standard Curve","STANDARD","FAM","None","Amp","1.4787956676513074","","","19.473872037601744","0.7017359796979643","19.552114254435594","0.0698255131909004","true","0.07456161433742176","true","3","16"
+"2","A2","false","10_7","Standard Curve","STANDARD","FAM","None","Amp","1.484848043614287","","","19.574376569269944","0.7216092309459188","19.552114254435594","0.0698255131909004","true","0.07456161433742176","true","3","16"
+"3","A3","false","10_7","Standard Curve","STANDARD","FAM","None","Amp","1.4871060968767291","","","19.608094156435094","0.7330651293208341","19.552114254435594","0.0698255131909004","true","0.07456161433742176","true","3","16"
+"4","A4","false","AA_0804","Unknown","UNKNOWN","FAM","None","Amp","1.449013846019766","","","32.52446772853243","0.9829446776653243","32.63316805423298","0.1956350021300794","true","0.2114626201603826","true","3","26"
+"5","A5","false","AA_0804","Unknown","UNKNOWN","FAM","None","Amp","1.4525601812070683","","","32.51602118080196","0.9807082899543574","32.63316805423298","0.1956350021300794","true","0.2114626201603826","true","3","27"
+"6","A6","false","AA_0804","Unknown","UNKNOWN","FAM","None","Amp","1.45363899250706","","","32.85901525336456","0.9762505246958935","32.63316805423298","0.1956350021300794","true","0.2114626201603826","true","3","26"
+"7","A7","false","AA_0740","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"8","A8","false","AA_0740","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"9","A9","false","AA_0740","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"10","A10","false","AA_0761","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"11","A11","false","AA_0761","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"12","A12","false","AA_0761","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"13","B1","false","10_6","Standard Curve","STANDARD","FAM","None","Amp","1.256128011354244","","","21.501371615324018","0.9815879448391447","21.480147458693363","0.15870278472481028","true","0.07456161433742176","true","3","17"
+"14","B2","false","10_6","Standard Curve","STANDARD","FAM","None","Amp","1.2581654800674649","","","21.6271701648038","0.927363276876874","21.480147458693363","0.15870278472481028","true","0.07456161433742176","true","3","18"
+"15","B3","false","10_6","Standard Curve","STANDARD","FAM","None","Amp","1.2620542959685186","","","21.311900595952267","0.9640863378980644","21.480147458693363","0.15870278472481028","true","0.07456161433742176","true","3","17"
+"16","B4","false","AA_0821 II","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"17","B5","false","AA_0821 II","Unknown","UNKNOWN","FAM","None","Inconclusive","1.1015682843830608","","","37.96691672079653","0.9017316469137335","37.96691672079653","","true","0.2114626201603826","true","3","32"
+"18","B6","false","AA_0821 II","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"19","B7","false","AA_0735","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"20","B8","false","AA_0735","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"21","B9","false","AA_0735","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"22","B10","false","AA_0704","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"23","B11","false","AA_0704","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"24","B12","false","AA_0704","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","9"
+"25","C1","false","10_5","Standard Curve","STANDARD","FAM","None","Amp","1.1483398007234855","","","22.895816381451603","0.970712645400098","22.957089885560404","0.07543711407058483","true","0.07456161433742176","true","3","18"
+"26","C2","false","10_5","Standard Curve","STANDARD","FAM","None","Amp","1.1522018276387818","","","22.934108297002986","0.9721361152317141","22.957089885560404","0.07543711407058483","true","0.07456161433742176","true","3","17"
+"27","C3","false","10_5","Standard Curve","STANDARD","FAM","None","Amp","1.1517192683015987","","","23.04134497822662","0.9662776695725581","22.957089885560404","0.07543711407058483","true","0.07456161433742176","true","3","19"
+"28","C4","false","AA_0790","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"29","C5","false","AA_0790","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"30","C6","false","AA_0790","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"31","C7","false","AA_0850","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"32","C8","false","AA_0850","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"33","C9","false","AA_0850","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"34","C10","false","AA_0718","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"35","C11","false","AA_0718","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"36","C12","false","AA_0718","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"37","D1","false","10_4","Standard Curve","STANDARD","FAM","None","Amp","1.3353140117509839","","","23.229376183844444","0.9808490381728815","23.281537278485178","0.04590813899204811","true","0.07456161433742176","true","3","19"
+"38","D2","false","10_4","Standard Curve","STANDARD","FAM","None","Amp","1.3338079479609353","","","23.31580149123935","0.9907435946223766","23.281537278485178","0.04590813899204811","true","0.07456161433742176","true","3","20"
+"39","D3","false","10_4","Standard Curve","STANDARD","FAM","None","Amp","1.337872721592573","","","23.299434160371753","0.9847452304078826","23.281537278485178","0.04590813899204811","true","0.07456161433742176","true","3","19"
+"40","D4","false","AA_0696","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"41","D5","false","AA_0696","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"42","D6","false","AA_0696","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"43","D7","false","AA_0844","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"44","D8","false","AA_0844","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"45","D9","false","AA_0844","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"46","D10","false","AA_0765","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"47","D11","false","AA_0765","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"48","D12","false","AA_0765","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"49","E1","false","10_3","Standard Curve","STANDARD","FAM","None","Amp","1.4276953972874107","","","24.095082061865234","0.991541417657889","24.051816511800084","0.06639909131561042","true","0.07456161433742176","true","3","21"
+"50","E2","false","10_3","Standard Curve","STANDARD","FAM","None","Amp","1.4343417882477814","","","24.085000782114818","0.9872921388952286","24.051816511800084","0.06639909131561042","true","0.07456161433742176","true","3","21"
+"51","E3","false","10_3","Standard Curve","STANDARD","FAM","None","Amp","1.4140095635932777","","","23.9753666914202","0.9891463778242566","24.051816511800084","0.06639909131561042","true","0.07456161433742176","true","3","19"
+"52","E4","false","AA_0774","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"53","E5","false","AA_0774","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"54","E6","false","AA_0774","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"55","E7","false","AA_0755 I","Unknown","UNKNOWN","FAM","None","Amp","1.3701863618604768","","","34.041141507068104","0.9550058308116467","34.16807787532566","0.4601840212056619","true","0.2114626201603826","true","3","28"
+"56","E8","false","AA_0755 I","Unknown","UNKNOWN","FAM","None","Amp","1.3631023991889861","","","34.67840700223532","0.9827265899453929","34.16807787532566","0.4601840212056619","true","0.2114626201603826","true","3","29"
+"57","E9","false","AA_0755 I","Unknown","UNKNOWN","FAM","None","Amp","1.375296433700684","","","33.78468511667354","0.979349880240553","34.16807787532566","0.4601840212056619","true","0.2114626201603826","true","3","27"
+"58","E10","false","AA_0743","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"59","E11","false","AA_0743","Unknown","UNKNOWN","FAM","None","No Amp","0.7138575087693948","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","35"
+"60","E12","false","AA_0743","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"61","F1","false","10_2","Standard Curve","STANDARD","FAM","None","Inconclusive","1.099457412601057","","","26.64194307794962","0.9698486569139124","26.546276453913794","0.10531708915312314","true","0.07456161433742176","true","3","23"
+"62","F2","false","10_2","Standard Curve","STANDARD","FAM","None","Inconclusive","1.1002696492213004","","","26.563463231496165","0.97149093226441","26.546276453913794","0.10531708915312314","true","0.07456161433742176","true","3","22"
+"63","F3","false","10_2","Standard Curve","STANDARD","FAM","None","Inconclusive","1.1042006857065956","","","26.433423052295602","0.9669810477612136","26.546276453913794","0.10531708915312314","true","0.07456161433742176","true","3","22"
+"64","F4","false","AA_0720","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"65","F5","false","AA_0720","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"66","F6","false","AA_0720","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"67","F7","false","AA_0821 I","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"68","F8","false","AA_0821 I","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"69","F9","false","AA_0821 I","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"70","F10","false","AA_0709","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"71","F11","false","AA_0709","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"72","F12","false","AA_0709","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"73","G1","false","10_1","Standard Curve","STANDARD","FAM","None","Amp","1.4453650400746765","","","25.923833193690157","0.9532061460799426","25.91944203155084","0.021841633976729037","true","0.07456161433742176","true","3","23"
+"74","G2","false","10_1","Standard Curve","STANDARD","FAM","None","Amp","1.450285037706113","","","25.938754477957808","0.9641783153138446","25.91944203155084","0.021841633976729037","true","0.07456161433742176","true","3","22"
+"75","G3","false","10_1","Standard Curve","STANDARD","FAM","None","Amp","1.4516642659258485","","","25.89573842300456","0.93802971277967","25.91944203155084","0.021841633976729037","true","0.07456161433742176","true","3","21"
+"76","G4","false","AA_0739","Unknown","UNKNOWN","FAM","None","Amp","1.4604483370404333","","","33.0280127106511","0.9701465753085203","33.387033457144256","0.41765222694168547","true","0.2114626201603826","true","3","27"
+"77","G5","false","AA_0739","Unknown","UNKNOWN","FAM","None","Amp","1.4430932827327876","","","33.845401249801114","0.9596232078901686","33.387033457144256","0.41765222694168547","true","0.2114626201603826","true","3","28"
+"78","G6","false","AA_0739","Unknown","UNKNOWN","FAM","None","Amp","1.4597102115836444","","","33.287686410980555","0.9565429540987597","33.387033457144256","0.41765222694168547","true","0.2114626201603826","true","3","29"
+"79","G7","false","AA_0768","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"80","G8","false","AA_0768","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"81","G9","false","AA_0768","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"82","G10","false","AA_0764","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"83","G11","false","AA_0764","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"84","G12","false","AA_0764","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"85","H1","false","NTC","NTC","NTC","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2","true","3","39"
+"86","H2","false","NTC","NTC","NTC","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2","true","3","39"
+"87","H3","false","NTC","NTC","NTC","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2","true","3","39"
+"88","H4","false","AA_0851","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"89","H5","false","AA_0851","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"90","H6","false","AA_0851","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"91","H7","false","AA_0703","Unknown","UNKNOWN","FAM","None","Amp","1.3371237947315424","","","34.73285705666976","0.9795126708413627","34.22677294178704","0.4383471000752555","true","0.2114626201603826","true","3","28"
+"92","H8","false","AA_0703","Unknown","UNKNOWN","FAM","None","Amp","1.3498124973293872","","","33.9661591182711","0.9790135886325442","34.22677294178704","0.4383471000752555","true","0.2114626201603826","true","3","28"
+"93","H9","false","AA_0703","Unknown","UNKNOWN","FAM","None","Amp","1.3341135178879382","","","33.98130265042028","0.9697279911800639","34.22677294178704","0.4383471000752555","true","0.2114626201603826","true","3","27"
+"94","H10","false","AA_0783","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"95","H11","false","AA_0783","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"
+"96","H12","false","AA_0783","Unknown","UNKNOWN","FAM","None","No Amp","0.0","","","Undetermined","0.0","","","true","0.2114626201603826","true","3","39"

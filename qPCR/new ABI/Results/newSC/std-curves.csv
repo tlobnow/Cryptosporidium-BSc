@@ -1,0 +1,4 @@
+#Instrument:QuantStudio™ 1 System
+#Block:96-Well 0.2-mL Block
+Reporter,Target,Slope,Y-Intercept,R2,Efficiency (%),Quantities,Std Dev,Std Error
+"FAM,Standard Curve,-3.3446,42.4127,0.9912020213171033,99.06216273439354,""30.0, 244.0, 1953.0, 15625.0, 125000.0, 250000.0, 1000000.0"",0.49818388606982955,0.08135981124153108"
