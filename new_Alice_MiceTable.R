@@ -1,6 +1,7 @@
 library(dplyr)
 library(tidyverse)
 library(visdat)
+library(data.table)
 
 
 #### Select Columns ############################################################
@@ -497,9 +498,9 @@ EimGeno.cols    <- c("n18S_Seq", "COI_Seq", "ORF470_Seq", "eimeriaSpecies")
 
     
     ## add Crypto Data to the "new_Alice" Table
-    new_Alice <- full_join(Crypto[colnames(Crypto) %in% c("Mouse_ID", Crypto_qPCR.cols, Crypto_DNA.cols, "HI")], new_Alice[colnames(new_Alice) %in% c(basics, gen.loci, dissection.cols, oocyst.cols, parasite.cols, EimGeno.cols, EqPCR.cols)])
-    new_Alice$Mouse_ID[duplicated(new_Alice$Mouse_ID)]
-    new_Alice <- new_Alice %>% 
+    Crypto_new_Alice <- full_join(Crypto[colnames(Crypto) %in% c("Mouse_ID", Crypto_qPCR.cols, Crypto_DNA.cols, "HI")], new_Alice[colnames(new_Alice) %in% c(basics, gen.loci, dissection.cols, oocyst.cols, parasite.cols, EimGeno.cols, EqPCR.cols)])
+    Crypto_new_Alice$Mouse_ID[duplicated(Crypto_new_Alice$Mouse_ID)]
+    Crypto_new_Alice <- Crypto_new_Alice %>% 
       arrange(Mouse_ID) %>%  
       group_by(Mouse_ID) %>% 
       fill(c(everything()), .direction = "downup") %>% 
@@ -509,3 +510,6 @@ EimGeno.cols    <- c("n18S_Seq", "COI_Seq", "ORF470_Seq", "eimeriaSpecies")
     #vis_miss(new_Alice, sort_miss = T, cluster = T)
 
 #write.csv(new_Alice, "new_Alice_MiceTable.csv")
+
+#write.csv(Crypto_new_Alice, "Crypto_new_Alice.csv")
+
