@@ -21,7 +21,6 @@ Jarda <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc
       Crypto_DNA.cols   <- c("ILWE_DNA_Content_ng.microliter", "ILWE_used_up")
       
       Crypto_qPCR.cols       <- c("Ct_mean", "Ct_mean_Ep", "Ct_mean_ABI", 
-                           "Ct_mean_1_ABI", "Ct_mean_2_ABI", "Ct_mean_3_ABI",
                            "Flags", "Flags_perc", "Machine", "Measurements", "Tested_by", 
                            "qPCR_Date", "Oocyst_Predict", "Crypto_Positive")
 
@@ -72,6 +71,6 @@ Jarda <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc
     ## add HI Data with Jarda
     Crypto_Detection  <- merge(Crypto_Detection[colnames(Crypto_Detection) %in% c("Mouse_ID", Crypto_qPCR.cols, Crypto_DNA.cols)], Jarda[colnames(Jarda) %in% c(basics, "HI")]) %>% filter(Ct_mean >= 0)
 
-    #write.csv(Crypto_Detection, "Crypto_Detection.csv")
+    write.csv(Crypto_Detection, "Crypto_Detection.csv")
 
     
