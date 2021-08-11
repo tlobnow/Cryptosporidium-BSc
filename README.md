@@ -5,86 +5,89 @@ Column Documentation
 
 ## BASICS
 
-		Mouse_ID    Sample Number 
-                        AA_ Samples collected since 2016
-                        SK_ Samples collected prior to 2016
-                        ZZ_ other rodents
+Mouse_ID == Sample Number 
+
+    AA_ Samples collected since 2016
+    SK_ Samples collected prior to 2016
+    ZZ_ other rodents          
            
-		Code        unique Abbreviation of Address
+Code == unique Abbreviation of Address
 
-		Transect    Area where Samples were collected (rather roughly, doesn't match exactly)
-                        HZ_BR   Brandenburg
-                        HZ_BAV  Bavaria
-                        HZ_MV   Mecklenburg-Vorpommern
-                        HZ_CZ   Czech
-                        ALLO_PL   Poland
+Transect	== Area where Samples were collected (rather roughly, doesn't match exactly)
+
+    HZ_BR   Brandenburg
+    HZ_BAV  Bavaria
+    HZ_MV   Mecklenburg-Vorpommern
+    HZ_CZ   Czech
+    ALLO_PL   Poland
             
-		Sex         Female or Male
+Sex ==  Female or Male
 
-		Longitude   11.214 - 21.750
+Longitude ==  11.214 - 21.750
 
-		Latitude    47.788 - 57.150
+Latitude  ==  47.788 - 57.150
 
-		Year        2010 - 2019 (SK_ and AA_)
+Year  == 2010 - 2019 (SK_ and AA_)
 
-		HI_NLoci    Hybrid Index is defined by 14 Loci that are used to differentiate Mmm and Mmd 
+HI_NLoci  == Hybrid Index is defined by 14 Loci that are used to differentiate Mmm and Mmd 
                 		0 ... corresponds to a "pure Mmd",
                 		14... corresponds to a "pure Mmm"
                 		1:13 corresponds to Hybrids of different extend
             
-		HI 	depends on the Loci of HI_NLoci (although the definition and measurements differ across the
+HI  == depends on the Loci of HI_NLoci (although the definition and measurements differ across the
                 		years, the HI is the most up-to-date variable to use for visualization, as Jarda tends 
                 		to update and adjust measurements over the years)
                 		takes values 0-1
             
-		State   PL
-            	DE
-            	CZ
+State == PL, DE, or CZ
 
 
 ## qPCR DATA
 
-		qPCR_Date    == as far as known, date of qPCR performed, in case of multiple measurements it refers to the last qPCR performed
+qPCR_Date    == as far as known, date of qPCR performed, in case of multiple measurements it refers to the last qPCR performed
 
-		Tested_by   == Person that performed DNA extraction and qPCR
-                		YVT ... Yasmin, Victor, or Tabea performed DNA extraction and qPCR (Eppendorf only)
-                		Tes ... Tessa performed DNA extraction and qpCR
+Tested_by   == Person that performed DNA extraction and qPCR
+
+        YVT ... Yasmin, Victor, or Tabea performed DNA extraction and qPCR (Eppendorf only)
+        Tes ... Tessa performed DNA extraction and qpCR
 										
-				the column can show a variety of combinations, corresponding to multiple measurements:
-                		Tes
-                		Tes-Tes
-                		Tes-Tes-Tes
-                		YVT
-                		YVT-YVT
-                		YVT-YVT-YVT
-                		YVT-YVT-Tes
-                		YVT-Tes				
+the column can show a variety of combinations, corresponding to multiple measurements:
 
-		Machine	 == takes values Eppendorf, 7300_RealTimePCR, or Quantstudio1
+        Tes
+        Tes-Tes
+        Tes-Tes-Tes
+        YVT
+        YVT-YVT
+        YVT-YVT-YVT
+        YVT-YVT-Tes
+        YVT-Tes				
+
+Machine	 == takes values Eppendorf, 7300_RealTimePCR, or Quantstudio1
                 	
-				BUT if a sample was run multiple times, the description is added
-                		Eppendorf
-                		Eppendorf + Eppendorf
-                		Eppendorf + Eppendorf + Eppendorf
-                 		Eppendorf + Eppendorf + Quantstudio1
-                		Eppendorf + Quantstudio1
-                		Quantstudio1
-                		Quantstudio1 + Quantstudio1
-                		7300_RealTime_PCR + Quantstudio1
-                		7300_RealTime_PCR + Quantstudio1 + Quantstudio1
+   BUT if a sample was run multiple times, the description is added
+   
+        Eppendorf
+        Eppendorf + Eppendorf
+        Eppendorf + Eppendorf + Eppendorf
+        Eppendorf + Eppendorf + Quantstudio1
+        Eppendorf + Quantstudio1
+        Quantstudio1
+        Quantstudio1 + Quantstudio1
+        7300_RealTime_PCR + Quantstudio1
+        7300_RealTime_PCR + Quantstudio1 + Quantstudio1
   
   
-		Measurements	 == number of qPCR measurements, 
+Measurements	 == number of qPCR measurements, 
 				1 measurement in old samples stands for duplicates (Eppendorf, YVT)
 				1 measurement in new Samples stands for triplicates (ABI machines, Tes)
 
 
 CT_MEASUREMENTS:
 
-Ct_1_Ep + Ct_2_Ep = 1st Measurement
-Ct_3_Ep + Ct_4_Ep = 2nd Measurement    
-Ct_5_Ep + Ct_6_Ep = 3rd Measurement    
-Ct_mean_Ep = Mean of all available measurements
+    Ct_1_Ep + Ct_2_Ep = 1st Measurement
+    Ct_3_Ep + Ct_4_Ep = 2nd Measurement    
+    Ct_5_Ep + Ct_6_Ep = 3rd Measurement    
+    Ct_mean_Ep = Mean of all available measurements
       
 ## FLAGS    
   qPCR quantification curves were double-checked, Flag == curve does not resemble normal quantification curve
@@ -98,9 +101,9 @@ Ct_mean_Ep = Mean of all available measurements
 		Flag_Ct_5_Ep  
 		Flag_Ct_6_Ep  
 
-		Flags == sum of all Flags
+Flags == sum of all Flags
               
-		Flag_perc == Percentage of Flags/ (Measurements * 2)
+Flag_perc == Percentage of Flags/ (Measurements * 2)
 		This is calculated as Measurements * 2, since 1 measurement equals 2 individual Ct values, therefore also 2 potential flags
 		By dividing by Measurements * 2, every Sample that was measured with the Eppendorf machine in previous years hereby receives a 'mistrust' value (percentage). 
 		The higher the percentage, the less believable were the curves, thus increasing a need for re-running a qPCR
