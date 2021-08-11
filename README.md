@@ -89,7 +89,7 @@ CT_MEASUREMENTS:
     Ct_5_Ep + Ct_6_Ep = 3rd Measurement    
     Ct_mean_Ep = Mean of all available measurements
       
-## FLAGS    
+FLAGS:
   qPCR quantification curves were double-checked, Flag == curve does not resemble normal quantification curve
   since new measurements since 2019 were performed as triplicates, and I have not performed the old qPCRs,
   the flagging system is only applied to older Samples (Eppendorf qPCRs performed by YVT)
@@ -132,6 +132,7 @@ since 2019, qPCRs were performed as Triplicates, not Duplicates
 		Ct_mean        == mean of ALL Ct measurements
 
 Crypto_Positive == TRUE, if the sample showed amplification in qPCR (Ct_mean > 0)
+
 
 ## Oocyst Prediction
 Oocyst Predictions were done based on Standard Curves, that were run in qPCRs with known Oocyst amounts 
