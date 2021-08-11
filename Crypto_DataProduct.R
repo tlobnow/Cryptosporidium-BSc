@@ -1,6 +1,7 @@
 library(dplyr)
 library(tidyverse)
 library(visdat)
+library(data.table)
 
 # Email from Jarda (2019)
 Jarda <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/EmanuelData.csv") 
@@ -17,24 +18,52 @@ Jarda <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc
                     "Idh1C", "MpiC", "NpC", "Sod1C", "Zfy2", "SRY1", "Y", "HI_NLoci",
                     "HI")
       
-      Crypto_DNA.cols   <- c("ILWE_DNA_Content_ng.microliter", "ILWE_DNA_used_up", 
-                           "DNA_Dilution_ng.microliter", "dest_Water")
+      Crypto_DNA.cols   <- c("ILWE_DNA_Content_ng.microliter", "ILWE_used_up")
       
       Crypto_qPCR.cols       <- c("Ct_mean", "Ct_mean_Ep", "Ct_mean_ABI", 
                            "Ct_mean_1_ABI", "Ct_mean_2_ABI", "Ct_mean_3_ABI",
-                           "Ct_believable", "Machine", "Measurements", "Tested_by", 
-                           "qPCR_Date")
+                           "Flags", "Flags_perc", "Machine", "Measurements", "Tested_by", 
+                           "qPCR_Date", "Oocyst_Predict", "Crypto_Positive")
 
       Jarda <- Jarda[, colnames(Jarda) %in% c(basics, gen.loci), ]
 
 
 ### add Crypto DNA Extraction Data
     Crypto_DNA   <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/WD_07_22/DNA_Extraction_ILWE_2018_2019.csv")
+    setnames(Crypto_DNA, old = "ILWE_DNA_used_up", new = "ILWE_used_up")
 
 ### add Crypto_qPCR Data and filter out duplicates
-    Crypto_qPCR           <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/WD_07_22/qPCR_Data_MouseID_forJoin.csv") 
-    Crypto_qPCR$Mouse_ID  <- gsub(pattern = "SK", replacement = "SK_", x = Crypto_qPCR$Mouse_ID)
-    Crypto_qPCR$Mouse_ID  <- gsub(pattern = "SK__", replacement = "SK_", x = Crypto_qPCR$Mouse_ID)
+    Crypto_qPCR           <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/qPCR_Data_MouseID_forJoin.csv") 
+
+### add Flags (to determine curve quality, flagged Ct value means that the curve 
+    ## doesn't resemble a normal quantification curve)
+    ## 
+    Flags <- Crypto_qPCR %>%
+      gather("key", "value", Flag_Ct_1_Ep, Flag_Ct_2_Ep, Flag_Ct_3_Ep, Flag_Ct_4_Ep, Flag_Ct_5_Ep, Flag_Ct_6_Ep) %>% 
+      group_by(Mouse_ID, value) %>% summarise(n=n()) %>%  filter(value == TRUE)
+    
+    Crypto_qPCR <- left_join(Crypto_qPCR, Flags) %>% mutate(Flags = n, Flags_perc = n/ (Measurements * 2 )) %>% 
+      select(-n, -value) %>% replace_na(list(Flags = 0, Flags_perc = 0))
+
+
+  
+### calculate Oocysts with prediction model
+    ABI_Best_thSC     <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Crap/ABI_Best_SC.csv")
+    ABI_Best_thSC     <-  filter(ABI_Best_thSC, Ct_mean > 0)
+    linear_model0     <- lm(log2(Amount_Oocysts) ~ Ct_mean, data = ABI_Best_thSC)
+    Oocyst_Predict    <- 2^predict(linear_model0, newdata = Crypto_qPCR)
+    
+    Crypto_qPCR <- data.frame(Crypto_qPCR, Oocyst_Predict)
+    Crypto_qPCR <- Crypto_qPCR %>%
+      mutate(Oocyst_Predict = replace(Oocyst_Predict, Oocyst_Predict == "4292821751815.77", "0"))
+    Crypto_qPCR$Oocyst_Predict <- as.integer(Crypto_qPCR$Oocyst_Predict)
+    
+    
+## add Status (Crypto-positive or negative)
+    Crypto_qPCR <- Crypto_qPCR %>%
+      mutate(Crypto_Positive = ifelse(Ct_mean > 0, T, F))
+    
+    
     
 ### merging qPCR and and Extraction data
     Crypto_Detection  <- full_join(Crypto_qPCR[colnames(Crypto_qPCR) %in% c(basics, Crypto_qPCR.cols, Crypto_DNA.cols)], 
@@ -43,10 +72,6 @@ Jarda <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc
     ## add HI Data with Jarda
     Crypto_Detection  <- merge(Crypto_Detection[colnames(Crypto_Detection) %in% c("Mouse_ID", Crypto_qPCR.cols, Crypto_DNA.cols)], Jarda[colnames(Jarda) %in% c(basics, "HI")]) %>% filter(Ct_mean >= 0)
 
-    write.csv(Crypto_Detection, "Crypto_Detection.csv")
+    #write.csv(Crypto_Detection, "Crypto_Detection.csv")
 
-    
-    Crypto_Detection <- Crypto_Detection[colnames(Crypto_Detection) %in% c(basics, "HI", Crypto_DNA.cols, Crypto_qPCR.cols)]
-    write.csv(Crypto_Detection, "Crypto_Detection_Selected.csv")
-        
     
