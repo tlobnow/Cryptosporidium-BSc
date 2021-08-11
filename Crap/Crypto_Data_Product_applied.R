@@ -8,7 +8,8 @@ Crypto_Detection <- read.csv("Crypto_qPCR_Results.csv") %>% select(-Oocyst_Predi
 Crypto_Detection  <- Crypto_Detection[!names(Crypto_Detection) == "X"]
 Crypto_Detection  <- Crypto_Detection[!names(Crypto_Detection) == "X.1"]
 
-
+Crypto_Detection %>%
+  count(Machine)
 
 ## Predict Oocysts
     ABI_Best_thSC     <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Crap/ABI_Best_SC.csv")
@@ -26,6 +27,8 @@ Crypto_Detection  <- Crypto_Detection[!names(Crypto_Detection) == "X.1"]
     
     
 ## Visualize
+    
+
     
     
     
