@@ -109,8 +109,8 @@ Flag_perc == Percentage of Flags/ (Measurements * 2)
 		The higher the percentage, the less believable were the curves, thus increasing a need for re-running a qPCR
                  
 
+since 2019, qPCRs were performed as Triplicates, not Duplicates
 
-#### since 2019, qPCRs were performed as Triplicates, not Duplicates
 		Ct_1_ABI       
 		Ct_2_ABI     
 		Ct_3_ABI       
@@ -130,6 +130,8 @@ Flag_perc == Percentage of Flags/ (Measurements * 2)
 		Ct_mean_ABI    == mean of all ABI measurements
 
 		Ct_mean        == mean of ALL Ct measurements
+
+Crypto_Positive == TRUE, if the sample showed amplification in qPCR (Ct_mean > 0)
 
 ## Oocyst Prediction
 Oocyst Predictions were done based on Standard Curves, that were run in qPCRs with known Oocyst amounts 
@@ -160,5 +162,9 @@ A Ct value of 0 leads to an Oocyst_Predict of 4292821751815.77 Oocysts, so we se
 Now this is just info for the storage of my Samples. Should I ever need more positive or negative Samples, I can simply look into the amount of DNA
 I extracted from individual Samples and can re-dilute from the stock. This comes in handy when testing primers in PCRs.
       
+ILWE_DNA_Content_ng.microliter == amount of DNA extracted [ng/µL]
 
+ILWE_used_up == TRUE, if all tissue was used for extraction (FALSE, if tissue is still stored at -80)
+BUT this data is currently only available for 2019 samples
+	
 
