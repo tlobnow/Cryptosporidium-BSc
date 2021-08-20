@@ -51,9 +51,6 @@ rm(Crypto_Detection_2)
 rm(Crypto_pull)
 rm(Crypto_pull_pos)
 
-
-
-
 # Map Data ####
 map <- Crypto_Detection %>%
   leaflet() %>%
@@ -61,24 +58,23 @@ map <- Crypto_Detection %>%
   setView(lat = 52.520007, lng =13.404954, zoom = 7)
 map
 
-Crypto_Detection_mus <- Crypto_Detection %>% filter(HI  != "NA", Longitude != "NA", Latitude  != "NA")
+Crypto_Detection <- Crypto_Detection %>% filter(HI  != "NA", Longitude != "NA", Latitude  != "NA")
 
 Crypto_Detection <- Crypto_Detection %>% replace_na(list(Crypto_mus_caught = 0))
 Crypto_Detection[,'HI']=format(round(Crypto_Detection[,'HI'],2),nsmall=2)
 
-Crypto_Detection_mus$mus_Level <-  cut(Crypto_Detection_mus$mus_caught, c(0, 1, 5, 10, 15, 20, 21), include.lowest = T ,
+Crypto_Detection$mus_Level <-  cut(Crypto_Detection$mus_caught, c(0, 1, 5, 10, 15, 20, 21), include.lowest = T ,
                                        labels = c('1 mouse', 'up to 5 mice', 'up to 10 mice', 'up to 15 mice', 'up to 20 mice', '21 mice'))
 
+data_col_mus        = colorFactor(matlab.like(6), Crypto_Detection$mus_caught)
+data_col_mus_Level  = colorFactor(matlab.like(6), Crypto_Detection$mus_Level)
 
-data_col_mus        = colorFactor(matlab.like(6), Crypto_Detection_mus$mus_caught)
-data_col_mus_Level  = colorFactor(matlab.like(6), Crypto_Detection_mus$mus_Level)
-
-mus_1 <- Crypto_Detection_mus %>% filter(mus_caught == 1)
-mus_5 <- Crypto_Detection_mus %>% filter(mus_caught > 1 & mus_caught <= 5)
-mus_10 <- Crypto_Detection_mus %>% filter(mus_caught > 5 & mus_caught <= 10)
-mus_15 <- Crypto_Detection_mus %>% filter(mus_caught > 10 & mus_caught <= 15)
-mus_20 <- Crypto_Detection_mus %>% filter(mus_caught > 15 & mus_caught <= 20)
-mus_21 <- Crypto_Detection_mus %>% filter(mus_caught == 21)
+mus_1 <- Crypto_Detection %>% filter(mus_caught == 1)
+mus_5 <- Crypto_Detection %>% filter(mus_caught > 1 & mus_caught <= 5)
+mus_10 <- Crypto_Detection %>% filter(mus_caught > 5 & mus_caught <= 10)
+mus_15 <- Crypto_Detection %>% filter(mus_caught > 10 & mus_caught <= 15)
+mus_20 <- Crypto_Detection %>% filter(mus_caught > 15 & mus_caught <= 20)
+mus_21 <- Crypto_Detection %>% filter(mus_caught == 21)
 
 # Mus Map ####
 map %>%
@@ -141,7 +137,7 @@ map %>%
   addLegend("bottomleft", 
             pal = data_col_mus_Level, 
             title = "Number of mice caught",
-            values = Crypto_Detection_mus$mus_Level, 
+            values = Crypto_Detection$mus_Level, 
             group = c('1 mouse', 'up to 5 mice', 'up to 10 mice', 'up to 15 mice', 'up to 20 mice', '21 mice'),
             opacity = 1) %>%
   addLayersControl(overlayGroups = c('mus_1', 'mus_5', 'mus_10', 'mus_15', 'mus_20', 'mus_21'),
@@ -149,16 +145,16 @@ map %>%
 
 
 # Crypto_Map ####
-data_col_mus_crypto = colorFactor(matlab.like(8), Crypto_Detection_mus$Crypto_mus_caught)
+data_col_mus_crypto = colorFactor(matlab.like(8), Crypto_Detection$Crypto_mus_caught)
 
-Crypto_Infections_1 <- Crypto_Detection_mus %>% filter(Crypto_mus_caught == 1)
-Crypto_Infections_2 <- Crypto_Detection_mus %>% filter(Crypto_mus_caught == 2)
-Crypto_Infections_3 <- Crypto_Detection_mus %>% filter(Crypto_mus_caught == 3)
-Crypto_Infections_4 <- Crypto_Detection_mus %>% filter(Crypto_mus_caught == 4)
-Crypto_Infections_5 <- Crypto_Detection_mus %>% filter(Crypto_mus_caught == 5)
-Crypto_Infections_6 <- Crypto_Detection_mus %>% filter(Crypto_mus_caught == 6)
-Crypto_Infections_7 <- Crypto_Detection_mus %>% filter(Crypto_mus_caught == 7)
-Crypto_Infections_8 <- Crypto_Detection_mus %>% filter(Crypto_mus_caught == 8)
+Crypto_Infections_1 <- Crypto_Detection %>% filter(Crypto_mus_caught == 1)
+Crypto_Infections_2 <- Crypto_Detection %>% filter(Crypto_mus_caught == 2)
+Crypto_Infections_3 <- Crypto_Detection %>% filter(Crypto_mus_caught == 3)
+Crypto_Infections_4 <- Crypto_Detection %>% filter(Crypto_mus_caught == 4)
+Crypto_Infections_5 <- Crypto_Detection %>% filter(Crypto_mus_caught == 5)
+Crypto_Infections_6 <- Crypto_Detection %>% filter(Crypto_mus_caught == 6)
+Crypto_Infections_7 <- Crypto_Detection %>% filter(Crypto_mus_caught == 7)
+Crypto_Infections_8 <- Crypto_Detection %>% filter(Crypto_mus_caught == 8)
 
 map %>%
   addCircleMarkers(data = Crypto_Infections_1, 
@@ -236,7 +232,7 @@ map %>%
   addLegend("bottomleft", 
             pal = data_col_mus_crypto, 
             title = "Crypto caught",
-            values = Crypto_Detection_mus$Crypto_mus_caught, 
+            values = Crypto_Detection$Crypto_mus_caught, 
             group = c('Crypto_Infections_1', 
                       'Crypto_Infections_2', 
                       'Crypto_Infections_3', 
@@ -258,22 +254,22 @@ map %>%
 
 # HI Map ####
 
-Crypto_Detection_mus$HI <- as.numeric(Crypto_Detection_mus$HI)
-data_col_HI       = colorFactor(beach(6), Crypto_Detection_mus$HI)
-data_col_HI_Level = colorFactor(beach(6), Crypto_Detection_mus$HI_Level)
+Crypto_Detection$HI <- as.numeric(Crypto_Detection$HI)
+data_col_HI       = colorFactor(beach(6), Crypto_Detection$HI)
+data_col_HI_Level = colorFactor(beach(6), Crypto_Detection$HI_Level)
 
 
-Crypto_Detection_mus$HI_Level <-  cut(Crypto_Detection_mus$HI, c(0, 0.001, 0.250, 0.500, 0.750, 0.999, 1), include.lowest = T ,
+Crypto_Detection$HI_Level <-  cut(Crypto_Detection$HI, c(0, 0.001, 0.250, 0.500, 0.750, 0.999, 1), include.lowest = T ,
                                   labels = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'))
 
 
 
-HI_0 <- Crypto_Detection_mus %>% filter(HI < 0.01)
-HI_below_0.25 <- Crypto_Detection_mus %>% filter(HI > 0.01, HI <= 0.25)
-HI_below_0.5 <- Crypto_Detection_mus %>% filter(HI > 0.25, HI <= 0.5)
-HI_below_0.75 <- Crypto_Detection_mus %>% filter(HI > 0.5, HI <= 0.75)
-HI_below_1 <- Crypto_Detection_mus %>% filter(HI > 0.75, HI < 1)
-HI_equal_1 <- Crypto_Detection_mus %>% filter(HI > 0.99)
+HI_0 <- Crypto_Detection %>% filter(HI < 0.01)
+HI_below_0.25 <- Crypto_Detection %>% filter(HI > 0.01, HI <= 0.25)
+HI_below_0.5 <- Crypto_Detection %>% filter(HI > 0.25, HI <= 0.5)
+HI_below_0.75 <- Crypto_Detection %>% filter(HI > 0.5, HI <= 0.75)
+HI_below_1 <- Crypto_Detection %>% filter(HI > 0.75, HI < 1)
+HI_equal_1 <- Crypto_Detection %>% filter(HI > 0.99)
 
 map %>%
   addCircleMarkers(data = HI_0, 
@@ -357,7 +353,7 @@ map %>%
   addLegend("bottomleft", 
             pal = data_col_HI_Level, 
             title = "HI",
-            values = Crypto_Detection_mus$HI_Level, 
+            values = Crypto_Detection$HI_Level, 
             group = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'),
             opacity = 1) #%>%
   #addLayersControl(overlayGroups = c("HI_0", 
@@ -369,29 +365,46 @@ map %>%
   #                 options = layersControlOptions(collapsed = F))
 
 
-# Map Crypto Infections per mice caught
+# Map Crypto Infections per mice caught ####
 
-Crypto_Detection_mus <- Crypto_Detection_mus %>%
+Crypto_Detection <- Crypto_Detection %>%
   mutate(Infection_Rate = Crypto_mus_caught / mus_caught)
-Crypto_Detection_mus[,'Infection_Rate']=format(round(Crypto_Detection_mus[,'Infection_Rate'],2),nsmall=2)
-Crypto_Detection_mus$Infection_Rate <- as.numeric(Crypto_Detection_mus$Infection_Rate)
+Crypto_Detection[,'Infection_Rate']=format(round(Crypto_Detection[,'Infection_Rate'],2),nsmall=2)
+Crypto_Detection$Infection_Rate <- as.numeric(Crypto_Detection$Infection_Rate)
 
-Crypto_Detection_mus$Infection_Level <-  cut(Crypto_Detection_mus$Infection_Rate, c(0, 0.01, 0.25, 0.5, 0.75, 1), include.lowest = T ,
+Crypto_Detection$Infection_Level <-  cut(Crypto_Detection$Infection_Rate, c(0, 0.01, 0.25, 0.5, 0.75, 1), include.lowest = T ,
                                       labels = c('0 %', '< 25 %', '< 50 %', '< 75 %', '100 %'))
 
-data_col_mus_infection_rate = colorFactor(matlab.like(6), Crypto_Detection_mus$Infection_Level)
+data_col_mus_infection_rate = colorFactor(matlab.like(6), Crypto_Detection$Infection_Level)
 
-Infection_Rate_0    <- Crypto_Detection_mus %>% filter(Infection_Level == '0 %')
-Infection_Rate_25   <- Crypto_Detection_mus %>% filter(Infection_Level == '< 25 %')
-Infection_Rate_50   <- Crypto_Detection_mus %>% filter(Infection_Level == '< 50 %')
-Infection_Rate_75   <- Crypto_Detection_mus %>% filter(Infection_Level == '< 75 %')
-Infection_Rate_equal_100   <- Crypto_Detection_mus %>% filter(Infection_Level == '100 %')
+Infection_Rate_0    <- Crypto_Detection %>% filter(Infection_Level == '0 %')
+Infection_Rate_25   <- Crypto_Detection %>% filter(Infection_Level == '< 25 %')
+Infection_Rate_50   <- Crypto_Detection %>% filter(Infection_Level == '< 50 %')
+Infection_Rate_75   <- Crypto_Detection %>% filter(Infection_Level == '< 75 %')
+Infection_Rate_equal_100   <- Crypto_Detection %>% filter(Infection_Level == '100 %')
+
+map <- Crypto_Detection %>%
+  leaflet() %>%
+  addProviderTiles("CartoDB") %>%
+  setView(lat = 52.520007, lng =13.404954, zoom = 7) 
+
 
 
 map %>%
+  addCircleMarkers(data = Crypto_Detection, 
+                   col = ~data_col_mus_infection_rate(Infection_Level),
+                   label = ~htmlEscape(mus_caught),
+                   popup = ~paste("<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  "<b>Address:<b>", as.character(Address), "<br>",
+                                  "<b>Crypto Infections:<b>",  as.character(Crypto_mus_caught), "<b>/<b>", as.character(mus_caught), "<br>",
+                                  sep=" "),
+                   opacity = 0.3,
+                   radius = 3,
+                   group = "Crypto_Detection",
+                   clusterOptions = markerClusterOptions()) %>%
   addCircleMarkers(data = Infection_Rate_0, 
                    col = ~data_col_mus_infection_rate(Infection_Level),
-                   label = ~htmlEscape(Mouse_ID),
+                   label = ~htmlEscape(mus_caught),
                    popup = ~paste("<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
                                   "<b>Address:<b>", as.character(Address), "<br>",
                                   "<b>Crypto Infections:<b>",  as.character(Crypto_mus_caught), "<b>/<b>", as.character(mus_caught), "<br>",
@@ -401,7 +414,7 @@ map %>%
                    group = "Infection_Rate_0") %>%
   addCircleMarkers(data = Infection_Rate_25, 
                    col = ~data_col_mus_infection_rate(Infection_Level),
-                   label = ~htmlEscape(Mouse_ID),
+                   label = ~htmlEscape(mus_caught),
                    popup = ~paste("<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
                                   "<b>Address:<b>", as.character(Address), "<br>",
                                   "<b>Crypto Infections:<b>",  as.character(Crypto_mus_caught), "<b>/<b>", as.character(mus_caught), "<br>",
@@ -410,7 +423,7 @@ map %>%
                    group = "Infection_Rate_25") %>%
   addCircleMarkers(data = Infection_Rate_50, 
                    col = ~data_col_mus_infection_rate(Infection_Level),
-                   label = ~htmlEscape(Mouse_ID),
+                   label = ~htmlEscape(mus_caught),
                    popup = ~paste("<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
                                   "<b>Address:<b>", as.character(Address), "<br>",
                                   "<b>Crypto Infections:<b>",  as.character(Crypto_mus_caught), "<b>/<b>", as.character(mus_caught), "<br>",
@@ -419,7 +432,7 @@ map %>%
                    group = "Infection_Rate_50") %>%
   addCircleMarkers(data = Infection_Rate_75, 
                    col = ~data_col_mus_infection_rate(Infection_Level),
-                   label = ~htmlEscape(Mouse_ID),
+                   label = ~htmlEscape(mus_caught),
                    popup = ~paste("<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
                                   "<b>Address:<b>", as.character(Address), "<br>",
                                   "<b>Crypto Infections:<b>",  as.character(Crypto_mus_caught), "<b>/<b>", as.character(mus_caught), "<br>",
@@ -428,7 +441,7 @@ map %>%
                    group = "Infection_Rate_75") %>%
   addCircleMarkers(data = Infection_Rate_equal_100, 
                    col = ~data_col_mus_infection_rate(Infection_Level),
-                   label = ~htmlEscape(Mouse_ID),
+                   label = ~htmlEscape(mus_caught),
                    popup = ~paste("<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
                                   "<b>Address:<b>", as.character(Address), "<br>",
                                   "<b>Crypto Infections:<b>",  as.character(Crypto_mus_caught), "<b>/<b>", as.character(mus_caught), "<br>",
@@ -438,16 +451,24 @@ map %>%
   addLegend("bottomleft", 
             pal = data_col_mus_infection_rate, 
             title = "Infection Rate",
-            values = Crypto_Detection_mus$Infection_Level, 
+            values = Crypto_Detection$Infection_Level, 
             group = c('Infection_Rate_0',
                       'Infection_Rate_25',
                       'Infection_Rate_50',
                       'Infection_Rate_75',
                       'Infection_Rate_equal_100'),
             opacity = 1) %>%
-  addLayersControl(overlayGroups = c('Infection_Rate_0',
+  addLayersControl(overlayGroups = c('Crypto_Detection',
+                                     'Infection_Rate_0',
                                      'Infection_Rate_25',
                                      'Infection_Rate_50',
                                      'Infection_Rate_75',
                                      'Infection_Rate_equal_100'),
                    options = layersControlOptions(collapsed = F))
+
+High_Crypto_Infection <- Crypto_Detection %>%
+  filter(Crypto_mus_caught > 0)
+
+  
+  
+  

@@ -65,11 +65,9 @@ Jarda <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc
 ## add HI Data with Jarda
     Crypto_Detection  <- merge(Crypto_Detection[colnames(Crypto_Detection) %in% c("Mouse_ID", Crypto_qPCR.cols, Crypto_DNA.cols)], Jarda[colnames(Jarda) %in% c(basics, "HI")]) %>% filter(Ct_mean >= 0)
 
-## add Address to the table
+## add Address variable for improved mapping
     Trapping_Data     <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_input/HZ14-HZ19_Trapping_coodinates.csv")
     Crypto_Detection <- left_join(Crypto_Detection, Trapping_Data[colnames(Trapping_Data) %in% Address.cols])
-    
-## fill and remove duplicates
     Crypto_Detection <- Crypto_Detection %>% arrange(Mouse_ID) %>% group_by(Mouse_ID) %>% fill(c(everything()), .direction = "downup") %>% ungroup() %>% distinct(Mouse_ID, .keep_all = T) 
 
 ## write csv
