@@ -1,24 +1,13 @@
 library(colorRamps)
 library(RColorBrewer)
 library(dplyr)
-display.brewer.all()
-
-colorRampPalette(c("blue", "purple", "red")) (6)
+#display.brewer.all()
 
 Blue2purple2red <- c("#0000FF", "#400CF9", "#8019F3", "#B319BF", "#D90C5F", "#FF0000")
-r_orig <-  col2rgb(Blue2purple2red) [1,]
-r_orig
-g_orig <- col2rgb(Blue2purple2red) [2,]
-g_orig
-b_orig <- col2rgb(Blue2purple2red) [3,]
-b_orig
 r <- c(0, 64, 128, 179, 217, 255)
 g <- c(0, 12, 25, 25, 12,  0)
 b <- c(255, 249, 243, 191,  95,   0)
-
-BlPrpRd <- rgb(r, g, b,
-               maxColorValue = 255)
-
+BlPrpRd <- rgb(r, g, b, maxColorValue = 255)
  function (n, name = c("BlPrpRd")) 
  {
    BlPrpRd = rgb(c(0, 64, 128, 179, 217, 255),
@@ -60,13 +49,8 @@ BlPrpRd <- rgb(r, g, b,
     palette = rgb(temp[, 1], temp[, 2], temp[, 3], maxColorValue = 255)
     palette
   }
-
-pal2 <- beach(n=50)
-par(mar = rep(0, 4))
-pie(rep(1, length(pal2)), col = pal2)
-
-# Test
-
-df1 <- c(1,2,3,4,5,6,7,8,9,10)
-df2 <- c(1,2,3,4,5,6,7,8,9,10)
-
+rm(BlPrpRd)
+rm(Blue2purple2red)
+#pal2 <- beach(n=50)
+#par(mar = rep(0, 4))
+#pie(rep(1, length(pal2)), col = pal2)
