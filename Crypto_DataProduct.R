@@ -70,7 +70,24 @@ Jarda <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc
     Crypto_Detection <- left_join(Crypto_Detection, Trapping_Data[colnames(Trapping_Data) %in% Address.cols])
     Crypto_Detection <- Crypto_Detection %>% arrange(Mouse_ID) %>% group_by(Mouse_ID) %>% fill(c(everything()), .direction = "downup") %>% ungroup() %>% distinct(Mouse_ID, .keep_all = T) 
 
-## write csv
-    write.csv(Crypto_Detection, "Crypto_Detection.csv")
+## add mus_caught per Location and Crypto_mus_caught per Location
+    Crypto_pull <- Crypto_Detection %>% count(Longitude)%>% mutate(mus_caught = n) %>% select(Longitude, mus_caught) %>% arrange(mus_caught)
+    Crypto_pull_pos <- Crypto_Detection %>% filter(Ct_mean > 0) %>% count(Longitude) %>% mutate(Crypto_mus_caught = n) %>% select(Longitude, Crypto_mus_caught) %>% arrange(Crypto_mus_caught)
+    Crypto_Detection_1 <- left_join(Crypto_Detection, Crypto_pull)
+    Crypto_Detection_2 <- left_join(Crypto_Detection_1, Crypto_pull_pos)
+    Crypto_Detection <- Crypto_Detection_2
+    Crypto_Detection <- Crypto_Detection %>% replace_na(list(Crypto_mus_caught = 0))
+    rm(Crypto_Detection_1)
+    rm(Crypto_Detection_2)
+    rm(Crypto_pull)
+    rm(Crypto_pull_pos)
+    
+## add Infection Rate per Location
+    Crypto_Detection <- Crypto_Detection %>%
+      mutate(Infection_Rate = Crypto_mus_caught / mus_caught)
+    Crypto_Detection[,'Infection_Rate']=format(round(Crypto_Detection[,'Infection_Rate'],2),nsmall=2)
+    Crypto_Detection$Infection_Rate <- as.numeric(Crypto_Detection$Infection_Rate)
 
     
+## write csv
+    write.csv(Crypto_Detection, "Crypto_Detection.csv")
