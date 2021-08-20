@@ -20,13 +20,15 @@ Jarda <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc
       
       Crypto_DNA.cols   <- c("ILWE_DNA_Content_ng.microliter", "ILWE_used_up")
       
-      Crypto_qPCR.cols       <- c("Ct_mean", "Ct_mean_Ep", "Ct_mean_ABI", 
+      Crypto_qPCR.cols  <- c("Ct_mean", "Ct_mean_Ep", "Ct_mean_ABI", 
                            "Flags", "Flags_perc", "Machine", "Measurements", "Tested_by", 
                            "qPCR_Date", "Oocyst_Predict", "Crypto_Positive")
+      
+      Address.cols      <- c("Address", "Longitude")
+      
 
       Jarda <- Jarda[, colnames(Jarda) %in% c(basics, gen.loci), ]
-
-
+      
 ### add Crypto DNA Extraction Data
     Crypto_DNA   <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/WD_07_22/DNA_Extraction_ILWE_2018_2019.csv")
     setnames(Crypto_DNA, old = "ILWE_DNA_used_up", new = "ILWE_used_up")
@@ -36,41 +38,41 @@ Jarda <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc
 
 ### add Flags (to determine curve quality, flagged Ct value means that the curve 
     ## doesn't resemble a normal quantification curve)
-    ## 
     Flags <- Crypto_qPCR %>%
       gather("key", "value", Flag_Ct_1_Ep, Flag_Ct_2_Ep, Flag_Ct_3_Ep, Flag_Ct_4_Ep, Flag_Ct_5_Ep, Flag_Ct_6_Ep) %>% 
       group_by(Mouse_ID, value) %>% summarise(n=n()) %>%  filter(value == TRUE)
     
     Crypto_qPCR <- left_join(Crypto_qPCR, Flags) %>% mutate(Flags = n, Flags_perc = n/ (Measurements * 2 )) %>% 
       select(-n, -value) %>% replace_na(list(Flags = 0, Flags_perc = 0))
-
-
   
 ### calculate Oocysts with prediction model
     ABI_Best_thSC     <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Crap/ABI_Best_SC.csv")
     ABI_Best_thSC     <-  filter(ABI_Best_thSC, Ct_mean > 0)
     linear_model0     <- lm(log2(Amount_Oocysts) ~ Ct_mean, data = ABI_Best_thSC)
     Oocyst_Predict    <- 2^predict(linear_model0, newdata = Crypto_qPCR)
-    
     Crypto_qPCR <- data.frame(Crypto_qPCR, Oocyst_Predict)
     Crypto_qPCR <- Crypto_qPCR %>%
       mutate(Oocyst_Predict = replace(Oocyst_Predict, Oocyst_Predict == "4292821751815.77", "0"))
     Crypto_qPCR$Oocyst_Predict <- as.integer(Crypto_qPCR$Oocyst_Predict)
     
-    
 ## add Status (Crypto-positive or negative)
-    Crypto_qPCR <- Crypto_qPCR %>%
-      mutate(Crypto_Positive = ifelse(Ct_mean > 0, T, F))
-    
-    
-    
+    Crypto_qPCR <- Crypto_qPCR %>% mutate(Crypto_Positive = ifelse(Ct_mean > 0, T, F))
+  
 ### merging qPCR and and Extraction data
     Crypto_Detection  <- full_join(Crypto_qPCR[colnames(Crypto_qPCR) %in% c(basics, Crypto_qPCR.cols, Crypto_DNA.cols)], 
                          Crypto_DNA[colnames(Crypto_DNA) %in% c(basics, Crypto_qPCR.cols, Crypto_DNA.cols)], by = "Mouse_ID")
 
-    ## add HI Data with Jarda
+## add HI Data with Jarda
     Crypto_Detection  <- merge(Crypto_Detection[colnames(Crypto_Detection) %in% c("Mouse_ID", Crypto_qPCR.cols, Crypto_DNA.cols)], Jarda[colnames(Jarda) %in% c(basics, "HI")]) %>% filter(Ct_mean >= 0)
 
+## add Address to the table
+    Trapping_Data     <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_input/HZ14-HZ19_Trapping_coodinates.csv")
+    Crypto_Detection <- left_join(Crypto_Detection, Trapping_Data[colnames(Trapping_Data) %in% Address.cols])
+    
+## fill and remove duplicates
+    Crypto_Detection <- Crypto_Detection %>% arrange(Mouse_ID) %>% group_by(Mouse_ID) %>% fill(c(everything()), .direction = "downup") %>% ungroup() %>% distinct(Mouse_ID, .keep_all = T) 
+
+## write csv
     write.csv(Crypto_Detection, "Crypto_Detection.csv")
 
     
