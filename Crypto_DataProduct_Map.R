@@ -61,7 +61,7 @@ map
 Crypto_Detection <- Crypto_Detection %>% filter(HI  != "NA", Longitude != "NA", Latitude  != "NA")
 
 Crypto_Detection <- Crypto_Detection %>% replace_na(list(Crypto_mus_caught = 0))
-Crypto_Detection[,'HI']=format(round(Crypto_Detection[,'HI'],2),nsmall=2)
+Crypto_Detection[,'HI']=format(round(Crypto_Detection[,'HI'],2), nsmall=2)
 
 Crypto_Detection$mus_Level <-  cut(Crypto_Detection$mus_caught, c(0, 1, 5, 10, 15, 20, 21), include.lowest = T ,
                                        labels = c('1 mouse', 'up to 5 mice', 'up to 10 mice', 'up to 15 mice', 'up to 20 mice', '21 mice'))
@@ -465,10 +465,3 @@ map %>%
                                      'Infection_Rate_75',
                                      'Infection_Rate_equal_100'),
                    options = layersControlOptions(collapsed = F))
-
-High_Crypto_Infection <- Crypto_Detection %>%
-  filter(Crypto_mus_caught > 0)
-
-  
-  
-  
