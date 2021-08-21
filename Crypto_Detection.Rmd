@@ -497,52 +497,39 @@ Top Farm | Address | Latitude | Longitude
 
 ```{r Potential Locations 2021, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 
-df <- Crypto_Detection %>%
-  filter(Crypto_Positive == T) %>%
-  group_by(Latitude, Longitude, mus_caught) %>%
-  count(Latitude, Longitude, mus_caught) %>%
-  summarise(Crypto_per_Location = n) %>%
-  arrange(desc(Crypto_per_Location))
-df <- as.data.frame(df)
+Top_Locations <- Crypto_Detection %>% filter(Top_Location == T)
+Normal_Locations <- Crypto_Detection %>% filter(Top_Location == F)
 
+data_col_Top   = colorFactor(beach(2), Crypto_Detection$Top_Location)
 
-df <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Top_Locations.csv")
-
-Crypto_Detection_1 <- left_join(Crypto_Detection, df)
-
-df <- df %>% mutate(Top_Location = Crypto_per_Location >= 3)
-
-Crypto_Top <- df %>% filter(Top_Location == T)
-Crypto_Flop <- df %>% filter(Top_Location == F)
-
-data_col_Top   = colorFactor(beach(2), df$Top_Location)
-
-map <- df %>%
+map <- Crypto_Detection %>%
   leaflet() %>%
   addProviderTiles("CartoDB") %>%
   setView(lat = 52.520007, lng =13.404954, zoom = 7) 
 
 map %>%
-  addCircleMarkers(data = Crypto_Top, 
+  addCircleMarkers(data = Normal_Locations, 
                    col = ~data_col_Top(Top_Location),
-                   label = ~htmlEscape(Crypto_per_Location),
-                   popup = ~paste("<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
-                                  "<b>Crypto per Location:<b>", as.character(Crypto_per_Location), "<br>",
-                                  sep=" "),
-                   radius = 3, 
-                   opacity = 1,
-                   group = "Crypto_Top") %>%
-  addCircleMarkers(data = Crypto_Flop, 
-                   col = ~data_col_Top(Top_Location),
-                   label = ~htmlEscape(Crypto_per_Location),
-                   popup = ~paste("<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
-                                  "<b>Crypto per Location:<b>", as.character(Crypto_per_Location), "<br>",
+                   label = ~htmlEscape(Address),
+                   popup = ~paste("<b>Address:<b>", as.character(Address), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  "<b>Infection Rate:<b>", as.character(Crypto_mus_caught), "<b>/<b>", as.character(mus_caught), "<br>",
                                   sep=" "),
                    radius = 3, 
                    opacity = 0.2,
-                   group = "Crypto_Flop") %>%
-  addLayersControl(overlayGroups = c("Crypto_Top", 
-                                  "Crypto_Flop"),
+                   group = "Normal_Locations") %>%
+  addCircleMarkers(data = Top_Locations, 
+                   col = ~data_col_Top(Top_Location),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Address:<b>", as.character(Address), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  "<b>Infection Rate:<b>", as.character(Crypto_mus_caught), "<b>/<b>", as.character(mus_caught), "<br>",
+                                  sep=" "),
+                   radius = 3, 
+                   opacity = 1,
+                   group = "Top_Locations") %>%
+  addLayersControl(overlayGroups = c("Top_Locations", 
+                                  "Normal_Locations"),
                    options = layersControlOptions(collapsed = F))
 
 

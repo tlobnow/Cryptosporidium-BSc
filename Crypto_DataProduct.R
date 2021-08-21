@@ -11,7 +11,7 @@ Jarda <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc
       Jarda$Mouse_ID <- gsub(pattern = "Sk3173", replacement = "SK_3173", x = Jarda$Mouse_ID)
 
 
-      basics <- c("Mouse_ID", "Sex", "Longitude", "Latitude", "Year")
+      basics <- c("Mouse_ID", "Sex", "Latitude", "Longitude", "Year")
       
       gen.loci <- c("mtBamH", "YNPAR", "X332", "X347", "X65", "Tsx", "Btk", "Syap1",
                     "Es1", "Gpd1", "Idh1", "Mpi", "Np", "Sod1", "Es1C", "Gpd1C",
