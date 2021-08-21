@@ -6,10 +6,7 @@ library(data.table)
 # Email from Jarda (2019)
 Jarda <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/EmanuelData.csv") 
       Jarda$HI_NLoci <- gsub(pattern = "HI ", replacement = "", x = Jarda$HI_NLoci)
-      setnames(Jarda, old = c("PIN", "X_Longit", "Y_Latit"), new = c("Mouse_ID", "Longitude", "Latitude"), skip_absent = T)
-      Jarda$Mouse_ID <- gsub(pattern = "SK", replacement = "SK_", x = Jarda$Mouse_ID)
-      Jarda$Mouse_ID <- gsub(pattern = "Sk3173", replacement = "SK_3173", x = Jarda$Mouse_ID)
-
+      setnames(Jarda, old = c("PIN", "Y_Latit", "X_Longit"), new = c("Mouse_ID", "Latitude", "Longitude"), skip_absent = T)
 
       basics <- c("Mouse_ID", "Sex", "Latitude", "Longitude", "Year")
       
@@ -74,13 +71,8 @@ Jarda <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc
     Crypto_pull <- Crypto_Detection %>% count(Longitude)%>% mutate(mus_caught = n) %>% select(Longitude, mus_caught) %>% arrange(mus_caught)
     Crypto_pull_pos <- Crypto_Detection %>% filter(Ct_mean > 0) %>% count(Longitude) %>% mutate(Crypto_mus_caught = n) %>% select(Longitude, Crypto_mus_caught) %>% arrange(Crypto_mus_caught)
     Crypto_Detection_1 <- left_join(Crypto_Detection, Crypto_pull)
-    Crypto_Detection_2 <- left_join(Crypto_Detection_1, Crypto_pull_pos)
-    Crypto_Detection <- Crypto_Detection_2
+    Crypto_Detection <- left_join(Crypto_Detection_1, Crypto_pull_pos)
     Crypto_Detection <- Crypto_Detection %>% replace_na(list(Crypto_mus_caught = 0))
-    rm(Crypto_Detection_1)
-    rm(Crypto_Detection_2)
-    rm(Crypto_pull)
-    rm(Crypto_pull_pos)
     
 ## add Infection Rate per Location
     Crypto_Detection <- Crypto_Detection %>%
@@ -94,4 +86,3 @@ Jarda <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc
     
 ## write csv
     write.csv(Crypto_Detection, "Crypto_Detection.csv")
-    
