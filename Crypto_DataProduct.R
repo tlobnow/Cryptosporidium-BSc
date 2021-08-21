@@ -85,9 +85,13 @@ Jarda <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc
 ## add Infection Rate per Location
     Crypto_Detection <- Crypto_Detection %>%
       mutate(Infection_Rate = Crypto_mus_caught / mus_caught)
-    Crypto_Detection[,'Infection_Rate']=format(round(Crypto_Detection[,'Infection_Rate'],2),nsmall=2)
-    Crypto_Detection$Infection_Rate <- as.numeric(Crypto_Detection$Infection_Rate)
 
+## Top Location
+    df <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Top_Locations.csv")
+    Crypto_Detection <- full_join(Crypto_Detection, df, by = c("Latitude", "Longitude", "mus_caught", "Crypto_mus_caught")) %>% 
+      mutate(Top_Location = Crypto_mus_caught >= 3) %>% select(-Address.x)
+    setnames(Crypto_Detection, old = "Address.y", new = "Address")
     
 ## write csv
     write.csv(Crypto_Detection, "Crypto_Detection.csv")
+    
