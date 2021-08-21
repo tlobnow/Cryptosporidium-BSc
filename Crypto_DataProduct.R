@@ -18,7 +18,7 @@ Jarda <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc
       Crypto_DNA.cols   <- c("ILWE_DNA_Content_ng.microliter", "ILWE_used_up")
       
       Crypto_qPCR.cols  <- c("Ct_mean", "Ct_mean_Ep", "Ct_mean_ABI", 
-                           "Flags", "Flags_perc", "Machine", "Measurements", "Tested_by", 
+                             "uncorrected_Ct_Ep", "Flags", "Flags_perc", "Machine", "Measurements", "Tested_by", 
                            "qPCR_Date", "Oocyst_Predict", "Crypto_Positive")
       
       Address.cols      <- c("Address", "Longitude")
@@ -41,6 +41,13 @@ Jarda <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc
     
     Crypto_qPCR <- left_join(Crypto_qPCR, Flags) %>% mutate(Flags = n, Flags_perc = n/ (Measurements * 2 )) %>% 
       select(-n, -value) %>% replace_na(list(Flags = 0, Flags_perc = 0))
+    
+    Crypto_qPCR <- Crypto_qPCR %>% mutate(uncorrected_Ct_Ep = ifelse(Ct_1_Ep > 0 & Ct_2_Ep == 0, 0,
+                                                                     ifelse(Ct_1_Ep == 0 & Ct_2_Ep > 0, 0 ,
+                                                                            ifelse(Ct_1_Ep == 0 & Ct_2_Ep == 0, (Ct_1_Ep + Ct_2_Ep)/2,
+                                                                                   ifelse(Ct_1_Ep > 0 & Ct_2_Ep > 0, (Ct_1_Ep + Ct_2_Ep)/2,
+                                                                                          ifelse(NA))))))
+                                                                                   
   
 ### calculate Oocysts with prediction model
     ABI_Best_thSC     <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Crap/ABI_Best_SC.csv")
