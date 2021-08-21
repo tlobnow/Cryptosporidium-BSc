@@ -93,3 +93,4 @@ Jarda <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc
     
 ## write csv
     write.csv(Crypto_Detection, "Crypto_Detection.csv")
+    
