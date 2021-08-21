@@ -1,5 +1,5 @@
 ---
-title: "Data Evaluation from previous Field Trips "
+title: "Data Evaluation of previous Field Trips and Prediction on potential revisit farms"
 output: html_document
 
 
@@ -485,7 +485,7 @@ Top Farm | Address | Latitude | Longitude
 3   |  Berliner Str. 28, 16244 Schorfheide | 52.8969  | 13.5353
 4   |  near Lychener Str. 28, 17268 Templin | 53.1275 |  13.4864
 5   |  Dorfstraße 28, 16278 Angermünde | 53.1422  | 13.9533
-6   |  Guhlen 29, 15913 Schwielochsee 52.0172 |  14.1442
+6   |  Guhlen 29, 15913 Schwielochsee | 52.0172 |  14.1442
 7   |  Beeskower Str. 24, 15848 Rietz-Neuendorf | 52.2125 |  14.0922
 8   |  Altglietzener Dorfstraße 31, 16259 Bad Freienwalde (Oder) | 52.8328 |  14.0908
 9   |  Kirchstraße 1, 16247 Joachimsthal |  52.9581 |  13.8950
@@ -504,6 +504,11 @@ df <- Crypto_Detection %>%
   summarise(Crypto_per_Location = n) %>%
   arrange(desc(Crypto_per_Location))
 df <- as.data.frame(df)
+
+
+df <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Top_Locations.csv")
+
+Crypto_Detection_1 <- left_join(Crypto_Detection, df)
 
 df <- df %>% mutate(Top_Location = Crypto_per_Location >= 3)
 
