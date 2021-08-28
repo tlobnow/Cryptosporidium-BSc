@@ -21,12 +21,13 @@ HI Data is available for samples since 2010, although Crypto-specific data has o
 
 
 ```{r Crypto_Detection, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-
 library(tidyverse)
 library(data.table)
 library(leaflet)
 library(htmltools)
 library(colorRamps)
+library(viridis)
+library(hexbin)
 r <- c(0, 64, 128, 179, 217, 255)
 g <- c(0, 12, 25, 25, 12,  0)
 b <- c(255, 249, 243, 191,  95,   0)
@@ -50,10 +51,12 @@ beach <- function (n, name = c("beach.colors"))
     palette
 }
 
-Crypto_Detection <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Crypto_Detection.csv")
+#Crypto_Detection <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Crypto_Detection.csv")
+Crypto_Detection <- read.csv("Crypto_Detection.csv")
 
 
-new_Alice <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/new_Alice_MiceTable.csv")
+#new_Alice <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/new_Alice_MiceTable.csv")
+new_Alice <- read.csv("new_Alice_MiceTable.csv")
 new_Alice <- new_Alice %>% select(Mouse_ID, HI, Longitude, Latitude, Year) %>%
   filter(HI >= 0)
       
@@ -180,7 +183,7 @@ map %>%
             values = Crypto_Detection$HI_Level, 
             group = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'),
             opacity = 1) %>%
-  addLayersControl(overlayGroups = c('all Samples', 'qPCR Samples'),
+  addLayersControl(baseGroups = c('all Samples', 'Crypto tested Samples'),
                    options = layersControlOptions(collapsed = F))
 
 ```
@@ -193,6 +196,7 @@ Since 2016, qPCRs were used to identify Crypto-positive mice. Dilution curves wi
 
 Standard_Curve <- read.csv("/Users/FinnLo/Documents/Programming/R/HZ_SC_and_Raw_Data/Cryptosporidium-BSc/Crap/ABI_Best_SC.csv")
 
+
 Standard_Curve %>%
   filter(Ct_mean > 0) %>%
   ggplot(aes(Ct_mean, log2(Amount_Oocysts))) +
@@ -201,15 +205,14 @@ Standard_Curve %>%
 
 ```
 
-The Standard Curve would then be used in a linear model to derive Oocyst amounts from the Ct values observed during qPCR. Lower Ct values suggest higher initial Oocyst Amounts. Blue area in the plot depicts higher density areas, so most wild samples retrieve relatively low parasite burden, few have much higher burden.
+The Standard Curve would then be used in a linear model to derive oocyst amounts from the Ct (Cycle threshold) values observed during qPCR. Lower Ct-values indicate higher parasite burden, since higher amounts of initial oocyst DNA in a sample will be detected earlier by surpassing background noise and baseline. The blue area in the plot depicts higher density areas, so most wild samples show relatively low parasite burden, whereas few have much higher burden.
 
 ```{r Oocyst Amounts in wild Samples, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 Crypto_Detection %>%
   filter(Ct_mean > 0) %>%
   ggplot(aes(Ct_mean, Oocyst_Predict)) +
-  geom_point() +
-  geom_density2d()
- 
+  geom_point()
+
 
 ```
 
@@ -226,7 +229,8 @@ crypto_df <- Crypto_Detection %>%
   summarise(Crypto_per_Yr = n)
 
 df <- left_join(mus_df, crypto_df)
-df <- as.data.frame(df)
+df <- as.data.frame(df) %>%
+  mutate(Prevalence = (Crypto_per_Yr / mus_per_Yr)*100)
 df
 
 ```
@@ -235,8 +239,7 @@ Here the Crypto-positive cases per mice caught are visualized per year.
 
 ```{r mus_caught vs. Crypto_positive mice, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 
-Crypto_Detection %>%
-  ggplot() +
+  ggplot(Crypto_Detection) +
   geom_bar(stat = "count", aes(x = Year, fill = Crypto_Positive), position = "stack")
 
 ```
@@ -479,7 +482,7 @@ top_n(df, 8)
 ## Top Farms from previous Years
 
 Top Farm | Address | Latitude | Longitude 
----|---|---|---
+--- |---|---|---
 1   |  Storkower Dorfstraße 85-82, 17268 Templin | 53.0497 |  13.4408
 2   |  Sawaller Dorfstraße 34A, 15848 Tauche | 52.0747  | 14.1808
 3   |  Berliner Str. 28, 16244 Schorfheide | 52.8969  | 13.5353
@@ -498,7 +501,7 @@ Top Farm | Address | Latitude | Longitude
 ```{r Potential Locations 2021, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 
 Top_Locations <- Crypto_Detection %>% filter(Top_Location == T)
-Normal_Locations <- Crypto_Detection %>% filter(Top_Location == F)
+Positive_Locations <- Crypto_Detection %>% filter(Crypto_Positive == T)
 
 data_col_Top   = colorFactor(beach(2), Crypto_Detection$Top_Location)
 
@@ -508,17 +511,7 @@ map <- Crypto_Detection %>%
   setView(lat = 52.520007, lng =13.404954, zoom = 7) 
 
 map %>%
-  addCircleMarkers(data = Normal_Locations, 
-                   col = ~data_col_Top(Top_Location),
-                   label = ~htmlEscape(Address),
-                   popup = ~paste("<b>Address:<b>", as.character(Address), "<br>",
-                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
-                                  "<b>Infection Rate:<b>", as.character(Crypto_mus_caught), "<b>/<b>", as.character(mus_caught), "<br>",
-                                  sep=" "),
-                   radius = 3, 
-                   opacity = 0.2,
-                   group = "Normal_Locations") %>%
-  addCircleMarkers(data = Top_Locations, 
+  addCircleMarkers(data = Positive_Locations, 
                    col = ~data_col_Top(Top_Location),
                    label = ~htmlEscape(Mouse_ID),
                    popup = ~paste("<b>Address:<b>", as.character(Address), "<br>",
@@ -526,11 +519,61 @@ map %>%
                                   "<b>Infection Rate:<b>", as.character(Crypto_mus_caught), "<b>/<b>", as.character(mus_caught), "<br>",
                                   sep=" "),
                    radius = 3, 
+                   opacity = 0.1,
+                   group = "Positive_Locations") %>%
+  addCircleMarkers(data = Top_Locations, 
+                   col = ~data_col_Top(Top_Location),
+                   label = ~htmlEscape(Address),
+                   popup = ~paste("<b>Address:<b>", as.character(Address), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  "<b>Infection Rate:<b>", as.character(Crypto_mus_caught), "<b>/<b>", as.character(mus_caught), "<br>",
+                                  sep=" "),
+                   radius = 3, 
                    opacity = 1,
                    group = "Top_Locations") %>%
-  addLayersControl(overlayGroups = c("Top_Locations", 
-                                  "Normal_Locations"),
+  addLayersControl(baseGroups = c("Top_Locations", 
+                                  "Positive_Locations"),
                    options = layersControlOptions(collapsed = F))
 
 
 ```
+
+## Trustable qPCR results from previous years
+
+Before 2019, all qPCRs were performed as duplicates and quantification curves were not necessarily double-checked. The Eppendorf machine software calculated a mean, if signal was detected for both replicates, which resulted in problems with greatly varying Ct values. Since 2019, the Eppendorf machine was no longer available, since then new qPCRs were performed with a QuantStudio1 ABI machine. In addition to the new machine, all samples were now tested as triplicates, which greatly increased trust in the data.
+To evaluate whether some of the old samples should be re-evaluated, the "Flags" and "Flags_perc" column were introduced.Flag == T, if the quantification curve does not resemble a typical quantification curve. More flags per sample indicate less trust-able data and should therefore be tested again at some point.
+Most Ct-values between 5-20 are quite unlikely to depict a normal quantification curve, as the following graph shows:
+
+```{r Debunked Samples, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+qPCR_Data_MouseID_forJoin <- read.csv("qPCR_Data_MouseID_forJoin.csv")
+ 
+qPCR_Data_MouseID_forJoin %>% count(Flag_Ct_1_Ep)
+qPCR_Data_MouseID_forJoin %>% count(Flag_Ct_2_Ep)
+qPCR_Data_MouseID_forJoin %>% count(Flag_Ct_3_Ep)
+qPCR_Data_MouseID_forJoin %>% count(Flag_Ct_4_Ep)
+qPCR_Data_MouseID_forJoin %>% count(Flag_Ct_5_Ep)
+qPCR_Data_MouseID_forJoin %>% count(Flag_Ct_6_Ep)
+
+qPCR_piv <- qPCR_Data_MouseID_forJoin %>% pivot_longer(cols = c(Flag_Ct_1_Ep, 
+                                                                Flag_Ct_2_Ep, 
+                                                                Flag_Ct_3_Ep, 
+                                                                Flag_Ct_4_Ep, 
+                                                                Flag_Ct_5_Ep, 
+                                                                Flag_Ct_6_Ep), 
+                                                       names_to = "Flags",
+                                                       values_to = "Value") %>%
+  pivot_longer(cols = c(Ct_1_Ep, 
+               Ct_2_Ep, 
+               Ct_3_Ep, 
+               Ct_4_Ep, 
+               Ct_5_Ep, 
+               Ct_6_Ep), 
+              names_to = "Cts",
+              values_to = "Ct_Values")
+
+```
+
+
+
+
