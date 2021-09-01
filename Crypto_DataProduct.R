@@ -18,7 +18,7 @@ Jarda <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc
       Crypto_DNA.cols   <- c("ILWE_DNA_Content_ng.microliter", "ILWE_used_up")
       
       Crypto_qPCR.cols  <- c("Ct_mean", "Ct_mean_Ep", "Ct_mean_ABI", 
-                             "uncorrected_Ct_Ep", "Flags", "Flags_perc", "Machine", "Measurements", "Tested_by", 
+                             "Machine", "Measurements", "Tested_by", 
                            "qPCR_Date", "Oocyst_Predict", "Crypto_Positive")
       
       Address.cols      <- c("Address", "Longitude")
@@ -33,22 +33,7 @@ Jarda <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc
 ### add Crypto_qPCR Data and filter out duplicates
     Crypto_qPCR           <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/qPCR_Data_MouseID_forJoin.csv") 
 
-### add Flags (to determine curve quality, flagged Ct value means that the curve 
-    ## doesn't resemble a normal quantification curve)
-    Flags <- Crypto_qPCR %>%
-      gather("key", "value", Flag_Ct_1_Ep, Flag_Ct_2_Ep, Flag_Ct_3_Ep, Flag_Ct_4_Ep, Flag_Ct_5_Ep, Flag_Ct_6_Ep) %>% 
-      group_by(Mouse_ID, value) %>% summarise(n=n()) %>%  filter(value == TRUE)
-    
-    Crypto_qPCR <- left_join(Crypto_qPCR, Flags) %>% mutate(Flags = n, Flags_perc = n/ (Measurements * 2 )) %>% 
-      select(-n, -value) %>% replace_na(list(Flags = 0, Flags_perc = 0))
-    
-    Crypto_qPCR <- Crypto_qPCR %>% mutate(uncorrected_Ct_Ep = ifelse(Ct_1_Ep > 0 & Ct_2_Ep == 0, 0,
-                                                                     ifelse(Ct_1_Ep == 0 & Ct_2_Ep > 0, 0 ,
-                                                                            ifelse(Ct_1_Ep == 0 & Ct_2_Ep == 0, (Ct_1_Ep + Ct_2_Ep)/2,
-                                                                                   ifelse(Ct_1_Ep > 0 & Ct_2_Ep > 0, (Ct_1_Ep + Ct_2_Ep)/2,
-                                                                                          ifelse(NA))))))
-                                                                                   
-  
+
 ### calculate Oocysts with prediction model
     ABI_Best_thSC     <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Crap/ABI_Best_SC.csv")
     ABI_Best_thSC     <-  filter(ABI_Best_thSC, Ct_mean > 0)
