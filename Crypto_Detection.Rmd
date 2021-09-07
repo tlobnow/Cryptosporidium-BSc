@@ -432,12 +432,12 @@ map %>%
                                   sep=" "),
                    radius = 3,
                    group = "Crypto_Infections_8") %>%
-  addLegend("bottomleft", 
-            pal = data_col_mus_Level, 
-            title = "Number of mice caught",
-            values = Crypto_Detection$mus_Level, 
-            group = c('1 mouse', 'up to 5 mice', 'up to 10 mice', 'up to 15 mice', 'up to 20 mice', '21 mice'),
-            opacity = 1) %>%
+#  addLegend("bottomleft", 
+#            pal = data_col_mus_Level, 
+#            title = "Number of mice caught",
+#            values = Crypto_Detection$mus_Level, 
+#            group = c('1 mouse', 'up to 5 mice', 'up to 10 mice', 'up to 15 mice', 'up to 20 mice', '21 mice'),
+ #           opacity = 1) %>%
   addLegend("bottomleft", 
             pal = data_col_Infected, 
             title = "Number of mice caught",
@@ -460,7 +460,7 @@ map %>%
                                      'mus_15', 
                                      'mus_20', 
                                      'mus_21'),
-                   options = layersControlOptions(collapsed = F))
+                   options = layersControlOptions(collapsed = T))
 
 ```
 

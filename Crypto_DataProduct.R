@@ -77,5 +77,5 @@ Jarda <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc
     setnames(Crypto_Detection, old = "Address.y", new = "Address")
     
 ## write csv
-    write.csv(Crypto_Detection, "Crypto_Detection.csv")
+    #write.csv(Crypto_Detection, "Crypto_Detection.csv")
     
