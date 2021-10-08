@@ -1,11 +1,91 @@
 library(tidyverse)
-library(skimr)
 library(data.table)
 library(visdat)
 library(viridis)
 library(RColorBrewer)
 
-Crypto_Detection      <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Crypto_Detection.csv")
+#### Select Columns
+basics                  <- c("Mouse_ID", "Sex", "Longitude", "Latitude", "Year", "HI", "HI_NLoci")
+
+gen.loci                <- c("mtBamH", "YNPAR", "X332", "X347", "X65", "Tsx", "Btk", "Syap1",
+                             "Es1", "Gpd1", "Idh1", "Mpi", "Np", "Sod1", "Es1C", "Gpd1C",
+                             "Idh1C", "MpiC", "NpC", "Sod1C", "HI_NLoci", "HI", "Zfy2", "Y")
+
+dissection.cols         <- c("Body_Weight", "Body_Length", "Tail_Length", "Status", "Spleen", 
+                             "Left_Testis", "Right_Testis", "Seminal_Vesicles_Weight", "Liver",
+                             "Sperm", "Left_Epididymis", "Right_Epididymis", 
+                             "Right_Ovarium_Weight", "Left_Ovarium_Weight",
+                             "Arrival", "Wean", "Death", "Dissection", "Dissection_date", "DaysInLab",
+                             "Lepid", "Uterus", "Ovaria", "Grav", "Litters", "NN", 
+                             "MM", "FF", "Protocol", "Head_Taken", "Trap_Date")
+
+oocyst.cols             <- c("counter", "Feces_Weight", "Date_count", "N_oocysts_sq1",
+                             "N_oocysts_sq2", "N_oocysts_sq3",  "N_oocysts_sq4",
+                             "N_oocysts_sq5", "N_oocysts_sq6", "N_oocysts_sq7",
+                             "N_oocysts_sq8", "mean_neubauer", "PBS_dil_in_mL", 
+                             "OPG", "Ncells")
+
+EqPCR.cols              <- c("delta_ct_ilwe_MminusE", "delta_ct_cewe_MminusE", "MC.Eimeria", "Ct.Eimeria", "Ct.Mus")
+
+EimGeno.cols            <- c("n18S_Seq", "COI_Seq", "ORF470_Seq", "eimeriaSpecies")
+
+Gene.Exp.cols           <- c("IFNy",        "CD4",         "Treg",        "Div_Treg",   
+                             "Treg17",      "Th1",         "Div_Th1",     "Th17",        "Div_Th17",   
+                             "CD8",         "Act_CD8",     "Div_Act_CD8", "IFNy_CD4",    "IL17A_CD4",  
+                             "IFNy_CD8",    "Position",    "IL.12",       "IRG6",        "CXCR3",           
+                             "IL-6"    ,    "GBP2")
+
+Crypto.cols             <- c("Mouse_ID", "Ct_mean", "Oocyst_Predict")
+
+ 
+#### Load Data
+Crypto_Detection  <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Crypto_Detection.csv") %>% select(-X)
+SOTA_DP           <- read.csv("SOTA_Data_Product.csv") %>% select(-X)
+
+SOTA_DP <- SOTA_DP[colnames(SOTA_DP) %in% c(basics, EimGeno.cols, EqPCR.cols, Gene.Exp.cols, oocyst.cols)]
+SOTA_DP <- SOTA_DP %>% filter(!is.na(delta_ct_cewe_MminusE), !is.na(HI))
+SOTA_DP <- full_join(SOTA_DP, Crypto_Detection[colnames(Crypto_Detection) %in% c(Crypto.cols)])
+
+SOTA_DP <- SOTA_DP %>% mutate(Crypto_Positive = ifelse(Ct_mean > 0, T,
+                                                 ifelse(Ct_mean == 0, F,
+                                                        ifelse(NA))),
+                              Eim_Positive = ifelse(MC.Eimeria == T, T,
+                                                  ifelse(MC.Eimeria == F, F,
+                                                         ifelse(NA))),
+                              Cryp_Eim_Positive = case_when(Crypto_Positive  == F ~ F,
+                                                            Eim_Positive == F ~ F,
+                                                            Crypto_Positive  == T & Eim_Positive == T ~ T,
+                                                            Crypto_Positive  == T & is.na(Eim_Positive) ~ F,
+                                                            is.na(Crypto_Positive) & Eim_Positive == T ~ F))
+
+Cryp_meets_Eim <- SOTA_DP %>% pivot_longer(cols = c(28:46),
+                                           names_to = "Marker",
+                                           values_to = "Value")
+
+## faceted by Markers
+Cryp_meets_Eim %>%
+  ggplot(aes(y = Value, col = Cryp_Eim_Positive)) +
+  geom_point(aes(x = Ct_mean)) +
+  geom_point(aes(x = Ct.Eimeria)) +
+  facet_wrap(~ Marker, scales = "free_y", nrow = 3)
+
+## faceted by Infection
+Cryp_meets_Eim %>%
+  #filter(Ct_mean > 0 & Ct.Eimeria > 0 | Ct_mean > 0 | Ct.Eimeria >0) %>%
+  filter(Infection == c("Cryp_Eim_POS", "Eimeria_Pos", "Crypto_Neg")) %>% 
+  ggplot(aes(y = Value, col = Marker)) +
+  geom_point(aes(x = Ct_mean)) +
+  geom_point(aes(x = Ct.Eimeria)) +
+  facet_wrap(~Infection, scales = "free_y", nrow = 3)
+
+
+
+
+
+
+
+
+
 Eimeria_Detection     <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/a1d58d91589849ea4dbabbbf82e6c896ef7ec95c/data_products/Eimeria_Detection.csv")
 HZ_CEWE_ELISA         <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/ef8575f03ff3a167fda850fd0e93c5de13843aa6/data_input/HZ19_CEWE_ELISA.csv")
 Eimeria_Summary       <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_input/Eimeria_detection/Summary_eimeria.csv")

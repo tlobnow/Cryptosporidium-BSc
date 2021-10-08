@@ -39,7 +39,7 @@ beach <- function (n, name = c("beach.colors"))
 
 # load Data, add necessary columns ####
 
-Crypto_Detection <- read.csv("Crypto_Detection.csv")
+Crypto_Detection <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv")
 
 Crypto_pull <- Crypto_Detection %>% count(Longitude)%>% mutate(mus_caught = n) %>% select(Longitude, mus_caught) %>% arrange(mus_caught)
 Crypto_pull_pos <- Crypto_Detection %>% filter(Ct_mean > 0) %>% count(Longitude) %>% mutate(Crypto_mus_caught = n) %>% select(Longitude, Crypto_mus_caught) %>% arrange(Crypto_mus_caught)
@@ -229,7 +229,7 @@ map %>%
                                   sep=" "),
                    radius = 3,
                    group = "Crypto_Infections_8") %>%
-  addLegend("bottomleft", 
+  addLegend("bottomright", 
             pal = data_col_mus_crypto, 
             title = "Crypto caught",
             values = Crypto_Detection$Crypto_mus_caught, 
@@ -250,13 +250,14 @@ map %>%
                                      'Crypto_Infections_6',
                                      'Crypto_Infections_7',
                                      'Crypto_Infections_8'),
-                   options = layersControlOptions(collapsed = F))
+                   options = layersControlOptions(collapsed = T))
 
 # HI Map ####
 
 Crypto_Detection$HI <- as.numeric(Crypto_Detection$HI)
 data_col_HI       = colorFactor(beach(6), Crypto_Detection$HI)
 data_col_HI_Level = colorFactor(beach(6), Crypto_Detection$HI_Level)
+data_col_Sequenced = colorFactor(matlab.like(2), Crypto_Detection$Sequenced)
 
 
 Crypto_Detection$HI_Level <-  cut(Crypto_Detection$HI, c(0, 0.001, 0.250, 0.500, 0.750, 0.999, 1), include.lowest = T ,
@@ -357,11 +358,11 @@ map %>%
             group = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'),
             opacity = 1) #%>%
   #addLayersControl(overlayGroups = c("HI_0", 
-  #                                   "HI_below_0.25", 
-  #                                   "HI_below_0.5", 
-  #                                   "HI_below_0.75", 
-  #                                   "HI_below_1", 
-  #                                   "HI_equal_1"),
+ # "HI_below_0.25", 
+#  "HI_below_0.5", 
+#  "HI_below_0.75", 
+#  "HI_below_1", 
+#  "HI_equal_1"),
   #                 options = layersControlOptions(collapsed = F))
 
 
@@ -465,3 +466,155 @@ map %>%
                                      'Infection_Rate_75',
                                      'Infection_Rate_equal_100'),
                    options = layersControlOptions(collapsed = F))
+
+
+
+################################################################################
+## Visualizing sequenced Samples
+
+Crypto_Detection <- Crypto_Detection %>%
+  mutate(Sequenced = Mouse_ID %in% c("AA_0144", "AA_0325", "AA_0689", "AA_0209",
+                                     "AA_0282", "AA_0793", "AA_0667", "AA_0805"))
+
+data_col_Sequenced = colorFactor(brewer.pal(3, "Spectral"), Crypto_Detection$Sequenced)
+
+#display.brewer.all()
+
+
+HI_0 <- Crypto_Detection %>% filter(HI < 0.01)
+HI_below_0.25 <- Crypto_Detection %>% filter(HI > 0.01, HI <= 0.25)
+HI_below_0.5 <- Crypto_Detection %>% filter(HI > 0.25, HI <= 0.5)
+HI_below_0.75 <- Crypto_Detection %>% filter(HI > 0.5, HI <= 0.75)
+HI_below_1 <- Crypto_Detection %>% filter(HI > 0.75, HI < 1)
+HI_equal_1 <- Crypto_Detection %>% filter(HI > 0.99)
+Sequenced <- Crypto_Detection %>% filter(Sequenced == T)
+Not_Sequenced <- Crypto_Detection %>% filter(Sequenced == F)
+
+
+map %>%
+  addCircleMarkers(data = HI_0, 
+                   col = ~data_col_HI(HI),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  
+                                  "<b>Year:<b>",    as.character(Year),"<br>",
+                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
+                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  "<b>Sex:<b>", Sex, "<br>",
+                                  sep=" "),
+                   opacity = 0.05,
+                   radius = 3,
+                   group = "HI_0") %>%
+  addCircleMarkers(data = HI_below_0.25, 
+                   col = ~data_col_HI(HI),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  
+                                  "<b>Year:<b>",    as.character(Year),"<br>",
+                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
+                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  "<b>Sex:<b>", Sex, "<br>",
+                                  sep=" "),
+                   radius = 3,
+                   opacity = 0.05,
+                   group = "HI_below_0.25") %>%
+  addCircleMarkers(data = HI_below_0.5, 
+                   col = ~data_col_HI(HI),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  
+                                  "<b>Year:<b>",    as.character(Year),"<br>",
+                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
+                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  "<b>Sex:<b>", Sex, "<br>",
+                                  sep=" "),
+                   radius = 3,
+                   opacity = 0.05,
+                   group = "HI_below_0.5") %>%
+  addCircleMarkers(data = HI_below_0.75, 
+                   col = ~data_col_HI(HI),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  
+                                  "<b>Year:<b>",    as.character(Year),"<br>",
+                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
+                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  "<b>Sex:<b>", Sex, "<br>",
+                                  sep=" "),
+                   radius = 3,
+                   opacity = 0.05,
+                   group = "HI_below_0.75") %>%
+  addCircleMarkers(data = HI_below_1, 
+                   col = ~data_col_HI(HI),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  
+                                  "<b>Year:<b>",    as.character(Year),"<br>",
+                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
+                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  "<b>Sex:<b>", Sex, "<br>",
+                                  sep=" "),
+                   radius = 3,
+                   opacity = 0.05,
+                   group = "HI_below_1") %>%
+  addCircleMarkers(data = HI_equal_1, 
+                   col = ~data_col_HI(HI),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  
+                                  "<b>Year:<b>",    as.character(Year),"<br>",
+                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
+                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  "<b>Sex:<b>", Sex, "<br>",
+                                  sep=" "),
+                   radius = 3,
+                   opacity = 0.05,
+                   group = "HI_equal_1") %>%
+  addCircleMarkers(data = Sequenced, 
+                   col = ~data_col_Sequenced(Sequenced),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Year:<b>",    as.character(Year),"<br>",
+                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
+                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  "<b>Sex:<b>", Sex, "<br>",
+                                  sep=" "),
+                   opacity = 3,
+                   radius = 3,
+                   group = "Sequenced") %>%
+  addCircleMarkers(data = Not_Sequenced, 
+                   col = ~data_col_Sequenced(Sequenced),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Year:<b>",    as.character(Year),"<br>",
+                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
+                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  "<b>Sex:<b>", Sex, "<br>",
+                                  sep=" "),
+                   radius = 3,
+                   opacity = 3,
+                   group = "Not_Sequenced") %>%
+  addLegend("bottomleft", 
+            pal = data_col_HI_Level, 
+            title = "HI",
+            values = Crypto_Detection$HI_Level, 
+            group = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'),
+            opacity = 1) %>%
+addLayersControl("bottomright",
+                 baseGroups = c("Sequenced",
+                                "Not_Sequenced"),
+                 overlayGroups = c("HI_0", 
+                                   "HI_below_0.25", 
+                                   "HI_below_0.5", 
+                                   "HI_below_0.75", 
+                                   "HI_below_1", 
+                                   "HI_equal_1"),
+                 options = layersControlOptions(collapsed = T))
