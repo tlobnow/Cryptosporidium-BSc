@@ -1,0 +1,236 @@
+---
+title: "Sequencing_Report"
+author: Finn
+output:
+  html_document:
+    toc: yes
+    number_section: yes
+  pdf_document:
+    toc: yes
+  always_allow_html: true
+date: "`r format(Sys.time(), '%d %B %Y')`"
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(fig.align = 'center', echo = TRUE)
+```
+
+
+``` {r libraries-and-data, echo = F, message = F}
+library(tidyverse)
+library(data.table)
+library(leaflet)
+library(ggplot2)
+library(RColorBrewer) #display.brewer.all()
+library(colorRamps)
+library(cowplot)
+library(uwot)
+library(leaflet.extras)
+library(sp)
+library(htmltools)
+library(stringr)
+library(patchwork)
+library(readr)
+library(knitr)
+library(ggeffects)
+library(parasiteLoad)
+library(scales)
+
+
+# Load Palette ####
+r <- c(0, 64, 128, 179, 217, 255)
+g <- c(0, 12, 25, 25, 12,  0)
+b <- c(255, 249, 243, 191,  95,   0)
+  
+beach <- function (n, name = c("beach.colors")) 
+  {
+    beach.colors = rgb(r,g,b,maxColorValue = 255)
+    name = match.arg(name)
+    orig = eval(parse(text = name))
+    rgb = t(col2rgb(orig))
+    temp = matrix(NA, ncol = 3, nrow = n)
+    x = seq(0, 1, , length(orig))
+    xg = seq(0, 1, , n)
+    for (k in 1:3) {
+      hold = spline(x, rgb[, k], n = n)$y
+      hold[hold < 0] = 0
+      hold[hold > 255] = 255
+      temp[, k] = round(hold)
+    }
+    palette = rgb(temp[, 1], temp[, 2], temp[, 3], maxColorValue = 255)
+    palette
+  }
+
+SOTA <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/SOTA_Data_Product.csv") %>% select(-X)
+Crypto_Detection <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") %>% select(-X)
+Last_Sample <- SOTA[SOTA$Mouse_ID %like% "AA_", ] %>% select(Mouse_ID)
+Last_Sample <- setDT(Last_Sample)[, paste0("Mouse_ID", 1:2) := tstrsplit(Mouse_ID, "_0")]
+
+
+
+```
+
+# Crypto-positive Samples since 2016
+
+Since 2016, `r max(Last_Sample$Mouse_ID2)` mice were sampled, `r Crypto_Detection %>% filter(Ct_mean >= 0) %>% count()` were tested for Cryptosporidium sp. by performing qPCR on DNA extracted from Ileum wall tissue.
+Out of these `r Crypto_Detection %>% filter(Ct_mean >= 0) %>% count()` samples, `r Crypto_Detection %>% filter(Ct_mean > 0) %>% count() %>% sum()` tested positive for Crypto. An average Cryptosporidium prevalence of `r round((Crypto_Detection %>% filter(Ct_mean > 0) %>% count() / Crypto_Detection %>% filter(Ct_mean >= 0) %>% count()) * 100, digits = 2)`% was detected in the House Mouse Hybrid Zone.
+
+## Positive Samples per Year
+``` {r Pos-Samples-Yr, echo = F}
+Pos_Samples_Yr <- Crypto_Detection %>% filter(Ct_mean > 0) %>% group_by(Year) %>% count()
+Crypto_Detection <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv")
+
+All_Samples_Yr <- Crypto_Detection %>% group_by(Year) %>% count()
+Samples_Yr <- full_join(Pos_Samples_Yr, All_Samples_Yr, by = "Year") %>% mutate(Prevalence = (n.x / n.y)) %>% filter(!is.na(Prevalence))
+
+
+Samples_Yr %>%
+  ggplot(aes(x = Year, label = Prevalence)) +
+      geom_col(aes(y = n.y, fill = "blue")) +
+      geom_col(aes(y = n.x, fill = "red")) +
+      geom_text(aes(label = percent(Prevalence),
+                    y = (n.x / n.y)), nudge_y = 9) +
+      labs(y = "Samples [n]") +
+  theme(legend.position = "none") +
+  theme(plot.title = element_text("Cryptosporidium Prevalence since 2016")) + 
+  theme(plot.caption = element_text("Number of Samples caught per year (red) vs. number of Crypto-positive Samples per year, prevalence in percent"))
+```
+
+
+
+
+## Infected Samples
+
+The following table displays samples with highest infections recorded (n = 20).
+``` {r Top-infected, echo = F}
+Samples <- Crypto_Detection %>% select(Mouse_ID, Ct_mean, Oocyst_Predict, Year, Latitude, Longitude) %>% filter(Ct_mean > 0) %>% arrange(Ct_mean) %>% head(20)
+
+kable(Samples, caption = "Table 1.1: Crypto-Positive Samples collected since 2016, arranged by Ct_mean, 20 highest infected samples displayed", align = c("cccccc"))
+```
+
+
+## Geographic distribution of positive Samples in the HMHZ
+```{r mini map HI , echo = F, message = F, warning = F}
+SOTA <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/SOTA_Data_Product.csv") %>% select(-X) %>% filter(!is.na(Latitude), !is.na(Longitude), !is.na(HI), !Mouse_ID %in% c("SK_2697", "SK_3173", "SK_905"))
+
+Crypto_Detection_tested <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") %>% select(-X) %>% filter(Ct_mean >= 0, !is.na(Latitude), !is.na(Longitude), !is.na(HI))
+
+Crypto_Detection <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") %>% select(-X) %>% filter(Ct_mean > 0, !is.na(Latitude), !is.na(Longitude), !is.na(HI))
+
+
+Crypto_Detection_21 <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") %>% select(-X) %>% filter(Year == 2021, Ct_mean > 0, !is.na(Latitude), !is.na(Longitude))
+
+
+
+
+
+map <- Crypto_Detection_21 %>%
+  leaflet() %>%
+  addProviderTiles("CartoDB") %>%
+  setView(lat = 52.520007, lng =13.404954, zoom = 7)
+
+# Cutting
+SOTA$HI <- as.numeric(SOTA$HI)
+SOTA$HI_Level <-  cut(SOTA$HI, c(0, 0.001, 0.250, 0.500, 0.750, 0.999, 1), include.lowest = T , labels = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'))
+Crypto_Detection_21$Ct_Level <- cut(Crypto_Detection_21$Ct_mean, c(1, 28, 30, 32, 34, 36, 40), include.lowest = F , labels = c(' < 28  ', '28 - 30', '30 - 32', '32 - 34', '34 - 36', ' > 36'))
+
+SeqSamples <- Crypto_Detection %>%
+  mutate(Sequenced = Mouse_ID %in% c("AA_0144", "AA_0325", "AA_0689", "AA_0209",
+                                     "AA_0282", "AA_0793", "AA_0667", "AA_0805"))
+
+data_col_HI       = colorFactor(beach(6), SOTA$HI)
+data_col_HI_Level = colorFactor(beach(6), SOTA$HI_Level)
+data_col_Ct_Level = colorFactor(brewer.pal(4, "YlOrRd"), Crypto_Detection_21$Ct_Level, reverse = T)
+data_col_Sequenced = colorFactor(brewer.pal(3, "Spectral"), SeqSamples$Sequenced)
+
+
+
+
+Ct_bl_30   <- Crypto_Detection_21 %>% filter(Ct_mean <= 30 & Ct_mean > 0)
+Ct_bl_34   <- Crypto_Detection_21 %>% filter(Ct_mean <= 34 & Ct_mean > 30)
+Ct_bl_36   <- Crypto_Detection_21 %>% filter(Ct_mean <= 36 & Ct_mean > 34)
+Ct_over_36 <- Crypto_Detection_21 %>% filter(Ct_mean > 36)
+Sequenced  <- SeqSamples %>% filter(Sequenced == T)
+Not_Sequenced <- SeqSamples %>% filter(Sequenced == F)
+
+
+
+map %>%
+  addPolylines(lat = c(55.0000, 53.6000, 53.51885, 52.8875  , 52.6053, 51.8978, 45.0000), lng = c(10.0000, 11.4563, 12.4464,13.8119 , 13.8756, 13.8103, 13.5000), color = "purple", weight = 55, opacity = 0.1) %>%
+  addCircleMarkers(data = SOTA,
+                   col = ~data_col_HI(HI),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Year:<b>",    as.character(Year),"<br>",
+                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
+                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  "<b>Sex:<b>", Sex, "<br>",
+                                  sep=" "),
+                   opacity = 1,
+                   radius = 3,
+                   group = "Samples (total)") %>%
+  addCircleMarkers(data = Crypto_Detection_tested,
+                   col = ~data_col_HI(HI),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Year:<b>",    as.character(Year),"<br>",
+                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
+                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  "<b>Sex:<b>", Sex, "<br>",
+                                  sep=" "),
+                   opacity = 1,
+                   radius = 3,
+                   group = "Samples (Crypto-tested)") %>%
+  addCircleMarkers(data = Crypto_Detection,
+                   col = ~data_col_HI(HI),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Year:<b>",    as.character(Year),"<br>",
+                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
+                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  "<b>Sex:<b>", Sex, "<br>",
+                                  sep=" "),
+                   opacity = 1,
+                   radius = 3,
+                   group = "Samples (Crypto-positive)") %>%
+  addCircleMarkers(data = Sequenced, 
+                   col = ~data_col_Sequenced(Sequenced),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Year:<b>",    as.character(Year),"<br>",
+                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
+                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  "<b>Sex:<b>", Sex, "<br>",
+                                  sep=" "),
+                   opacity = 3,
+                   radius = 3,
+                   group = "Sequenced") %>%
+  addLegend("bottomleft", 
+            pal = data_col_HI_Level, 
+            title = "HI",
+            values = SOTA$HI_Level, 
+            group = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'),
+            opacity = 1) %>%
+addLayersControl(baseGroups = c("Samples (total)", "Samples (Crypto-tested)", "Samples (Crypto-positive)", "Sequenced"), 
+                 options = layersControlOptions(collapsed = F))
+```
+
+
+# Primer Design
+
+## Primer Testing and Optimization
+
+
+
+
+# Sequencing Results
+
+## Species and Subspecies Differentiation at MSC6-7 Locus
+

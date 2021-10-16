@@ -1,0 +1,48 @@
+# File Name: 4_SC-0949.eds
+# Comment: 
+# Operator: DEFAULT
+# Barcode: 
+# Instrument Type: QuantStudio™ 1 System
+# Block Type: 96-Well 0.2-mL Block
+# Instrument Name: 2721220100840
+# Instrument Serial Number: 2721220100840
+# Heated Cover Serial Number: 
+# Block Serial Number: 
+# Run Start Date/Time: 2021-10-13 01:32:34 PM UTC
+# Run End Date/Time: 2021-10-13 02:34:57 PM UTC
+# Run Duration: 62 minutes 23 seconds
+# Sample Volume: 20.0
+# Cover Temperature: 105.0
+# Passive Reference: ROX
+# PCR Stage/Step Number: Stage 2 Step 2
+# Quantification Cycle Method: CT
+# Analysis Date/Time: 2021-10-13 03:19:57 PM UTC
+# Software Name and Version: Design & Analysis Software v2.6.1
+# Plugin Name and Version: Primary Analysis v1.7.0, Standard Curve v1.6.0
+# Exported By: guest
+# Exported On: 2021-10-13 03:20:15 PM UTC
+"Well","Well Position","Sample","Quantity","Target","Dye","Task","Reporter","Quencher","Amp Status","Cq","Cq Mean","Cq Confidence","Cq SD","Quantity Mean","Quantity SD","Auto Threshold","Threshold","Auto Baseline","Baseline Start","Baseline End","Tm1","Tm2","Tm3","Tm4","Y-Intercept","R2","Slope","Efficiency","Standard Deviation","Standard Error","Omit"
+"1","A1","AA_0948","","Unknown","FAM","UNKNOWN","FAM","None","No Amp","Undetermined","","0.0","","","","true","0.053324084171801456","true","3","39","","","","","","","","","","","false"
+"2","A2","AA_0948","","Unknown","FAM","UNKNOWN","FAM","None","No Amp","Undetermined","","0.0","","","","true","0.053324084171801456","true","3","39","","","","","","","","","","","false"
+"3","A3","AA_0948","","Unknown","FAM","UNKNOWN","FAM","None","No Amp","Undetermined","","0.0","","","","true","0.053324084171801456","true","3","39","","","","","","","","","","","false"
+"13","B1","AA_0949","","Unknown","FAM","UNKNOWN","FAM","None","No Amp","Undetermined","","0.0","","","","true","0.053324084171801456","true","3","39","","","","","","","","","","","false"
+"14","B2","AA_0949","","Unknown","FAM","UNKNOWN","FAM","None","No Amp","Undetermined","","0.0","","","","true","0.053324084171801456","true","3","39","","","","","","","","","","","false"
+"15","B3","AA_0949","","Unknown","FAM","UNKNOWN","FAM","None","No Amp","Undetermined","","0.0","","","","true","0.053324084171801456","true","3","39","","","","","","","","","","","false"
+"25","C1","AA_0862","","Unknown","FAM","UNKNOWN","FAM","None","No Amp","Undetermined","","0.0","","","","true","0.053324084171801456","true","3","39","","","","","","","","","","","false"
+"26","C2","AA_0862","","Unknown","FAM","UNKNOWN","FAM","None","No Amp","Undetermined","","0.0","","","","true","0.053324084171801456","true","3","39","","","","","","","","","","","false"
+"27","C3","AA_0862","","Unknown","FAM","UNKNOWN","FAM","None","No Amp","Undetermined","","0.0","","","","true","0.053324084171801456","true","3","39","","","","","","","","","","","false"
+"37","D1","AA_0887","","Unknown","FAM","UNKNOWN","FAM","None","No Amp","Undetermined","38.544612112459234","0.0","","","","true","0.053324084171801456","true","3","39","","","","","","","","","","","false"
+"38","D2","AA_0887","","Unknown","FAM","UNKNOWN","FAM","None","No Amp","Undetermined","38.544612112459234","0.0","","","","true","0.053324084171801456","true","3","39","","","","","","","","","","","false"
+"39","D3","AA_0887","","Unknown","FAM","UNKNOWN","FAM","None","Amp","38.544612112459234","38.544612112459234","0.42948935832103313","","","","true","0.053324084171801456","true","3","36","","","","","","","","","","","false"
+"49","E1","AA_0889","","Unknown","FAM","UNKNOWN","FAM","None","Inconclusive","Undetermined","37.82609195616139","0.0","","","","true","0.053324084171801456","true","3","39","","","","","","","","","","","false"
+"50","E2","AA_0889","","Unknown","FAM","UNKNOWN","FAM","None","Amp","37.82609195616139","37.82609195616139","0.8075027673245244","","","","true","0.053324084171801456","true","3","34","","","","","","","","","","","false"
+"51","E3","AA_0889","","Unknown","FAM","UNKNOWN","FAM","None","No Amp","Undetermined","37.82609195616139","0.0","","","","true","0.053324084171801456","true","3","39","","","","","","","","","","","false"
+"61","F1","AA_0904","","Unknown","FAM","UNKNOWN","FAM","None","No Amp","Undetermined","","0.0","","","","true","0.053324084171801456","true","3","39","","","","","","","","","","","false"
+"62","F2","AA_0904","","Unknown","FAM","UNKNOWN","FAM","None","No Amp","Undetermined","","0.0","","","","true","0.053324084171801456","true","3","39","","","","","","","","","","","false"
+"63","F3","AA_0904","","Unknown","FAM","UNKNOWN","FAM","None","No Amp","Undetermined","","0.0","","","","true","0.053324084171801456","true","3","39","","","","","","","","","","","false"
+"73","G1","AA_0943","","Unknown","FAM","UNKNOWN","FAM","None","Amp","35.14853425656115","35.14853425656115","0.9413136898591433","","","","true","0.053324084171801456","true","3","30","","","","","","","","","","","false"
+"74","G2","AA_0943","","Unknown","FAM","UNKNOWN","FAM","None","No Amp","Undetermined","35.14853425656115","0.0","","","","true","0.053324084171801456","true","3","39","","","","","","","","","","","false"
+"75","G3","AA_0943","","Unknown","FAM","UNKNOWN","FAM","None","No Amp","Undetermined","35.14853425656115","0.0","","","","true","0.053324084171801456","true","3","39","","","","","","","","","","","false"
+"85","H1","NTC","","NTC","FAM","NTC","FAM","None","No Amp","Undetermined","","0.0","","","","true","0.2","true","3","39","","","","","","","","","","","false"
+"86","H2","NTC","","NTC","FAM","NTC","FAM","None","No Amp","Undetermined","","0.0","","","","true","0.2","true","3","39","","","","","","","","","","","false"
+"87","H3","NTC","","NTC","FAM","NTC","FAM","None","No Amp","Undetermined","","0.0","","","","true","0.2","true","3","39","","","","","","","","","","","false"

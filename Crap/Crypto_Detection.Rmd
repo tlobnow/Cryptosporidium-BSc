@@ -51,12 +51,12 @@ beach <- function (n, name = c("beach.colors"))
     palette
 }
 
-#Crypto_Detection <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Crypto_Detection.csv")
-Crypto_Detection <- read.csv("Crypto_Detection.csv")
+Crypto_Detection <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv")
+#Crypto_Detection <- read.csv("Crypto_Detection.csv")
 
 
-#new_Alice <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/new_Alice_MiceTable.csv")
-new_Alice <- read.csv("new_Alice_MiceTable.csv")
+new_Alice <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/MiceTableMusAliceArticle.csv")
+#new_Alice <- read.csv("new_Alice_MiceTable.csv")
 new_Alice <- new_Alice %>% select(Mouse_ID, HI, Longitude, Latitude, Year) %>%
   filter(HI >= 0)
       
@@ -288,7 +288,7 @@ map %>%
                    col = ~data_col_Infected(Crypto_Positive),
                    label = ~htmlEscape(mus_caught),
                    popup = ~paste("<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
-                                  "<b>Address:<b>", as.character(Address), "<br>",
+                                  
                                   "<b>Crypto Infections:<b>",  as.character(Crypto_mus_caught), "<b>/<b>", as.character(mus_caught), "<br>",
                                   sep=" "),
                    radius = 3, 
@@ -298,7 +298,7 @@ map %>%
                    col = ~data_col_Infected(Crypto_Positive),
                    label = ~htmlEscape(mus_caught),
                    popup = ~paste("<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
-                                  "<b>Address:<b>", as.character(Address), "<br>",
+                                  
                                   "<b>Crypto Infections:<b>",  as.character(Crypto_mus_caught), "<b>/<b>", as.character(mus_caught), "<br>",
                                   sep=" "),
                    radius = 3, 
@@ -308,7 +308,7 @@ map %>%
                    col = ~data_col_mus(mus_caught),
                    label = ~htmlEscape(mus_caught),
                    popup = ~paste("<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
-                                  "<b>Address:<b>", as.character(Address), "<br>",
+                                  
                                   "<b>Crypto Infections:<b>",  as.character(Crypto_mus_caught), "<b>/<b>", as.character(mus_caught), "<br>",
                                   sep=" "),
                    radius = 3, 
@@ -318,7 +318,7 @@ map %>%
                    col = ~data_col_mus(mus_caught),
                    label = ~htmlEscape(mus_caught),
                    popup = ~paste("<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
-                                  "<b>Address:<b>", as.character(Address), "<br>",
+                                  
                                   "<b>Crypto Infections:<b>",  as.character(Crypto_mus_caught), "<b>/<b>", as.character(mus_caught), "<br>",
                                   sep=" "),
                    radius = 3,
@@ -328,7 +328,7 @@ map %>%
                    col = ~data_col_mus(mus_caught),
                    label = ~htmlEscape(mus_caught),
                    popup = ~paste("<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
-                                  "<b>Address:<b>", as.character(Address), "<br>",
+                                  
                                   "<b>Crypto Infections:<b>",  as.character(Crypto_mus_caught), "<b>/<b>", as.character(mus_caught), "<br>",
                                   sep=" "),
                    radius = 3,
@@ -337,7 +337,7 @@ map %>%
                    col = ~data_col_mus(mus_caught),
                    label = ~htmlEscape(mus_caught),
                    popup = ~paste("<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
-                                  "<b>Address:<b>", as.character(Address), "<br>",
+                                  
                                   "<b>Crypto Infections:<b>",  as.character(Crypto_mus_caught), "<b>/<b>", as.character(mus_caught), "<br>",
                                   sep=" "),
                    radius = 3,
@@ -346,7 +346,7 @@ map %>%
                    col = ~data_col_mus(mus_caught),
                    label = ~htmlEscape(mus_caught),
                    popup = ~paste("<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
-                                  "<b>Address:<b>", as.character(Address), "<br>",
+                                  
                                   "<b>Crypto Infections:<b>",  as.character(Crypto_mus_caught), "<b>/<b>", as.character(mus_caught), "<br>",
                                   sep=" "),
                    radius = 3,
@@ -355,7 +355,7 @@ map %>%
                    col = ~data_col_mus(mus_caught),
                    label = ~htmlEscape(mus_caught),
                    popup = ~paste("<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
-                                  "<b>Address:<b>", as.character(Address), "<br>",
+                                  
                                   "<b>Crypto Infections:<b>",  as.character(Crypto_mus_caught), "<b>/<b>", as.character(mus_caught), "<br>",
                                   sep=" "),
                    radius = 3,
@@ -364,7 +364,7 @@ map %>%
                    col = ~data_col_mus_crypto(Crypto_mus_caught),
                    label = ~htmlEscape(Mouse_ID),
                    popup = ~paste("<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
-                                  "<b>Address:<b>", as.character(Address), "<br>",
+                                  
                                   "<b>Crypto Infections:<b>",  as.character(Crypto_mus_caught), "<b>/<b>", as.character(mus_caught), "<br>",
                                   sep=" "),
                    radius = 3,
@@ -373,7 +373,7 @@ map %>%
                    col = ~data_col_mus_crypto(Crypto_mus_caught),
                    label = ~htmlEscape(Mouse_ID),
                    popup = ~paste("<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
-                                  "<b>Address:<b>", as.character(Address), "<br>",
+                                  
                                   "<b>Crypto Infections:<b>",  as.character(Crypto_mus_caught), "<b>/<b>", as.character(mus_caught), "<br>",
                                   sep=" "),
                    radius = 3,
@@ -382,7 +382,7 @@ map %>%
                    col = ~data_col_mus_crypto(Crypto_mus_caught),
                    label = ~htmlEscape(Mouse_ID),
                    popup = ~paste("<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
-                                  "<b>Address:<b>", as.character(Address), "<br>",
+                                  
                                   "<b>Crypto Infections:<b>",  as.character(Crypto_mus_caught), "<b>/<b>", as.character(mus_caught), "<br>",
                                   sep=" "),
                    radius = 3,
@@ -391,7 +391,7 @@ map %>%
                    col = ~data_col_mus_crypto(Crypto_mus_caught),
                    label = ~htmlEscape(Mouse_ID),
                    popup = ~paste("<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
-                                  "<b>Address:<b>", as.character(Address), "<br>",
+                                  
                                   "<b>Crypto Infections:<b>",  as.character(Crypto_mus_caught), "<b>/<b>", as.character(mus_caught), "<br>",
                                   sep=" "),
                    radius = 3,
@@ -400,7 +400,7 @@ map %>%
                    col = ~data_col_mus_crypto(Crypto_mus_caught),
                    label = ~htmlEscape(Mouse_ID),
                    popup = ~paste("<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
-                                  "<b>Address:<b>", as.character(Address), "<br>",
+                                  
                                   "<b>Crypto Infections:<b>",  as.character(Crypto_mus_caught), "<b>/<b>", as.character(mus_caught), "<br>",
                                   sep=" "),
                    radius = 3,
@@ -409,7 +409,7 @@ map %>%
                    col = ~data_col_mus_crypto(Crypto_mus_caught),
                    label = ~htmlEscape(Mouse_ID),
                    popup = ~paste("<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
-                                  "<b>Address:<b>", as.character(Address), "<br>",
+                                  
                                   "<b>Crypto Infections:<b>",  as.character(Crypto_mus_caught), "<b>/<b>", as.character(mus_caught), "<br>",
                                   sep=" "),
                    radius = 3,
@@ -418,7 +418,7 @@ map %>%
                    col = ~data_col_mus_crypto(Crypto_mus_caught),
                    label = ~htmlEscape(Mouse_ID),
                    popup = ~paste("<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
-                                  "<b>Address:<b>", as.character(Address), "<br>",
+                                  
                                   "<b>Crypto Infections:<b>",  as.character(Crypto_mus_caught), "<b>/<b>", as.character(mus_caught), "<br>",
                                   sep=" "),
                    radius = 3,
@@ -427,7 +427,7 @@ map %>%
                    col = ~data_col_mus_crypto(Crypto_mus_caught),
                    label = ~htmlEscape(Mouse_ID),
                    popup = ~paste("<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
-                                  "<b>Address:<b>", as.character(Address), "<br>",
+                                  
                                   "<b>Crypto Infections:<b>",  as.character(Crypto_mus_caught), "<b>/<b>", as.character(mus_caught), "<br>",
                                   sep=" "),
                    radius = 3,
@@ -514,7 +514,7 @@ map %>%
   addCircleMarkers(data = Positive_Locations, 
                    col = ~data_col_Top(Top_Location),
                    label = ~htmlEscape(Mouse_ID),
-                   popup = ~paste("<b>Address:<b>", as.character(Address), "<br>",
+                   popup = ~paste(
                                   "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
                                   "<b>Infection Rate:<b>", as.character(Crypto_mus_caught), "<b>/<b>", as.character(mus_caught), "<br>",
                                   sep=" "),
@@ -523,8 +523,8 @@ map %>%
                    group = "Positive_Locations") %>%
   addCircleMarkers(data = Top_Locations, 
                    col = ~data_col_Top(Top_Location),
-                   label = ~htmlEscape(Address),
-                   popup = ~paste("<b>Address:<b>", as.character(Address), "<br>",
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste(
                                   "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
                                   "<b>Infection Rate:<b>", as.character(Crypto_mus_caught), "<b>/<b>", as.character(mus_caught), "<br>",
                                   sep=" "),
@@ -546,7 +546,7 @@ Most Ct-values between 5-20 are quite unlikely to depict a normal quantification
 
 ```{r Debunked Samples, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 
-qPCR_Data_MouseID_forJoin <- read.csv("qPCR_Data_MouseID_forJoin.csv")
+qPCR_Data_MouseID_forJoin <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_input/Cryptosporidium/Crypto_qPCR_2016_2021.csv")
  
 qPCR_Data_MouseID_forJoin %>% count(Flag_Ct_1_Ep)
 qPCR_Data_MouseID_forJoin %>% count(Flag_Ct_2_Ep)

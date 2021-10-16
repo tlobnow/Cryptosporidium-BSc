@@ -1,0 +1,32 @@
+# File Name: 4_SC-0949.eds
+# Comment: 
+# Operator: DEFAULT
+# Barcode: 
+# Instrument Type: QuantStudio™ 1 System
+# Block Type: 96-Well 0.2-mL Block
+# Instrument Name: 2721220100840
+# Instrument Serial Number: 2721220100840
+# Heated Cover Serial Number: 
+# Block Serial Number: 
+# Run Start Date/Time: 2021-10-13 01:32:34 PM UTC
+# Run End Date/Time: 2021-10-13 02:34:57 PM UTC
+# Run Duration: 62 minutes 23 seconds
+# Sample Volume: 20.0
+# Cover Temperature: 105.0
+# Passive Reference: ROX
+# PCR Stage/Step Number: Stage 2 Step 2
+# Quantification Cycle Method: CT
+# Analysis Date/Time: 2021-10-13 03:19:57 PM UTC
+# Software Name and Version: Design & Analysis Software v2.6.1
+# Plugin Name and Version: Primary Analysis v1.7.0, Standard Curve v1.6.0
+# Exported By: guest
+# Exported On: 2021-10-13 03:20:15 PM UTC
+"Sample","Target","Number of Replicates","Quantity","Number of Cqs","Cq Mean","Cq SD","Cq SE","Biogroup"
+"AA_0862","Unknown","3","-","0","","","",
+"AA_0887","Unknown","3","-","0","38.544612112459234","","",
+"AA_0889","Unknown","3","-","0","37.82609195616139","","",
+"AA_0904","Unknown","3","-","0","","","",
+"AA_0943","Unknown","3","-","0","35.14853425656115","","",
+"AA_0948","Unknown","3","-","0","","","",
+"AA_0949","Unknown","3","-","0","","","",
+"NTC","NTC","3","-","0","","","",
