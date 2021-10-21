@@ -42,9 +42,12 @@ CellCount.cols <- c( "Treg", "CD4", "Treg17", "Th1", "Th17", "CD8",
                      "Act_CD8", "IFNy_CD4", "IL17A_CD4", "IFNy_CD8")
 Crypto_qPCR.cols <- c("Ct_mean", "Oocyst_Predict")
 
-SOTA <- read.csv("SOTA_Data_Product.csv") %>% select(-X)
+SOTA <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/SOTA_Data_Product.csv") %>% select(-X)
+a <- SOTA[colnames(SOTA)%in% c(basics, EqPCR.cols, Crypto_qPCR.cols)] %>% filter(Oocyst_Predict > 5000) %>% filter(Mouse_ID != "AA_0322")
 
-a <- SOTA[colnames(SOTA)%in% c(basics, Crypto_qPCR.cols)] %>% filter(Oocyst_Predict > 5000) %>% filter(Mouse_ID != "AA_0322")
 
-write.csv(a, "High_Infection_Samples.csv")
+
+
+
+write.csv(a, "data_input/Cryptosporidium/High_Infection_Samples.csv")
 

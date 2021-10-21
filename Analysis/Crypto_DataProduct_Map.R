@@ -258,7 +258,6 @@ Crypto_Detection$HI_Level <-  cut(Crypto_Detection$HI, c(0, 0.001, 0.250, 0.500,
                                   labels = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'))
 
 
-
 HI_0 <- Crypto_Detection %>% filter(HI < 0.01)
 HI_below_0.25 <- Crypto_Detection %>% filter(HI > 0.01, HI <= 0.25)
 HI_below_0.5 <- Crypto_Detection %>% filter(HI > 0.25, HI <= 0.5)
@@ -835,6 +834,8 @@ Opred_10.000 <- Crypto_Detection %>% filter(Oocyst_Predict <= 10000 & Oocyst_Pre
 Opred_100.000 <- Crypto_Detection %>% filter(Oocyst_Predict <= 100000 & Oocyst_Predict > 10000)
 
 
-  
+SOTA <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/SOTA_Data_Product.csv") %>% select(-X)
+
+
   
   
