@@ -1,0 +1,31 @@
+Name,Full_Name_Info,Function,Definition
+B-actin,Beta-Actin,HKG,"nonmuscle cytoskeletal actin,  involved in cell motility, structure and integrity"
+CASP1,Caspase-1,inflammasome marker (IL-1b and IL-18 production),Caspase-1/Interleukin-1 converting enzyme is an evolutionarily conserved enzyme that proteolytically cleaves other proteins
+CD56,,"CD56bright = more cytokine producing NKs, CD56dim = more direct cytotoxic killing",cell surface glycoprotein
+CDC42,Cell division control protein 42 homolog,HKG,protein involved in regulation of the cell cycle
+CXCL9,Chemokine ligand 9,immune cell migration marker + Th1 activator,binds to CXCR3 and primarily attracts activated T lymphocytes
+CXCR3,Chemokine receptor,CXCL9 and CXCL11 receptor,important role in T cell trafficking and function
+GAPDH,Glyceraldehyde 3-phosphate dehydrogenase,HKG,enzyme for energy metabolism and the production of ATP and pyruvate
+IDO1,"Indoleamine-pyrrole 2,3-dioxygenase","DC, monocyte and MC protein regulating T-cell activity",capable of modulating immune cell activation status and phenotype
+IFNy,Interferon Gamma,"compare with IFN-y producing cells and IFN-y ELISAs, should correlate wit PRF1, NKp46 and F4/80. One of these cell types just have to be doing the job!",important activator of macrophages and inducer of major histocompatibility complex class II molecule expression
+IL-10,Interleukin-10,,"cytokine synthesis inhibitory factor, an anti-inflammatory cytokine"
+IL-12ra,Interleukin-12,T-cell marker Th1,effective in combatting a wide range of naturally occurring viral infections through the upregulation of various cytokines
+IL-13,Interleukin-13,,"produced by Th2 cells, natural killer T cell"
+IL-17,Interleukin-17,in case IFN-y isn't coming up but pathogenicity is,pro-inflammatory cystine knot cytokine
+IL-1Ra,Interleukin-1 receptor antagonist,natuaral IL-1b antagonist for infection control (if not increase in Tregs is seen),
+IL-4,Interleukin-4,,induces differentiation of naive helper T cells to Th2 cells
+IL-6,Interleukin-6,TNF inhibitor,acts as both a pro-inflammatory cytokine and an anti-inflammatory myokine
+IRG6A,Immunoglobulin A,autonomous cell defense (opsonization),antibody that plays a crucial role in the immune function of mucous membranes
+Mpo,Myeloperoxidase,myeloperoxidase in Neutrophils,"most abundantly expressed in neutrophil granulocytes, and produces hypohalous acids to carry out their antimicrobial activit"
+Muc2,Mucin-2,the major secretory mucin within the gastrointestinal tract,"Coats the epithelia of the intestines, airways, and other mucus membrane-containing organs"
+Muc5ac,Mucin-5AC,"similar to MUC2, produced by surface goblet cells",Gel-forming glycoprotein of gastric and respiratory tract epithelia
+MyD88,Myeloid differentiation primary response 88,"TLR protein, NF-kB IRAK protein, inflammation marker by TLR",canonical adaptor for inflammatory signaling pathways downstream of members of the Toll-like receptor (TLR) and interleukin-1 (IL-1) receptor families
+NKp46,Natural Killer cell p46,NK marker,innate lymphocytes that efficiently eliminate cancerous and infected cells
+PPIA,Peptidylprolyl isomerase A,HKG,"catalyzes the cis-trans isomerization of proline imidic peptide bonds, which allows it to regulate many biological processes, including intracellular signaling, transcription, inflammation, and apoptosis"
+PPIB,Peptidyl-prolyl cis-trans isomerase B,HKG,"catalyzes the cis-trans isomerization of proline imidic peptide bonds, which allows it to regulate protein folding of type I collagen"
+Prf1,Perforin-1,"perforin, should be dominant in primary infections, but must be correlated between T-cell and NK cell expresions","Pore-forming protein that plays a key role in secretory granule-dependent cell death, and in defense against virus-infected or neoplastic cells"
+Relm-b,Resistin-like molecule-β,mucosal defense factor (goblet cells),cysteine-rich cytokine expressed in the gastrointestinal tract and implicated in insulin resistance and gastrointestinal nematode immunity
+Socs1,Suppressors of Cytokine Signaling,"JAK/STAT signaling pathway, proinflammatory regulating + T-cell differentiation, could explain severity",SOCS-1 regulates responses to IL-12 in mice
+TFF3,Trefoil factor 3,mucosal defense factor (goblet cells),stable secretory protein expressed in the goblet cells of the gastrointestinal mucosa
+TNF-a,Tumour Necrosis Factor alpha,upregulated in eimeria but not well explained. Could be present and driving infection where IFN-y isn't,inflammatory cytokine produced by macrophages/monocytes during acute inflammation
+TRIF,TIR domain-containing adaptor-inducing interferon-β,Type I IFN production,"cytosolic adaptor protein, plays a key role in the mammalian toll-like receptor-mediated signaling pathway"

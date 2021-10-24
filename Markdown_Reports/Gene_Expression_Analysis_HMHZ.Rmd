@@ -1,0 +1,143 @@
+---
+title: "GEA"
+author: Finn
+output:
+  html_document:
+    toc: yes
+    number_section: yes
+    fig_caption: true
+  pdf_document:
+    toc: yes
+  always_allow_html: true
+date: "`r format(Sys.time(), '%d %B %Y')`"
+---
+
+# All Data we have on Gene Expression
+
+If I am not mistaken, we have 2 separate people that worked on gene expression in the past:
+- Svenja collected data with RTqPCR in 2016/17 for 88 samples (AA_0053 - AA_0465)
+
+- Luke ran RTqPCRs again in 2021 for 327 samples, including all of Svenja's samples as well (AA_0053 - AA_0853)
+
+```{r Load data and packages, echo = F}
+library(tidyverse)
+library(data.table)
+library(psych)
+
+SOTA <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/SOTA_Data_Product.csv") %>% select(-X)
+
+#### 2016-2019 (Luke)
+IFC1 <- read.csv("https://raw.githubusercontent.com/derele/Eimeria_Lab/master/data/Experiment_results/IFC1.csv")
+IFC2 <- read.csv("https://raw.githubusercontent.com/derele/Eimeria_Lab/master/data/Experiment_results/IFC2.csv")
+IFC3 <- read.csv("https://raw.githubusercontent.com/derele/Eimeria_Lab/master/data/Experiment_results/IFC3.csv")
+IFC4 <- read.csv("https://raw.githubusercontent.com/derele/Eimeria_Lab/master/data/Experiment_results/IFC4.csv")
+IFC5 <- read.csv("https://raw.githubusercontent.com/derele/Eimeria_Lab/master/data/Experiment_results/IFC5.csv")
+IFC  <- bind_rows(IFC1, IFC2, IFC3, IFC4, IFC5)
+rm(IFC1)
+rm(IFC2)
+rm(IFC3)
+rm(IFC4)
+rm(IFC5)
+
+## adjust IDs
+colnames(IFC)[colnames(IFC)%in%"EH_ID"] <- "Mouse_ID"
+IFC$Mouse_ID <- gsub(pattern = "A", replacement = "AA_", x = IFC$Mouse_ID)
+IFC$Mouse_ID <- gsub(pattern = "AA_AA_", replacement = "AA_", x = IFC$Mouse_ID)
+IFC$Mouse_ID <- gsub(pattern = "LM", replacement = "LM_", x = IFC$Mouse_ID)
+## filter out LM_XXXX
+IFC <- IFC[IFC$Mouse_ID %like% "AA_", ]
+
+## remove unsuccessful amplifications 
+## == 999, equivalent to bad quality, should not be used
+## Luke's Version:
+IFC <- subset(IFC, IFC$Value != 999)
+IFC <- IFC %>% group_by(Mouse_ID, Target) %>% summarise(Ct = mean(Value)) 
+IFC <- distinct(IFC)
+
+## separate data using the pivot_wider()
+## turns Gene Expression Markers into individual columns (from Target),
+## values taken (from Ct)
+IFC <- pivot_wider(IFC, names_from = "Target", values_from = "Ct")
+
+## We need to add Variance and n() again - if I add variance before pivoting, 
+# it will lead to numerous lines, because we have numerous variances for the different markers, 
+# same for the n()... either we create a variance variable for EACH marker individually 
+# or we don't include it for the pivoting... 
+
+
+
+
+## rename columns that have incorrect column names
+colnames(IFC)[colnames(IFC)%in%"IL6"]   <- "IL.6"
+colnames(IFC)[colnames(IFC)%in%"IL10"]  <- "IL.10"
+colnames(IFC)[colnames(IFC)%in%"IL12A"]  <- "IL.12A"
+colnames(IFC)[colnames(IFC)%in%"IL13"]  <- "IL.13"
+colnames(IFC)[colnames(IFC)%in%"IL17A"]  <- "IL.17A"
+colnames(IFC)[colnames(IFC)%in%"IFNG"]  <- "IFNy"
+
+#### NORMALIZING GENE EXPRESSION WITH HOUSEKEEPING GENES
+# Luke used 2 housekeeping genes for normalization, B-PPIB and GAPDH
+# in order to normalize for these two, we will take the geometric mean and
+# subtract that number per each individual mouse
+IFC_NE <- IFC %>% mutate(Norm =  case_when(!is.na(PPIB) & !is.na(GAPDH) ~ sqrt(PPIB * GAPDH),
+                                           is.na(PPIB) | !is.na(GAPDH) ~ GAPDH,
+                                           !is.na(PPIB) | is.na(GAPDH) ~ PPIB), # building geometric mean
+                         CASP1 =   Norm - CASP1,
+                         CXCL9 =   Norm - CXCL9,
+                         CXCR3 =   Norm - CXCR3,
+                         IDO1  =   Norm - IDO1,
+                         IFNy  =   Norm - IFNy,
+                         IL.6  =   Norm - IL.6,
+                         IL.10 =   Norm - IL.10,
+                         IL.12A =  Norm - IL.12A,
+                         IL.13  =  Norm - IL.13,
+                         IL.17A =  Norm - IL.17A,
+                         IL1RN =   Norm - IL1RN,
+                         IRGM1 =   Norm - IRGM1,
+                         MPO   =   Norm - MPO,
+                         MUC2  =   Norm - MUC2,
+                         MUC5AC =  Norm - MUC5AC,
+                         MYD88  =  Norm - MYD88,
+                         NCR1   =  Norm - NCR1,
+                         PRF1   =  Norm - PRF1,
+                         RETNLB =  Norm - RETNLB,
+                         SOCS1  =  Norm - SOCS1,
+                         TICAM1 =  Norm - TICAM1,
+                         TNF    =  Norm - TNF)
+```
+
+
+## Housekeeping Genes
+Housekeeping genes are generally used to differentiate actual immune response to a stimulus (in our case infections with parasites) from normal gene expression. Expression of HK genes is constant in natural and stimulated state.
+
+- Svenja used:
+  - B.Actin ( _actb_ in literature I have seen)
+  - GAPDH
+- Luke used:
+  - PPIB
+  - GAPDH
+
+Since Luke redid all the samples and the protocol included pre-amplification, the results from Svenja are not comparable to each other. Therefore, only results from Luke will be used for further analysis.
+
+Samples lost in Luke's IFC run:
+- AA_0072
+- AA_00432
+
+
+## Use of HK genes
+As we now have individual HKG values, we can:
+1. build the geometric mean of all GAPDH values from all samples with _psych_ package
+
+    GAPDH_Norm = (GAPDH-AA_0053 * GAPDH-AA_0054 *...* GAPDH-AA_0853)
+
+    
+
+2. subtract immuno gene values from the Norm
+  
+    Normalized_Value = GAPDH_Norm - Immuno_Gene
+    
+    
+## Immune Response Genes of Interest (GOI)
+
+
+
