@@ -63,11 +63,54 @@ beach <- function (n, name = c("beach.colors"))
   }
 
 SOTA <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/SOTA_Data_Product.csv") %>% select(-X)
+SOTA <- SOTA %>%
+  mutate(Eim_Species = ifelse(eimeriaSpecies == "E_falciformis", "E_falciformis",
+                              ifelse(eimeriaSpecies == "E_ferrisi", "E_ferrisi",
+                                     ifelse(eimeriaSpecies == "Eimeria_alorani", "Eimeria_alorani",
+                                            ifelse(eimeriaSpecies == "Eimeria_apionodes", "Eimeria_apionodes",
+                                                   ifelse(eimeriaSpecies == "Eimeria_falciformis", "Eimeria_falciformis",
+                                                          ifelse(eimeriaSpecies == "Eimeria_sp_Apodemus", "Eimeria_sp_Apodemus",
+                                                                 ifelse(eimeriaSpecies == "Eimeria_vermiformis", "Eimeria_vermiformis",
+                                                                        ifelse(eimeriaSpecies == "Negative", "Negative",
+                                                                               ifelse(NA)))))))))) %>%
+  mutate(Tested_for = case_when(Ct_mean >= 0 & is.na(Ct.Eimeria) & is.na(Eim_Species) ~ "Crypto",
+                                is.na(Ct_mean) & !is.na(Eim_Species) ~ "Eimeria",
+                                is.na(Ct_mean) & (!is.na(Ct.Eimeria) | !is.na(Eim_Species)) ~ "Eimeria",
+                                !is.na(Ct_mean) & (!is.na(Ct.Eimeria) | !is.na(Eim_Species)) ~ "Crypto_Eimeria",
+                                is.na(Ct_mean) & is.na(Ct.Eimeria) & is.na(Eim_Species) ~ "none",
+                                is.na(Ct_mean) & (is.na(Ct.Eimeria) | is.na(Eim_Species)) ~ "none"),
+         Crypto_Positive  = case_when(Ct_mean > 0 ~ T,
+                                      Ct_mean == 0 ~ F),
+         Eimeria_Positive = case_when(Eim_Species != "Negative" | Ct.Eimeria > 0 | OPG > 0 ~ T,
+                                      Eim_Species == "Negative" | Ct.Eimeria == 0 | OPG == 0 ~ F),
+         Infection = case_when(Tested_for == "Crypto" & Ct_mean > 0                                                          ~ "Positive Crypto",
+                               Tested_for == "Crypto" & Ct_mean == 0                                                         ~ "Negative Crypto",
+                               Tested_for == "Eimeria" & Eimeria_Positive == T                                               ~ "Positive Eimeria",
+                               Tested_for == "Eimeria" & Eimeria_Positive == F                                               ~ "Negative Eimeria",
+                               Tested_for == "Crypto_Eimeria" & Ct_mean > 0  & (Ct.Eimeria > 0 |  Eim_Species != "Negative" | OPG > 0) ~ "Positive Crypto_Eimeria",
+                               Tested_for == "Crypto_Eimeria" & Ct_mean > 0  & (Ct.Eimeria == 0 | Eim_Species == "Negative"| OPG == 0) ~ "Positive Crypto",
+                               Tested_for == "Crypto_Eimeria" & Ct_mean == 0 & (Ct.Eimeria > 0 | Eim_Species != "Negative" | OPG > 0)  ~ "Positive Eimeria",
+                               Tested_for == "Crypto_Eimeria" & Ct_mean == 0 & (Ct.Eimeria == 0 | Eim_Species == "Negative" | OPG == 0) ~ "Negative Crypto_Eimeria",
+                               Tested_for == "none" ~ "not tested"),
+         Infected = case_when(Infection == "not tested" ~ F,
+                              Infection == "Negative Crypto" ~ F,
+                              Crypto_Positive == T | Eimeria_Positive == T ~ T,
+                              Crypto_Positive == F & Eimeria_Positive == F ~ F,
+                              is.na(Crypto_Positive) & Eimeria_Positive == F ~ F,
+                              Crypto_Positive == F & is.na(Eimeria_Positive) ~ F,
+                              ))
+
 Crypto_Detection <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") %>% select(-X)
+
+Crypto_Detection_21 <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") %>% select(-X) %>% filter(Year == 2021, Ct_mean > 0, !is.na(Latitude), !is.na(Longitude))
+
+
 Last_Sample <- SOTA[SOTA$Mouse_ID %like% "AA_", ] %>% select(Mouse_ID)
 Last_Sample <- setDT(Last_Sample)[, paste0("Mouse_ID", 1:2) := tstrsplit(Mouse_ID, "_0")]
 
 
+data_col_Eim_Infected = colorFactor(brewer.pal(3, "YlOrRd"), SOTA$Eimeria_Positive)
+EIM_INFECTED <- SOTA %>% filter(Eimeria_Positive == T)
 
 ```
 
@@ -383,3 +426,132 @@ addLayersControl(baseGroups = c("Colored by HI",
                  options = layersControlOptions(collapsed = F))
 ```
 
+# 2021 Samples and previous Eimeria Infections
+
+## Highest Crypto-Infections in 2021
+``` {r Recap 2021 Infections, echo = F, message = F}
+Crypto_Detection <- Crypto_Detection %>% 
+  filter(Year == 2021,
+         Ct_mean > 0) %>% 
+  select(Mouse_ID, Ct_mean, Oocyst_Predict, Latitude, Longitude) %>% arrange(desc(Oocyst_Predict))
+
+kable(Crypto_Detection,
+      col.names = c("Mouse_ID", "Ct_mean", "Oocyst_Predict", "Latitude", "Longitude"),
+      align = "ccc",
+      caption = "Table 1: _Cryptosporidium_-positive samples from 2021, arranged by Ct_mean")
+```
+
+## Previous Eimeria Infections
+
+- Crypto_Positives2021 ... positive Cases in 2021, color/radius == Ct
+- Sample_Locations     ... Locations that have been sampled since 2016
+- EIM_INFECTED         ... This location had samples with Eimeria Infection, radius == Infection intensity
+
+```{r mini map Eimeria-Infections Past, echo = F, message = F, warning = F}
+Crypto_Detection <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") %>% select(-X) %>% filter(Ct_mean > 0, !is.na(Latitude), !is.na(Longitude), !is.na(HI))
+
+Crypto_Detection_21 <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") %>% select(-X) %>% filter(Year == 2021, Ct_mean > 0, !is.na(Latitude), !is.na(Longitude))
+
+SOTA <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/SOTA_Data_Product.csv") %>% select(-X)
+
+map <- Crypto_Detection_21 %>%
+  leaflet() %>%
+  addProviderTiles("CartoDB") %>%
+  setView(lat = 52.6967 , lng =14.0833, zoom = 10)
+
+# Cutting
+Crypto_Detection$HI <- as.numeric(Crypto_Detection$HI)
+Crypto_Detection$HI_Level <-  cut(Crypto_Detection$HI, c(0, 0.001, 0.250, 0.500, 0.750, 0.999, 1), include.lowest = T , labels = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'))
+Crypto_Detection_21$Ct_Level <- cut(Crypto_Detection_21$Ct_mean, c(1, 28, 30, 32, 34, 36, 40), include.lowest = F , labels = c(' < 28  ', '28 - 30', '30 - 32', '32 - 34', '34 - 36', ' > 36'))
+
+data_col_HI       = colorFactor(beach(6), Crypto_Detection$HI)
+data_col_HI_Level = colorFactor(beach(6), Crypto_Detection$HI_Level)
+data_col_Ct_Level = colorFactor(brewer.pal(4, "YlOrRd"), Crypto_Detection_21$Ct_Level, reverse = T)
+data_col_Sampled  = colorFactor(brewer.pal(6, "Accent"), SOTA$Year)
+
+Ct_bl_30   <- Crypto_Detection_21 %>% filter(Ct_mean <= 30 & Ct_mean > 0)
+Ct_bl_34   <- Crypto_Detection_21 %>% filter(Ct_mean <= 34 & Ct_mean > 30)
+Ct_bl_36   <- Crypto_Detection_21 %>% filter(Ct_mean <= 36 & Ct_mean > 34)
+Ct_over_36 <- Crypto_Detection_21 %>% filter(Ct_mean > 36)
+Crypto_Positives_21 <- Crypto_Detection_21 %>% filter(Ct_mean > 28)
+Sampled <- SOTA %>% filter(!is.na(Year), Year != 2021)
+
+
+
+
+map %>%
+  addPolylines(lat = c(55.0000, 53.6000, 53.51885, 52.8875  , 52.6053, 51.8978, 45.0000), lng = c(10.0000, 11.4563, 12.4464,13.8119 , 13.8756, 13.8103, 13.5000), color = "purple", weight = 55, opacity = 0.1) %>%
+  addCircleMarkers(data = Sampled,
+                   col = "#351c75",
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Year:<b>",    as.character(Year),"<br>",
+                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
+                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  "<b>Sex:<b>", Sex, "<br>",
+                                  sep=" "),
+                   opacity = 0.3,
+                   radius = 3,
+                   group = "Sample Locations") %>%
+  addCircleMarkers(data = EIM_INFECTED,
+                   col = "#72cac3",
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Year:<b>",    as.character(Year),"<br>",
+                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
+                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  "<b>Sex:<b>", Sex, "<br>",
+                                  sep=" "),
+                   opacity = 0.3,
+                   radius = sqrt((EIM_INFECTED$delta_ct_cewe_MminusE)^2),
+                   group = "EIM_INFECTED") %>%
+  addCircleMarkers(data = Crypto_Positives_21, 
+                   color = ~data_col_Ct_Level(Ct_Level),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>", as.character(Mouse_ID), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  "<b>Crypto Infections:<b>",  as.character(Crypto_mus_caught), "<b>/<b>", as.character(mus_caught), "<br>",
+                                  "<b>Oocyst Prediction:<b>",  as.character(Oocyst_Predict), "<br>",
+                                  sep=" "),
+                   radius = (Crypto_Positives_21$Oocyst_Predict)/1000,
+                   #opacity = (Crypto_Positives_21$Ct_mean),
+                   opacity = (Crypto_Positives_21$Oocyst_Predict)/1000,
+                   group = "Crypto Positives 2021") %>%
+  addLayersControl(overlayGroups = c("Sample Locations", "EIM_INFECTED"),
+                   baseGroups = c("Crypto Positives 2021"),
+                 options = layersControlOptions(collapsed = F)) %>%
+  addLegend("bottomleft", 
+            pal = data_col_Ct_Level, 
+            title = "Ct",
+            values = Crypto_Detection_21$Ct_Level, 
+            group = c("Crypto Positives 2021"),
+            opacity = 1)
+```
+
+## Eimeria Detection PCR
+The highly infected samples were tested against Eimeria with Eim_COI_M_F (ATGTCACTNTCTCCAACCTCAGT) and Eim_COI_M_R (GAGCAACATCAANAGCAGTGT), primers that target a short mitochondrial COI region (700bp product).
+
+Cecum wall tissue was extracted using the "innuPREP DNA Mini Kit” from Analytik Jena AG and standardized for PCR
+
+PCR Mastermix consists of 1X DreamTaq Buffer, 0.5 mM dNTP Mix, 0.25 µM from each primer, and 1–20 ng/µl of DNA template in 25 µl reaction. 
+
+PCR Protocol:
+
+- 95°C initial denaturation (4 min)
+- 35 cycles of 92°C denaturation (45 s)
+- 35 cycles of annealing at 52°C (30 s)
+- 35 cycles of extension at 72°C (90 s)
+- final extension at 72°C (10 min)
+
+![](https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/PCRs/Eim_test_CEWE.jpg)
+
+# Conclusion
+
+- **Eimeria:** strong bands for 901 and 902.. location is the same as our strongest infected sample 900.. it doesn't look to be infected in the gel, but since it is the same location it's still very likely to cause difficulties for you.
+
+- **Sequencing:** Not sure what to make of the sequencing results at this point.. will need more sequences from this week, but sending samples is probably best.
+--> More results follow under this link soon ..
