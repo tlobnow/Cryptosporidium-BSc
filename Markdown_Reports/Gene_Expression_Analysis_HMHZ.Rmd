@@ -264,7 +264,8 @@ vis_Genes <- vis_Genes %>%
                               Crypto_Positive == F & Eimeria_Positive == F ~ F,
                               is.na(Crypto_Positive) & Eimeria_Positive == F ~ F,
                               Crypto_Positive == F & is.na(Eimeria_Positive) ~ F,
-                              )) %>%
+                              ),
+         Eim_Uninfected = case_when(MC.Eimeria == F & OPG == 0 ~ T)) %>%
     filter(GEA_Performed == T)
 kable(vis_Genes[1:30,c(1,9:30)])
 
@@ -283,7 +284,7 @@ vis_Genes %>%
   filter(MC.Eimeria == T,
          Infection != "not tested") %>%
   pivot_longer(cols = c(9:30, -IFNy, - GAPDH, -PPIB), names_to = "Marker", values_to = "Value") %>%
-  ggplot(aes(delta_ct_cewe_MminusE, Value, col = Infection)) +
+  ggplot(aes(delta_ct_cewe_MminusE, Value, col = eimeriaSpecies)) +
   geom_point() +
   geom_smooth(method = NULL, aes(col = "")) +
   facet_wrap(~Marker) +
@@ -300,7 +301,7 @@ vis_Genes %>%
   ggplot(aes(delta_ct_cewe_MminusE, Value, col = eimeriaSpecies)) +
   geom_point() +
   geom_smooth(method = lm, aes(col = "")) +
-  facet_wrap(~Marker) +
+  facet_wrap(~Marker, scales = "free_y") +
   ggtitle("Infection Intensity vs. Gene Expression Value, colored by Species") +
   labs(x = "Infection Intensity (Delta_Ct)", y = "Gene Expression Value")
 ```
@@ -320,8 +321,3 @@ vis_Genes %>%
   ggtitle("HI vs. Gene Expression Value") +
   labs(x = "HI", y = "Gene Expression Value")
 ```
-
-
-## Gene Expression Infected vs. Non-Infected
-
-
