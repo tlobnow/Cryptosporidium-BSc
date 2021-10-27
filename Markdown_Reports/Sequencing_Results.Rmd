@@ -338,6 +338,132 @@ named after aa-motif at the end of the genes
 - similar to MEDLE family
 
 
+``` {r Kvac-Results, echo = F, message = F, warning = F}
+SOTA <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/SOTA_Data_Product.csv") %>% select(-X) %>% filter(!is.na(Latitude), !is.na(Longitude), !is.na(HI), !Mouse_ID %in% c("SK_2697", "SK_3173", "SK_905"))
+
+Crypto_Detection <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") %>% select(-X)
+
+High_Infection_Samples <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_input/Cryptosporidium/High_Infection_Samples.csv") %>%
+  mutate(HI_Indicator = case_when(HI >= 0.5 ~ "East",
+                                  HI < 0.5 ~ "West"))
+
+Kvac <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Kvac_Samples_Locations.csv") %>%
+  filter(!is.na(Longitude))
+
+
+
+Western_Hybrid <- High_Infection_Samples %>% filter(HI >= 0.5)
+Eastern_Hybrid <- High_Infection_Samples %>% filter(HI < 0.5)
+
+
+
+
+map <- Kvac %>%
+  leaflet() %>%
+  addProviderTiles("CartoDB") %>%
+  setView(lat = 52.520007, lng =13.404954, zoom = 6)
+
+# Cutting
+SOTA$HI <- as.numeric(SOTA$HI)
+SOTA$HI_Level <-  cut(SOTA$HI, c(0, 0.001, 0.250, 0.500, 0.750, 0.999, 1), include.lowest = T , labels = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'))
+Crypto_Detection_21$Ct_Level <- cut(Crypto_Detection_21$Ct_mean, c(1, 28, 30, 32, 34, 36, 40), include.lowest = F , labels = c(' < 28  ', '28 - 30', '30 - 32', '32 - 34', '34 - 36', ' > 36'))
+
+
+
+GP60     <- Kvac %>% filter(!is.na(GP60_Subtype))
+Actin    <- Kvac %>% filter(!is.na(Actin_Subtype))
+TRAP_C1  <- Kvac %>% filter(!is.na(TRAP.C1_Subtype))
+COWP     <- Kvac %>% filter(!is.na(COWP_Subtype))
+
+
+data_col_HI    = colorFactor(beach(6), Kvac$HI)
+data_col_GP60  = colorFactor(beach(3), Kvac$GP60_Subtype, rev = F)
+data_col_Actin = colorFactor(beach(3), Kvac$Actin_Subtype, rev = F)
+data_col_Trap  = colorFactor(beach(3), Kvac$TRAP.C1_Subtype, rev = F)
+data_col_COWP  = colorFactor(beach(3), Kvac$COWP_Subtype, rev = F)
+
+
+
+
+
+
+map %>%
+  addPolylines(lat = c(55.0000, 53.6000, 53.51885, 52.8875  , 52.6053, 51.8978, 45.0000), lng = c(10.0000, 11.4563, 12.4464,13.8119 , 13.8756, 13.8103, 13.5000), color = "purple", weight = 55, opacity = 0.1) %>%
+  addCircleMarkers(data = Kvac, 
+                   col = ~data_col_HI(HI),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius = 3,
+                   group = "Colored by HI") %>%
+  addCircleMarkers(data  = GP60, 
+                   col   = ~data_col_GP60(GP60_Subtype),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>GP60 Subtype:<b>",       as.character(GP60_Subtype), "<br>",
+                                  "<b>Actin Subtype:<b>",      as.character(Actin_Subtype), "<br>",
+                                  "<b>TRAP-C1 Subtype:<b>",    as.character(TRAP.C1_Subtype), "<br>",
+                                  "<b>COWP Subtype:<b>",      as.character(COWP_Subtype), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius  = 3,
+                   group   = "Colored by GP60") %>%
+  addCircleMarkers(data  = Actin, 
+                   col   = ~data_col_Actin(Actin_Subtype),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>GP60 Subtype:<b>",       as.character(GP60_Subtype), "<br>",
+                                  "<b>Actin Subtype:<b>",      as.character(Actin_Subtype), "<br>",
+                                  "<b>TRAP-C1 Subtype:<b>",    as.character(TRAP.C1_Subtype), "<br>",
+                                  "<b>COWP Subtype:<b>",      as.character(COWP_Subtype), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius  = 3,
+                   group   = "Colored by Actin") %>%
+  addCircleMarkers(data  = TRAP_C1, 
+                   col   = ~data_col_Trap(TRAP.C1_Subtype),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>GP60 Subtype:<b>",       as.character(GP60_Subtype), "<br>",
+                                  "<b>Actin Subtype:<b>",      as.character(Actin_Subtype), "<br>",
+                                  "<b>TRAP-C1 Subtype:<b>",    as.character(TRAP.C1_Subtype), "<br>",
+                                  "<b>COWP Subtype:<b>",      as.character(COWP_Subtype), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius  = 3,
+                   group   = "Colored by TRAP-C1") %>%
+  addCircleMarkers(data  = COWP, 
+                   col   = ~data_col_COWP(COWP_Subtype),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>GP60 Subtype:<b>",       as.character(GP60_Subtype), "<br>",
+                                  "<b>Actin Subtype:<b>",      as.character(Actin_Subtype), "<br>",
+                                  "<b>TRAP-C1 Subtype:<b>",    as.character(TRAP.C1_Subtype), "<br>",
+                                  "<b>COWP Subtype:<b>",      as.character(COWP_Subtype), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius  = 3,
+                   group   = "Colored by COWP") %>%
+  addLegend("bottomleft", 
+            pal = data_col_HI_Level, 
+            title = "HI",
+            values = SOTA$HI_Level, 
+            group = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'),
+            opacity = 1) %>%
+addLayersControl(baseGroups = c("Colored by HI", 
+                                "Colored by GP60",
+                                "Colored by Actin",
+                                "Colored by TRAP-C1",
+                                "Colored by COWP"),
+                 options = layersControlOptions(collapsed = F))
+
+```
 
 ```{r mini map Sequencing-Results , echo = F, message = F, warning = F}
 SOTA <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/SOTA_Data_Product.csv") %>% select(-X) %>% filter(!is.na(Latitude), !is.na(Longitude), !is.na(HI), !Mouse_ID %in% c("SK_2697", "SK_3173", "SK_905"))
@@ -560,13 +686,17 @@ kable(Crypto_Detection,
       caption = "Table 1: _Cryptosporidium_-positive samples from 2021, arranged by Ct_mean")
 ```
 
+
+
+```{r mini map Eimeria-Infections Past, echo = F, message = F, warning = F, include = FALSE}
+
 ## Previous Eimeria Infections
 
-- Crypto_Positives2021 ... positive Cases in 2021, color/radius == Ct
-- Sample_Locations     ... Locations that have been sampled since 2016
-- EIM_INFECTED         ... This location had samples with Eimeria Infection, radius == Infection intensity
+#- Crypto_Positives2021 ... positive Cases in 2021, color/radius == Ct
+#- Sample_Locations     ... Locations that have been sampled since 2016
+#- EIM_INFECTED         ... This location had samples with Eimeria Infection, radius == Infection intensity
 
-```{r mini map Eimeria-Infections Past, echo = F, message = F, warning = F}
+
 Crypto_Detection <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") %>% select(-X) %>% filter(Ct_mean > 0, !is.na(Latitude), !is.na(Longitude), !is.na(HI))
 
 Crypto_Detection_21 <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") %>% select(-X) %>% filter(Year == 2021, Ct_mean > 0, !is.na(Latitude), !is.na(Longitude))
@@ -650,26 +780,3 @@ map %>%
             group = c("Crypto Positives 2021"),
             opacity = 1)
 ```
-
-## Eimeria Detection PCR
-The highly infected samples were tested against Eimeria with Eim_COI_M_F (ATGTCACTNTCTCCAACCTCAGT) and Eim_COI_M_R (GAGCAACATCAANAGCAGTGT), primers that target a short mitochondrial COI region (700bp product).
-
-Cecum wall tissue was extracted using the "innuPREP DNA Mini Kit” from Analytik Jena AG and standardized for PCR
-
-PCR Mastermix consists of 1X DreamTaq Buffer, 0.5 mM dNTP Mix, 0.25 µM from each primer, and 1–20 ng/µl of DNA template in 25 µl reaction. 
-
-PCR Protocol:
-
-- 95°C initial denaturation (4 min)
-- 35 cycles of 92°C denaturation (45 s)
-- 35 cycles of annealing at 52°C (30 s)
-- 35 cycles of extension at 72°C (90 s)
-- final extension at 72°C (10 min)
-
-
-# Conclusion
-
-- **Eimeria:** strong bands for 901 and 902.. location is the same as our strongest infected sample 900.. it doesn't look to be infected in the gel, but since it is the same location it's still very likely to cause difficulties for you.
-
-- **Sequencing:** Not sure what to make of the sequencing results at this point.. will need more sequences from this week, but sending samples is probably best.
---> More results follow under this link soon ..
