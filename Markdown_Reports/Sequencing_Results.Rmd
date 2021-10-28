@@ -338,6 +338,10 @@ named after aa-motif at the end of the genes
 - similar to MEDLE family
 
 
+
+# Results
+
+## Kvac Study
 ``` {r Kvac-Results, echo = F, message = F, warning = F}
 SOTA <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/SOTA_Data_Product.csv") %>% select(-X) %>% filter(!is.na(Latitude), !is.na(Longitude), !is.na(HI), !Mouse_ID %in% c("SK_2697", "SK_3173", "SK_905"))
 
@@ -361,7 +365,7 @@ Eastern_Hybrid <- High_Infection_Samples %>% filter(HI < 0.5)
 map <- Kvac %>%
   leaflet() %>%
   addProviderTiles("CartoDB") %>%
-  setView(lat = 52.520007, lng =13.404954, zoom = 6)
+  setView(lat = 50.07245, lng =12.92014, zoom = 6)
 
 # Cutting
 SOTA$HI <- as.numeric(SOTA$HI)
@@ -377,10 +381,10 @@ COWP     <- Kvac %>% filter(!is.na(COWP_Subtype))
 
 
 data_col_HI    = colorFactor(beach(6), Kvac$HI)
-data_col_GP60  = colorFactor(beach(3), Kvac$GP60_Subtype, rev = F)
-data_col_Actin = colorFactor(beach(3), Kvac$Actin_Subtype, rev = F)
-data_col_Trap  = colorFactor(beach(3), Kvac$TRAP.C1_Subtype, rev = F)
-data_col_COWP  = colorFactor(beach(3), Kvac$COWP_Subtype, rev = F)
+data_col_GP60  = colorFactor(beach(2), Kvac$GP60_Subtype, rev = F)
+data_col_Actin = colorFactor(beach(2), Kvac$Actin_Subtype, rev = F)
+data_col_Trap  = colorFactor(beach(2), Kvac$TRAP.C1_Subtype, rev = F)
+data_col_COWP  = colorFactor(beach(2), Kvac$COWP_Subtype, rev = F)
 
 
 
@@ -465,6 +469,8 @@ addLayersControl(baseGroups = c("Colored by HI",
 
 ```
 
+
+## My Sequencing Results
 ```{r mini map Sequencing-Results , echo = F, message = F, warning = F}
 SOTA <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/SOTA_Data_Product.csv") %>% select(-X) %>% filter(!is.na(Latitude), !is.na(Longitude), !is.na(HI), !Mouse_ID %in% c("SK_2697", "SK_3173", "SK_905"))
 
