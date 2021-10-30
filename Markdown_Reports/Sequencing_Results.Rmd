@@ -339,10 +339,9 @@ named after aa-motif at the end of the genes
 
 
 
-# Results
+# Sequencing Results from Kvac study and EH study
 
-## Kvac Study
-``` {r Kvac-Results, echo = F, message = F, warning = F}
+``` {r Map Prep, echo = F, message = F, warning = F}
 SOTA <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/SOTA_Data_Product.csv") %>% select(-X) %>% filter(!is.na(Latitude), !is.na(Longitude), !is.na(HI), !Mouse_ID %in% c("SK_2697", "SK_3173", "SK_905"))
 
 Crypto_Detection <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") %>% select(-X)
@@ -351,14 +350,13 @@ High_Infection_Samples <- read.csv("https://raw.githubusercontent.com/derele/Mou
   mutate(HI_Indicator = case_when(HI >= 0.5 ~ "East",
                                   HI < 0.5 ~ "West"))
 
-Kvac <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Kvac_Samples_Locations.csv") %>%
-  filter(!is.na(Longitude))
+Kvac <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Kvac_Samples_Locations.csv", na.strings=c(""," ","NA")) %>% filter(!is.na(Longitude)) 
 
+colnames(Kvac)[colnames(Kvac)%in%"TRAP.C1_Subtype"] <- "TRAP_C1_Subtype"
 
 
 Western_Hybrid <- High_Infection_Samples %>% filter(HI >= 0.5)
 Eastern_Hybrid <- High_Infection_Samples %>% filter(HI < 0.5)
-
 
 
 
@@ -375,125 +373,17 @@ Crypto_Detection_21$Ct_Level <- cut(Crypto_Detection_21$Ct_mean, c(1, 28, 30, 32
 
 
 GP60     <- Kvac %>% filter(!is.na(GP60_Subtype))
-Actin    <- Kvac %>% filter(!is.na(Actin_Subtype))
-TRAP_C1  <- Kvac %>% filter(!is.na(TRAP.C1_Subtype))
-COWP     <- Kvac %>% filter(!is.na(COWP_Subtype))
+Actin    <- Kvac %>% filter(Actin_Subtype %in% c("A1", "A2"))
+TRAP_C1  <- Kvac %>% filter(TRAP_C1_Subtype %in% c("T1", "T2"))
+COWP     <- Kvac %>% filter(COWP_Subtype %in% c("C1", "C2"))
 
 
 data_col_HI    = colorFactor(beach(6), Kvac$HI)
-data_col_GP60  = colorFactor(beach(2), Kvac$GP60_Subtype, rev = F)
-data_col_Actin = colorFactor(beach(2), Kvac$Actin_Subtype, rev = F)
-data_col_Trap  = colorFactor(beach(2), Kvac$TRAP.C1_Subtype, rev = F)
-data_col_COWP  = colorFactor(beach(2), Kvac$COWP_Subtype, rev = F)
+data_col_GP60  = colorFactor(beach(9), GP60$GP60_Subtype, rev = T)
+data_col_Actin = colorFactor(beach(2), Actin$Actin_Subtype, rev = T)
+data_col_Trap  = colorFactor(beach(2), TRAP_C1$TRAP_C1_Subtype, rev = T)
+data_col_COWP  = colorFactor(beach(2), COWP$COWP_Subtype, rev = T)
 
-
-
-
-
-
-map %>%
-  addPolylines(lat = c(55.0000, 53.6000, 53.51885, 52.8875  , 52.6053, 51.8978, 45.0000), lng = c(10.0000, 11.4563, 12.4464,13.8119 , 13.8756, 13.8103, 13.5000), color = "purple", weight = 55, opacity = 0.1) %>%
-  addCircleMarkers(data = Kvac, 
-                   col = ~data_col_HI(HI),
-                   label = ~htmlEscape(Mouse_ID),
-                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
-                                  "<b>HI:<b>",      as.character(HI), "<br>",
-                                  sep=" "),
-                   opacity = 5,
-                   radius = 3,
-                   group = "Colored by HI") %>%
-  addCircleMarkers(data  = GP60, 
-                   col   = ~data_col_GP60(GP60_Subtype),
-                   label = ~htmlEscape(Mouse_ID),
-                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
-                                  "<b>HI:<b>",      as.character(HI), "<br>",
-                                  "<b>GP60 Subtype:<b>",       as.character(GP60_Subtype), "<br>",
-                                  "<b>Actin Subtype:<b>",      as.character(Actin_Subtype), "<br>",
-                                  "<b>TRAP-C1 Subtype:<b>",    as.character(TRAP.C1_Subtype), "<br>",
-                                  "<b>COWP Subtype:<b>",      as.character(COWP_Subtype), "<br>",
-                                  sep=" "),
-                   opacity = 5,
-                   radius  = 3,
-                   group   = "Colored by GP60") %>%
-  addCircleMarkers(data  = Actin, 
-                   col   = ~data_col_Actin(Actin_Subtype),
-                   label = ~htmlEscape(Mouse_ID),
-                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
-                                  "<b>HI:<b>",      as.character(HI), "<br>",
-                                  "<b>GP60 Subtype:<b>",       as.character(GP60_Subtype), "<br>",
-                                  "<b>Actin Subtype:<b>",      as.character(Actin_Subtype), "<br>",
-                                  "<b>TRAP-C1 Subtype:<b>",    as.character(TRAP.C1_Subtype), "<br>",
-                                  "<b>COWP Subtype:<b>",      as.character(COWP_Subtype), "<br>",
-                                  sep=" "),
-                   opacity = 5,
-                   radius  = 3,
-                   group   = "Colored by Actin") %>%
-  addCircleMarkers(data  = TRAP_C1, 
-                   col   = ~data_col_Trap(TRAP.C1_Subtype),
-                   label = ~htmlEscape(Mouse_ID),
-                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
-                                  "<b>HI:<b>",      as.character(HI), "<br>",
-                                  "<b>GP60 Subtype:<b>",       as.character(GP60_Subtype), "<br>",
-                                  "<b>Actin Subtype:<b>",      as.character(Actin_Subtype), "<br>",
-                                  "<b>TRAP-C1 Subtype:<b>",    as.character(TRAP.C1_Subtype), "<br>",
-                                  "<b>COWP Subtype:<b>",      as.character(COWP_Subtype), "<br>",
-                                  sep=" "),
-                   opacity = 5,
-                   radius  = 3,
-                   group   = "Colored by TRAP-C1") %>%
-  addCircleMarkers(data  = COWP, 
-                   col   = ~data_col_COWP(COWP_Subtype),
-                   label = ~htmlEscape(Mouse_ID),
-                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
-                                  "<b>HI:<b>",      as.character(HI), "<br>",
-                                  "<b>GP60 Subtype:<b>",       as.character(GP60_Subtype), "<br>",
-                                  "<b>Actin Subtype:<b>",      as.character(Actin_Subtype), "<br>",
-                                  "<b>TRAP-C1 Subtype:<b>",    as.character(TRAP.C1_Subtype), "<br>",
-                                  "<b>COWP Subtype:<b>",      as.character(COWP_Subtype), "<br>",
-                                  sep=" "),
-                   opacity = 5,
-                   radius  = 3,
-                   group   = "Colored by COWP") %>%
-  addLegend("bottomleft", 
-            pal = data_col_HI_Level, 
-            title = "HI",
-            values = SOTA$HI_Level, 
-            group = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'),
-            opacity = 1) %>%
-addLayersControl(baseGroups = c("Colored by HI", 
-                                "Colored by GP60",
-                                "Colored by Actin",
-                                "Colored by TRAP-C1",
-                                "Colored by COWP"),
-                 options = layersControlOptions(collapsed = F))
-
-```
-
-
-## My Sequencing Results
-```{r mini map Sequencing-Results , echo = F, message = F, warning = F}
-SOTA <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/SOTA_Data_Product.csv") %>% select(-X) %>% filter(!is.na(Latitude), !is.na(Longitude), !is.na(HI), !Mouse_ID %in% c("SK_2697", "SK_3173", "SK_905"))
-
-Crypto_Detection <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") %>% select(-X)
-
-High_Infection_Samples <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_input/Cryptosporidium/High_Infection_Samples.csv") %>%
-  mutate(HI_Indicator = case_when(HI >= 0.5 ~ "East",
-                                  HI < 0.5 ~ "West"))
-
-Western_Hybrid <- High_Infection_Samples %>% filter(HI >= 0.5)
-Eastern_Hybrid <- High_Infection_Samples %>% filter(HI < 0.5)
-
-
-
-map <- Crypto_Detection_21 %>%
-  leaflet() %>%
-  addProviderTiles("CartoDB") %>%
-  setView(lat = 52.520007, lng =13.404954, zoom = 7)
-
-# Cutting
-SOTA$HI <- as.numeric(SOTA$HI)
-SOTA$HI_Level <-  cut(SOTA$HI, c(0, 0.001, 0.250, 0.500, 0.750, 0.999, 1), include.lowest = T , labels = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'))
-Crypto_Detection_21$Ct_Level <- cut(Crypto_Detection_21$Ct_mean, c(1, 28, 30, 32, 34, 36, 40), include.lowest = F , labels = c(' < 28  ', '28 - 30', '30 - 32', '32 - 34', '34 - 36', ' > 36'))
 
 SeqSamples <- Crypto_Detection %>%
   mutate(Sequenced = Mouse_ID %in% c("AA_0144", "AA_0325", "AA_0689", "AA_0209",
@@ -518,35 +408,69 @@ SeqSamples <- Crypto_Detection %>%
          MEDLE_Subtype = case_when(Mouse_ID %in% c("AA_0523") ~ "Deletion of 9nt @446",
                                    Mouse_ID %in% c("AA_0144", "AA_0209", "AA_0900") ~ "Deletion of 6nt @446"))
 
+Sequenced <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/HMHZ_Samples_Locations.csv")
+
+Sequenced$HI_Level <-  cut(Sequenced$HI, c(0, 0.001, 0.250, 0.500, 0.750, 0.999, 1), include.lowest = T , labels = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'))
+
+Sequenced <- Sequenced %>%
+  mutate(HI_Indicator = case_when(MSC6_Subtype == "MS1" ~ "Eastern",
+                                  MSC6_Subtype == "MS2" ~ "Western"))
+```
+
+
+## Kvac Study Results
+``` {r Kvac-Samples-Table, echo = F, message = F, fig.align = 'left'}
+
+Kvac[ ,c(1:8, 10:12)] %>% arrange(GP60_Subtype, HI) %>% kable(align = c("cccccccccc"))
+
+```
+
+## HMHZ Sequencing Reults
+``` {r HMHZ-Samples-Table, echo = F, message = F, fig.align = 'left'}
+
+Sequenced[,1:13] %>% kable(align = c("ccccccccccccc"))
+
+```
+
+
+## Map of Sequencing Results
+```{r mini map Sequencing-Results, echo = F, message = F, warning = F}
+
+Sequenced <- full_join(Sequenced, Kvac)
 
 Ct_bl_30   <- Crypto_Detection_21 %>% filter(Ct_mean <= 30 & Ct_mean > 0)
 Ct_bl_34   <- Crypto_Detection_21 %>% filter(Ct_mean <= 34 & Ct_mean > 30)
 Ct_bl_36   <- Crypto_Detection_21 %>% filter(Ct_mean <= 36 & Ct_mean > 34)
 Ct_over_36 <- Crypto_Detection_21 %>% filter(Ct_mean > 36)
-Sequenced  <- SeqSamples %>% filter(Sequenced == T)
-Not_Sequenced <- SeqSamples %>% filter(Sequenced == F)
-GST <- Sequenced %>% filter(!is.na(GST_Subtype))
-MSC6 <- Sequenced %>% filter(!is.na(MSC6_Subtype))
-GP60 <- Sequenced %>% filter(!is.na(GP60_Subtype))
-TRAP <- Sequenced %>% filter(!is.na(TRAP_C1_Subtype))
-SKSR <- Sequenced %>% filter(!is.na(SKSR_Subtype))
+GST   <- Sequenced %>% filter(!is.na(GST_Subtype))
+MSC6  <- Sequenced %>% filter(!is.na(MSC6_Subtype))
+GP60  <- Sequenced %>% filter(!is.na(GP60_Subtype))
+TRAP  <- Sequenced %>% filter(!is.na(TRAP_C1_Subtype))
+SKSR  <- Sequenced %>% filter(!is.na(SKSR_Subtype))
 MEDLE <- Sequenced %>% filter(!is.na(MEDLE_Subtype))
+CP56  <- Sequenced %>% filter(!is.na(CP56_Subtype))
 
-data_col_HI       = colorFactor(beach(6), SOTA$HI)
-data_col_HI_Level = colorFactor(beach(6), SOTA$HI_Level)
-data_col_Ct_Level = colorFactor(brewer.pal(4, "YlOrRd"), Crypto_Detection_21$Ct_Level, reverse = T)
-data_col_Sequenced = colorFactor(beach(2), SeqSamples$HI)
-data_col_MSC6 = colorFactor(beach(2), SeqSamples$MSC6_Subtype, rev = T)
-data_col_GP60 = colorFactor(beach(2), SeqSamples$GP60_Subtype, rev = F)
-data_col_GP60 = colorRamp(c("blue", "red"))
+data_col_HI           = colorFactor(beach(6), Sequenced$HI)
+data_col_HI_Level     = colorFactor(beach(6), Sequenced$HI_Level)
+data_col_HI_Indicator = colorFactor(beach(2), Sequenced$HI_Indicator, reverse = T)
+data_col_Ct_Level     = colorFactor(brewer.pal(4, "YlOrRd"), Crypto_Detection_21$Ct_Level, reverse = T)
+data_col_Sequenced    = colorFactor(beach(2), Sequenced$HI)
+data_col_MSC6         = colorFactor(beach(2), Sequenced$MSC6_Subtype, rev = T)
+data_col_GP60         = colorFactor(beach(9), Sequenced$GP60_Subtype, rev = T)
 
-data_col_GST = colorFactor(beach(2), SeqSamples$GST_Subtype, rev = T)
-data_col_Trap = colorFactor(beach(2), SeqSamples$Trap_C1_Subtype, rev = T)
-data_col_SKSR = colorFactor(beach(2), SeqSamples$SKSR_Subtype, rev = T)
-data_col_MEDLE = colorFactor(beach(2), SeqSamples$MEDLE_Subtype, rev = T)
+data_col_GST   = colorFactor(beach(2), Sequenced$GST_Subtype, rev = T)
+data_col_Trap  = colorFactor(beach(2), Sequenced$TRAP_C1_Subtype, rev = T)
+data_col_SKSR  = colorFactor(beach(2), Sequenced$SKSR_Subtype, rev = T)
+data_col_MEDLE = colorFactor(beach(2), Sequenced$MEDLE_Subtype, rev = T)
+data_col_CP56  = colorFactor(beach(2), Sequenced$CP56_Subtype, rev = T)
 
 
 
+
+map <- Sequenced %>%
+  leaflet() %>%
+  addProviderTiles("CartoDB") %>%
+  setView(lat = 51.676761 , lng =13.679507, zoom = 6)
 
 
 map %>%
@@ -556,58 +480,26 @@ map %>%
                    label = ~htmlEscape(Mouse_ID),
                    popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
                                   "<b>HI:<b>",      as.character(HI), "<br>",
-                                  "<b>Year:<b>",    as.character(Year),"<br>",
-                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
-                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
-                                  "<b>Sex:<b>", Sex, "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
                                   sep=" "),
                    opacity = 5,
                    radius = 3,
                    group = "Colored by HI") %>%
-  addCircleMarkers(data = GP60, 
-                   col = "blue",
-                   label = ~htmlEscape(Mouse_ID),
-                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
-                                  "<b>HI:<b>",      as.character(HI), "<br>",
-                                  "<b>GP60 Subtype:<b>",      as.character(GP60_Subtype), "<br>",
-                                  "<b>MSC6-7 Subtype:<b>",      as.character(MSC6_Subtype), "<br>",
-                                  "<b>GST Subtype:<b>",      as.character(GST_Subtype), "<br>",
-                                  "<b>Year:<b>",    as.character(Year),"<br>",
-                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
-                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
-                                  "<b>Sex:<b>", Sex, "<br>",
-                                  sep=" "),
-                   opacity = 5,
-                   radius = 3,
-                   group = "Colored by GP60") %>%
-  addCircleMarkers(data = TRAP, 
-                   col = ~data_col_Trap(TRAP_C1_Subtype),
-                   label = ~htmlEscape(Mouse_ID),
-                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
-                                  "<b>HI:<b>",      as.character(HI), "<br>",
-                                  "<b>GP60 Subtype:<b>",      as.character(GP60_Subtype), "<br>",
-                                  "<b>MSC6-7 Subtype:<b>",      as.character(MSC6_Subtype), "<br>",
-                                  "<b>GST Subtype:<b>",      as.character(GST_Subtype), "<br>",
-                                  "<b>Year:<b>",    as.character(Year),"<br>",
-                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
-                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
-                                  "<b>Sex:<b>", Sex, "<br>",
-                                  sep=" "),
-                   opacity = 5,
-                   radius = 3, 
-                   group = "Colored by TRAP-C1") %>%
     addCircleMarkers(data = MSC6, 
                    col = ~data_col_MSC6(MSC6_Subtype),
                    label = ~htmlEscape(Mouse_ID),
                    popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
                                   "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
                                   "<b>MSC6-7 Subtype:<b>",      as.character(MSC6_Subtype), "<br>", 
                                   "<b>GP60 Subtype:<b>",      as.character(GP60_Subtype), "<br>",
                                   "<b>GST Subtype:<b>",      as.character(GST_Subtype), "<br>",
-                                  "<b>Year:<b>",    as.character(Year),"<br>",
-                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
-                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
-                                  "<b>Sex:<b>", Sex, "<br>",
+                                  "<b>CP56 Subtype:<b>",      as.character(CP56_Subtype), "<br>",
+                                  "<b>SKSR Subtype:<b>",      as.character(SKSR_Subtype), "<br>",
+                                  "<b>MEDLE Subtype:<b>",      as.character(MEDLE_Subtype), "<br>",
+                                  "<b>Actin Subtype:<b>",      as.character(Actin_Subtype), "<br>",
+                                  "<b>TRAP-C1 Subtype:<b>",    as.character(TRAP_C1_Subtype), "<br>",
+                                  "<b>COWP Subtype:<b>",      as.character(COWP_Subtype), "<br>",
                                   sep=" "),
                    opacity = 5,
                    radius = 3,
@@ -618,13 +510,16 @@ map %>%
                    label = ~htmlEscape(Mouse_ID),
                    popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
                                   "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
                                   "<b>GP60 Subtype:<b>",      as.character(GP60_Subtype), "<br>",
                                   "<b>MSC6-7 Subtype:<b>",      as.character(MSC6_Subtype), "<br>",
                                   "<b>GST Subtype:<b>",      as.character(GST_Subtype), "<br>",
-                                  "<b>Year:<b>",    as.character(Year),"<br>",
-                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
-                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
-                                  "<b>Sex:<b>", Sex, "<br>",
+                                  "<b>CP56 Subtype:<b>",      as.character(CP56_Subtype), "<br>",
+                                  "<b>SKSR Subtype:<b>",      as.character(SKSR_Subtype), "<br>",
+                                  "<b>MEDLE Subtype:<b>",      as.character(MEDLE_Subtype), "<br>",
+                                  "<b>Actin Subtype:<b>",      as.character(Actin_Subtype), "<br>",
+                                  "<b>TRAP-C1 Subtype:<b>",    as.character(TRAP_C1_Subtype), "<br>",
+                                  "<b>COWP Subtype:<b>",      as.character(COWP_Subtype), "<br>",
                                   sep=" "),
                    opacity = 5,
                    radius = 3,
@@ -634,13 +529,16 @@ map %>%
                    label = ~htmlEscape(Mouse_ID),
                    popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
                                   "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
                                   "<b>GP60 Subtype:<b>",      as.character(GP60_Subtype), "<br>",
                                   "<b>MSC6-7 Subtype:<b>",      as.character(MSC6_Subtype), "<br>",
                                   "<b>GST Subtype:<b>",      as.character(GST_Subtype), "<br>",
-                                  "<b>Year:<b>",    as.character(Year),"<br>",
-                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
-                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
-                                  "<b>Sex:<b>", Sex, "<br>",
+                                  "<b>CP56 Subtype:<b>",      as.character(CP56_Subtype), "<br>",
+                                  "<b>SKSR Subtype:<b>",      as.character(SKSR_Subtype), "<br>",
+                                  "<b>MEDLE Subtype:<b>",      as.character(MEDLE_Subtype), "<br>",
+                                  "<b>Actin Subtype:<b>",      as.character(Actin_Subtype), "<br>",
+                                  "<b>TRAP-C1 Subtype:<b>",    as.character(TRAP_C1_Subtype), "<br>",
+                                  "<b>COWP Subtype:<b>",      as.character(COWP_Subtype), "<br>",
                                   sep=" "),
                    opacity = 5,
                    radius = 3,
@@ -650,37 +548,136 @@ map %>%
                    label = ~htmlEscape(Mouse_ID),
                    popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
                                   "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
                                   "<b>GP60 Subtype:<b>",      as.character(GP60_Subtype), "<br>",
                                   "<b>MSC6-7 Subtype:<b>",      as.character(MSC6_Subtype), "<br>",
                                   "<b>GST Subtype:<b>",      as.character(GST_Subtype), "<br>",
-                                  "<b>Year:<b>",    as.character(Year),"<br>",
-                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
-                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
-                                  "<b>Sex:<b>", Sex, "<br>",
+                                  "<b>CP56 Subtype:<b>",      as.character(CP56_Subtype), "<br>",
+                                  "<b>SKSR Subtype:<b>",      as.character(SKSR_Subtype), "<br>",
+                                  "<b>MEDLE Subtype:<b>",      as.character(MEDLE_Subtype), "<br>",
+                                  "<b>Actin Subtype:<b>",      as.character(Actin_Subtype), "<br>",
+                                  "<b>TRAP-C1 Subtype:<b>",    as.character(TRAP_C1_Subtype), "<br>",
+                                  "<b>COWP Subtype:<b>",      as.character(COWP_Subtype), "<br>",
                                   sep=" "),
                    opacity = 5,
                    radius = 3,
                    group = "Colored by MEDLE") %>%
+  addCircleMarkers(data = CP56, 
+                   col = "red",
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  "<b>GP60 Subtype:<b>",      as.character(GP60_Subtype), "<br>",
+                                  "<b>MSC6-7 Subtype:<b>",      as.character(MSC6_Subtype), "<br>",
+                                  "<b>GST Subtype:<b>",      as.character(GST_Subtype), "<br>",
+                                  "<b>CP56 Subtype:<b>",      as.character(CP56_Subtype), "<br>",
+                                  "<b>SKSR Subtype:<b>",      as.character(SKSR_Subtype), "<br>",
+                                  "<b>MEDLE Subtype:<b>",      as.character(MEDLE_Subtype), "<br>",
+                                  "<b>Actin Subtype:<b>",      as.character(Actin_Subtype), "<br>",
+                                  "<b>TRAP-C1 Subtype:<b>",    as.character(TRAP_C1_Subtype), "<br>",
+                                  "<b>COWP Subtype:<b>",      as.character(COWP_Subtype), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius = 3,
+                   group = "Colored by CP56") %>%
+  addCircleMarkers(data  = GP60, 
+                   col   = ~data_col_GP60(GP60_Subtype),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  "<b>GP60 Subtype:<b>",      as.character(GP60_Subtype), "<br>",
+                                  "<b>MSC6-7 Subtype:<b>",      as.character(MSC6_Subtype), "<br>",
+                                  "<b>GST Subtype:<b>",      as.character(GST_Subtype), "<br>",
+                                  "<b>CP56 Subtype:<b>",      as.character(CP56_Subtype), "<br>",
+                                  "<b>SKSR Subtype:<b>",      as.character(SKSR_Subtype), "<br>",
+                                  "<b>MEDLE Subtype:<b>",      as.character(MEDLE_Subtype), "<br>",
+                                  "<b>Actin Subtype:<b>",      as.character(Actin_Subtype), "<br>",
+                                  "<b>TRAP-C1 Subtype:<b>",    as.character(TRAP_C1_Subtype), "<br>",
+                                  "<b>COWP Subtype:<b>",      as.character(COWP_Subtype), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius = 3,
+                   group = "Colored by GP60") %>%
+  addCircleMarkers(data = TRAP, 
+                   col = ~data_col_Trap(TRAP_C1_Subtype),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  "<b>GP60 Subtype:<b>",      as.character(GP60_Subtype), "<br>",
+                                  "<b>MSC6-7 Subtype:<b>",      as.character(MSC6_Subtype), "<br>",
+                                  "<b>GST Subtype:<b>",      as.character(GST_Subtype), "<br>",
+                                  "<b>CP56 Subtype:<b>",      as.character(CP56_Subtype), "<br>",
+                                  "<b>SKSR Subtype:<b>",      as.character(SKSR_Subtype), "<br>",
+                                  "<b>MEDLE Subtype:<b>",      as.character(MEDLE_Subtype), "<br>",
+                                  "<b>Actin Subtype:<b>",      as.character(Actin_Subtype), "<br>",
+                                  "<b>TRAP-C1 Subtype:<b>",    as.character(TRAP_C1_Subtype), "<br>",
+                                  "<b>COWP Subtype:<b>",      as.character(COWP_Subtype), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius = 3, 
+                   group = "Colored by TRAP-C1") %>%
+    addCircleMarkers(data  = Actin, 
+                   col   = ~data_col_Actin(Actin_Subtype),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude),  "<br>",
+                                  "<b>GP60 Subtype:<b>",       as.character(GP60_Subtype), "<br>",
+                                  "<b>Actin Subtype:<b>",      as.character(Actin_Subtype), "<br>",
+                                  "<b>TRAP-C1 Subtype:<b>",    as.character(TRAP_C1_Subtype), "<br>",
+                                  "<b>COWP Subtype:<b>",      as.character(COWP_Subtype), "<br>",
+                                  
+                                  sep=" "),
+                   opacity = 5,
+                   radius  = 3,
+                   group   = "Colored by Actin") %>%
+  addCircleMarkers(data  = COWP, 
+                   col   = ~data_col_COWP(COWP_Subtype),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude),
+                                  "<b>GP60 Subtype:<b>",       as.character(GP60_Subtype), "<br>",
+                                  "<b>Actin Subtype:<b>",      as.character(Actin_Subtype), "<br>",
+                                  "<b>TRAP-C1 Subtype:<b>",    as.character(TRAP_C1_Subtype), "<br>",
+                                  "<b>COWP Subtype:<b>",      as.character(COWP_Subtype), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius  = 3,
+                   group   = "Colored by COWP") %>%
   addLegend("bottomleft", 
             pal = data_col_HI_Level, 
             title = "HI",
-            values = SOTA$HI_Level, 
+            values = Sequenced$HI_Level, 
             group = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'),
             opacity = 1) %>%
+  addLegend("bottomright", 
+            pal = data_col_HI_Indicator, 
+            title = "Type",
+            values = Sequenced$HI_Indicator, 
+            group = c('Western', 'Eastern'),
+            opacity = 1) %>%
 addLayersControl(baseGroups = c("Colored by HI", 
-                                "Colored by GP60",
-                                "Colored by TRAP-C1",
                                 "Colored by MSC6-7", 
                                 "Colored by GST",
                                 "Colored by SKSR",
-                                "Colored by MEDLE"),
+                                "Colored by MEDLE",
+                                "Colored by CP56",
+                                "Colored by GP60",
+                                "Colored by TRAP-C1",
+                                "Colored by COWP",
+                                "Colored by Actin"),
                  options = layersControlOptions(collapsed = F))
 ```
 
+
+```{r mini map Eimeria-Infections Past, echo = F, message = F, warning = F, include = FALSE}
 # 2021 Samples and previous Eimeria Infections
 
 ## Highest Crypto-Infections in 2021
-``` {r Recap 2021 Infections, echo = F, message = F}
 Crypto_Detection <- Crypto_Detection %>% 
   filter(Year == 2021,
          Ct_mean > 0) %>% 
@@ -690,11 +687,8 @@ kable(Crypto_Detection,
       col.names = c("Mouse_ID", "Ct_mean", "Oocyst_Predict", "Latitude", "Longitude"),
       align = "ccc",
       caption = "Table 1: _Cryptosporidium_-positive samples from 2021, arranged by Ct_mean")
-```
 
 
-
-```{r mini map Eimeria-Infections Past, echo = F, message = F, warning = F, include = FALSE}
 
 ## Previous Eimeria Infections
 
@@ -786,3 +780,14 @@ map %>%
             group = c("Crypto Positives 2021"),
             opacity = 1)
 ```
+
+## Consensus Tree of concatenated sequences
+
+![](https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/concatenated_Tree.png)
+
+```{r Distance Matrix, message = F, warning=FALSE, echo=F}
+Dist <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/concat_Tree_Distances.csv")
+kable(Dist)
+```
+
+![](https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/HMHZ_Kvac_Tree.png)
