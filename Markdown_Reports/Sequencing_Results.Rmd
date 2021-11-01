@@ -3,6 +3,7 @@ title: "Sequencing_Report"
 author: Finn
 output:
   html_document:
+    css: styles.css
     toc: yes
     number_section: yes
     fig_caption: true
@@ -36,6 +37,9 @@ library(knitr)
 library(ggeffects)
 library(parasiteLoad)
 library(scales)
+library(pheatmap)
+library(dendextend)
+library(paletteer)
 
 
 # Load Palette ####
@@ -286,10 +290,14 @@ addLayersControl(baseGroups = c("Samples (total)", "Samples (Crypto-tested)", "S
                  options = layersControlOptions(collapsed = F))
 ```
 
-# Sequencing Results
+# Genes of Interest
 
+## Genes and Gene_IDs
+``` {r Gene-IDs, echo = F, message = F, warning = F}
+Gene_IDs <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Gene_IDs.csv")
 
-## Genes of Interest
+kable(Gene_IDs, align = c("lccccc"))
+```
 
 ### GP60:
 "Industry Standard" for Species- and Supspeciestyping in _Cryptosporidium spp._ 
@@ -350,7 +358,7 @@ High_Infection_Samples <- read.csv("https://raw.githubusercontent.com/derele/Mou
   mutate(HI_Indicator = case_when(HI >= 0.5 ~ "East",
                                   HI < 0.5 ~ "West"))
 
-Kvac <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Kvac_Samples_Locations.csv", na.strings=c(""," ","NA")) %>% filter(!is.na(Longitude)) 
+Kvac <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Kvac_Samples_Locations1.csv", na.strings=c(""," ","NA")) %>% filter(!is.na(Longitude)) 
 
 colnames(Kvac)[colnames(Kvac)%in%"TRAP.C1_Subtype"] <- "TRAP_C1_Subtype"
 
@@ -408,27 +416,40 @@ SeqSamples <- Crypto_Detection %>%
          MEDLE_Subtype = case_when(Mouse_ID %in% c("AA_0523") ~ "Deletion of 9nt @446",
                                    Mouse_ID %in% c("AA_0144", "AA_0209", "AA_0900") ~ "Deletion of 6nt @446"))
 
-Sequenced <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/HMHZ_Samples_Locations.csv")
-
-Sequenced$HI_Level <-  cut(Sequenced$HI, c(0, 0.001, 0.250, 0.500, 0.750, 0.999, 1), include.lowest = T , labels = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'))
-
-Sequenced <- Sequenced %>%
-  mutate(HI_Indicator = case_when(MSC6_Subtype == "MS1" ~ "Eastern",
-                                  MSC6_Subtype == "MS2" ~ "Western"))
 ```
 
 
 ## Kvac Study Results
 ``` {r Kvac-Samples-Table, echo = F, message = F, fig.align = 'left'}
+HMHZ <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/HMHZ_Kvac_Samples_Locations.csv", na.strings=c(""," ","NA")) %>% filter(!is.na(Longitude))
 
-Kvac[ ,c(1:8, 10:12)] %>% arrange(GP60_Subtype, HI) %>% kable(align = c("cccccccccc"))
+Kvac <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Kvac_Samples_Locations1.csv", na.strings=c(""," ","NA")) %>% filter(!is.na(Longitude)) 
+
+colnames(Kvac)[colnames(Kvac)%in%"TRAP.C1_Subtype"] <- "TRAP_C1_Subtype"
+
+Kvac <- left_join(Kvac, HMHZ)  %>% select(1, 7:11)  %>% mutate(GP60_Subtype = case_when(!is.na(GP60) ~ "seq")) %>% select(-6)
+
+Kvac <- Kvac %>% 
+  pivot_longer(cols = c(2:5), names_to = "Marker", values_to = "Sequenced1") %>% 
+  mutate(Sequenced = case_when(!is.na(Sequenced1) ~ TRUE,
+                               is.na(Sequenced1)  ~ FALSE)) %>% 
+  select(-Sequenced1)
+
+Kvac %>% 
+  ggplot(aes(x = Marker, y = Mouse_ID, fill = Sequenced)) +
+  geom_tile() +
+  scale_fill_paletteer_d("beyonce::X2") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 ```
 
 ## HMHZ Sequencing Reults
 ``` {r HMHZ-Samples-Table, echo = F, message = F, fig.align = 'left'}
+HMHZ <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/HMHZ_Kvac_Samples_Locations.csv", na.strings=c(""," ","NA")) %>% filter(!is.na(Longitude))
 
-Sequenced[,1:13] %>% kable(align = c("ccccccccccccc"))
+HMHZ <- HMHZ[HMHZ$Mouse_ID %like% "AA_", ]
+
+HMHZ[,c(1:6, 8:17)] %>% kable(align = c("ccccccccccccccccc"))
 
 ```
 
@@ -436,7 +457,24 @@ Sequenced[,1:13] %>% kable(align = c("ccccccccccccc"))
 ## Map of Sequencing Results
 ```{r mini map Sequencing-Results, echo = F, message = F, warning = F}
 
+HMHZ <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/HMHZ_Kvac_Samples_Locations.csv", na.strings=c(""," ","NA")) %>% filter(!is.na(Longitude))
+
+Sequenced <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/HMHZ_Samples_Locations.csv")
+
+Sequenced$HI_Level <-  cut(Sequenced$HI, c(0, 0.001, 0.250, 0.500, 0.750, 0.999, 1), include.lowest = T , labels = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'))
+
+Sequenced <- Sequenced %>%
+  mutate(HI_Indicator = case_when(MSC6_Subtype == "MS1" ~ "Eastern",
+                                  MSC6_Subtype == "MS2" ~ "Western"))
+
 Sequenced <- full_join(Sequenced, Kvac)
+Sequenced <- full_join(Sequenced, HMHZ) %>% arrange(Mouse_ID) %>% group_by(Mouse_ID) %>% fill(c(everything()), .direction = "downup") %>% ungroup() %>% distinct(Mouse_ID, .keep_all = T) 
+
+
+colnames(Sequenced)[colnames(Sequenced)%in%"TRAP.C1_Subtype"] <- "TRAP_C1_Subtype"
+
+
+
 
 Ct_bl_30   <- Crypto_Detection_21 %>% filter(Ct_mean <= 30 & Ct_mean > 0)
 Ct_bl_34   <- Crypto_Detection_21 %>% filter(Ct_mean <= 34 & Ct_mean > 30)
@@ -449,15 +487,15 @@ TRAP  <- Sequenced %>% filter(!is.na(TRAP_C1_Subtype))
 SKSR  <- Sequenced %>% filter(!is.na(SKSR_Subtype))
 MEDLE <- Sequenced %>% filter(!is.na(MEDLE_Subtype))
 CP56  <- Sequenced %>% filter(!is.na(CP56_Subtype))
+GP60_Prot <- Sequenced %>% filter((!is.na(GP60_Subtype_Protein)))
 
 data_col_HI           = colorFactor(beach(6), Sequenced$HI)
 data_col_HI_Level     = colorFactor(beach(6), Sequenced$HI_Level)
 data_col_HI_Indicator = colorFactor(beach(2), Sequenced$HI_Indicator, reverse = T)
-data_col_Ct_Level     = colorFactor(brewer.pal(4, "YlOrRd"), Crypto_Detection_21$Ct_Level, reverse = T)
 data_col_Sequenced    = colorFactor(beach(2), Sequenced$HI)
 data_col_MSC6         = colorFactor(beach(2), Sequenced$MSC6_Subtype, rev = T)
-data_col_GP60         = colorFactor(beach(9), Sequenced$GP60_Subtype, rev = T)
-
+data_col_GP60         = colorFactor(beach(2), Sequenced$GP60_Subtype, rev = T)
+data_col_GP60_Prot    = colorFactor(beach(7), Sequenced$GP60_Subtype_Protein, reverse = T)
 data_col_GST   = colorFactor(beach(2), Sequenced$GST_Subtype, rev = T)
 data_col_Trap  = colorFactor(beach(2), Sequenced$TRAP_C1_Subtype, rev = T)
 data_col_SKSR  = colorFactor(beach(2), Sequenced$SKSR_Subtype, rev = T)
@@ -466,12 +504,10 @@ data_col_CP56  = colorFactor(beach(2), Sequenced$CP56_Subtype, rev = T)
 
 
 
-
 map <- Sequenced %>%
   leaflet() %>%
   addProviderTiles("CartoDB") %>%
   setView(lat = 51.676761 , lng =13.679507, zoom = 6)
-
 
 map %>%
   addPolylines(lat = c(55.0000, 53.6000, 53.51885, 52.8875  , 52.6053, 51.8978, 45.0000), lng = c(10.0000, 11.4563, 12.4464,13.8119 , 13.8756, 13.8103, 13.5000), color = "purple", weight = 55, opacity = 0.1) %>%
@@ -492,7 +528,8 @@ map %>%
                                   "<b>HI:<b>",      as.character(HI), "<br>",
                                   "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
                                   "<b>MSC6-7 Subtype:<b>",      as.character(MSC6_Subtype), "<br>", 
-                                  "<b>GP60 Subtype:<b>",      as.character(GP60_Subtype), "<br>",
+                                  "<b>GP60 Subtype:<b>",        as.character(GP60_Subtype), "<br>",
+                                  #"<b>GP60 Detail Subtype:<b>", as.character(GP60_Subtype_Protein), "<br>",
                                   "<b>GST Subtype:<b>",      as.character(GST_Subtype), "<br>",
                                   "<b>CP56 Subtype:<b>",      as.character(CP56_Subtype), "<br>",
                                   "<b>SKSR Subtype:<b>",      as.character(SKSR_Subtype), "<br>",
@@ -512,6 +549,7 @@ map %>%
                                   "<b>HI:<b>",      as.character(HI), "<br>",
                                   "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
                                   "<b>GP60 Subtype:<b>",      as.character(GP60_Subtype), "<br>",
+                                  #"<b>GP60 Detail Subtype:<b>", as.character(GP60_Subtype_Protein), "<br>",
                                   "<b>MSC6-7 Subtype:<b>",      as.character(MSC6_Subtype), "<br>",
                                   "<b>GST Subtype:<b>",      as.character(GST_Subtype), "<br>",
                                   "<b>CP56 Subtype:<b>",      as.character(CP56_Subtype), "<br>",
@@ -531,6 +569,7 @@ map %>%
                                   "<b>HI:<b>",      as.character(HI), "<br>",
                                   "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
                                   "<b>GP60 Subtype:<b>",      as.character(GP60_Subtype), "<br>",
+                                  #"<b>GP60 Detail Subtype:<b>", as.character(GP60_Subtype_Protein), "<br>",
                                   "<b>MSC6-7 Subtype:<b>",      as.character(MSC6_Subtype), "<br>",
                                   "<b>GST Subtype:<b>",      as.character(GST_Subtype), "<br>",
                                   "<b>CP56 Subtype:<b>",      as.character(CP56_Subtype), "<br>",
@@ -550,6 +589,7 @@ map %>%
                                   "<b>HI:<b>",      as.character(HI), "<br>",
                                   "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
                                   "<b>GP60 Subtype:<b>",      as.character(GP60_Subtype), "<br>",
+                                  #"<b>GP60 Detail Subtype:<b>", as.character(GP60_Subtype_Protein), "<br>",
                                   "<b>MSC6-7 Subtype:<b>",      as.character(MSC6_Subtype), "<br>",
                                   "<b>GST Subtype:<b>",      as.character(GST_Subtype), "<br>",
                                   "<b>CP56 Subtype:<b>",      as.character(CP56_Subtype), "<br>",
@@ -569,6 +609,7 @@ map %>%
                                   "<b>HI:<b>",      as.character(HI), "<br>",
                                   "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
                                   "<b>GP60 Subtype:<b>",      as.character(GP60_Subtype), "<br>",
+                                  #"<b>GP60 Detail Subtype:<b>", as.character(GP60_Subtype_Protein), "<br>",
                                   "<b>MSC6-7 Subtype:<b>",      as.character(MSC6_Subtype), "<br>",
                                   "<b>GST Subtype:<b>",      as.character(GST_Subtype), "<br>",
                                   "<b>CP56 Subtype:<b>",      as.character(CP56_Subtype), "<br>",
@@ -588,6 +629,7 @@ map %>%
                                   "<b>HI:<b>",      as.character(HI), "<br>",
                                   "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
                                   "<b>GP60 Subtype:<b>",      as.character(GP60_Subtype), "<br>",
+                                  "<b>GP60 Detail Subtype:<b>", as.character(GP60_Subtype_Protein), "<br>",
                                   "<b>MSC6-7 Subtype:<b>",      as.character(MSC6_Subtype), "<br>",
                                   "<b>GST Subtype:<b>",      as.character(GST_Subtype), "<br>",
                                   "<b>CP56 Subtype:<b>",      as.character(CP56_Subtype), "<br>",
@@ -600,6 +642,26 @@ map %>%
                    opacity = 5,
                    radius = 3,
                    group = "Colored by GP60") %>%
+  addCircleMarkers(data  = GP60_Prot, 
+                   col   = ~data_col_GP60_Prot(GP60_Subtype_Protein),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  "<b>GP60 Subtype:<b>",      as.character(GP60_Subtype), "<br>",
+                                  "<b>GP60 Detail Subtype:<b>", as.character(GP60_Subtype_Protein), "<br>",
+                                  "<b>MSC6-7 Subtype:<b>",      as.character(MSC6_Subtype), "<br>",
+                                  "<b>GST Subtype:<b>",      as.character(GST_Subtype), "<br>",
+                                  "<b>CP56 Subtype:<b>",      as.character(CP56_Subtype), "<br>",
+                                  "<b>SKSR Subtype:<b>",      as.character(SKSR_Subtype), "<br>",
+                                  "<b>MEDLE Subtype:<b>",      as.character(MEDLE_Subtype), "<br>",
+                                  "<b>Actin Subtype:<b>",      as.character(Actin_Subtype), "<br>",
+                                  "<b>TRAP-C1 Subtype:<b>",    as.character(TRAP_C1_Subtype), "<br>",
+                                  "<b>COWP Subtype:<b>",      as.character(COWP_Subtype), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius = 3,
+                   group = "Colored by GP60 Detail") %>%
   addCircleMarkers(data = TRAP, 
                    col = ~data_col_Trap(TRAP_C1_Subtype),
                    label = ~htmlEscape(Mouse_ID),
@@ -607,6 +669,7 @@ map %>%
                                   "<b>HI:<b>",      as.character(HI), "<br>",
                                   "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
                                   "<b>GP60 Subtype:<b>",      as.character(GP60_Subtype), "<br>",
+                                  #"<b>GP60 Detail Subtype:<b>", as.character(GP60_Subtype_Protein), "<br>",
                                   "<b>MSC6-7 Subtype:<b>",      as.character(MSC6_Subtype), "<br>",
                                   "<b>GST Subtype:<b>",      as.character(GST_Subtype), "<br>",
                                   "<b>CP56 Subtype:<b>",      as.character(CP56_Subtype), "<br>",
@@ -626,6 +689,7 @@ map %>%
                                   "<b>HI:<b>",      as.character(HI), "<br>",
                                   "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude),  "<br>",
                                   "<b>GP60 Subtype:<b>",       as.character(GP60_Subtype), "<br>",
+                                  #"<b>GP60 Detail Subtype:<b>", as.character(GP60_Subtype_Protein), "<br>",
                                   "<b>Actin Subtype:<b>",      as.character(Actin_Subtype), "<br>",
                                   "<b>TRAP-C1 Subtype:<b>",    as.character(TRAP_C1_Subtype), "<br>",
                                   "<b>COWP Subtype:<b>",      as.character(COWP_Subtype), "<br>",
@@ -641,6 +705,7 @@ map %>%
                                   "<b>HI:<b>",      as.character(HI), "<br>",
                                   "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude),
                                   "<b>GP60 Subtype:<b>",       as.character(GP60_Subtype), "<br>",
+                                  #"<b>GP60 Detail Subtype:<b>", as.character(GP60_Subtype_Protein), "<br>",
                                   "<b>Actin Subtype:<b>",      as.character(Actin_Subtype), "<br>",
                                   "<b>TRAP-C1 Subtype:<b>",    as.character(TRAP_C1_Subtype), "<br>",
                                   "<b>COWP Subtype:<b>",      as.character(COWP_Subtype), "<br>",
@@ -667,6 +732,7 @@ addLayersControl(baseGroups = c("Colored by HI",
                                 "Colored by MEDLE",
                                 "Colored by CP56",
                                 "Colored by GP60",
+                                "Colored by GP60 Detail",
                                 "Colored by TRAP-C1",
                                 "Colored by COWP",
                                 "Colored by Actin"),
@@ -685,7 +751,7 @@ Crypto_Detection <- Crypto_Detection %>%
 
 kable(Crypto_Detection,
       col.names = c("Mouse_ID", "Ct_mean", "Oocyst_Predict", "Latitude", "Longitude"),
-      align = "ccc",
+      #align = "ccc",
       caption = "Table 1: _Cryptosporidium_-positive samples from 2021, arranged by Ct_mean")
 
 
@@ -781,13 +847,108 @@ map %>%
             opacity = 1)
 ```
 
-## Consensus Tree of concatenated sequences
+# Consensus Trees and Heatmap
 
-![](https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/concatenated_Tree.png)
+## Sequenced Samples
 
-```{r Distance Matrix, message = F, warning=FALSE, echo=F}
-Dist <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/concat_Tree_Distances.csv")
-kable(Dist)
+Concatenating helps understanding HOW different individual samples are, but since I don't have sequences for all my genes (gp60, MSC6-7, SKSR, MEDLE, GST, and CP56) from all Samples (AA_0144 - AA_0900), I have to cut down the number of sequences (less genes in the comparison) or the number of samples (less samples, but more sequences).
+
+``` {r Logical_Sequenced, message = F, warning=FALSE, echo=F}
+Seq_Logical <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/HMHZ_Seq_Logical.csv") %>% mutate(GP60 = TRUE) %>% select(c(1, 6:12)) %>% pivot_longer(cols = c(2:8), names_to = "Marker", values_to = "Sequenced")
+
+Seq_Logical %>%
+  ggplot(aes(x = Marker, y = Mouse_ID, fill = Sequenced)) +
+  geom_tile() +
+  scale_fill_paletteer_d("beyonce::X2") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
+
 ```
 
-![](https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/HMHZ_Kvac_Tree.png)
+
+### Tree #1: less markers (GP60 and MSC6-7) for 9 samples:
+``` {r Limited Genes Distance Matrix, message = F, warning=FALSE, echo=F}
+
+Genes_Limited <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/GP60_Prot_Tree_Limited.csv")
+
+Genes_Limited <- Genes_Limited[, 2:10]
+Genes_Limited_Matrix <- as.matrix(Genes_Limited)
+pheatmap(Genes_Limited_Matrix, show_rownames = F, border_color = NA, cluster_rows = T, main = "Heatmap of HMHZ Genes GP60 and MSC6-7", cluster_cols = T)
+
+```
+
+![](https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/GP60_Limited_Genes.png)
+
+
+### Tree #2: more markers (gp60, MSC6-7, SKSR, MEDLE, GST) for 4 samples
+
+Concatenated Sequences of the following genes:
+
+- GP60
+- MSC6-7
+- SKSR
+- MEDLE
+- GST
+- (CP56 is only available for 2/4 samples, so it was not used here)
+
+Samples of Interest:
+
+- AA_0144 (CP56 available, but dropped)
+- AA_0209 (CP56 available, but dropped)
+- AA_0523
+- AA_0900
+
+``` {r Max Genes Distance Matrix, message = F, warning=FALSE, echo=F}
+Genes_Max <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/GP60_Prot_Tree_Max.csv")
+
+Genes_Max <- Genes_Max[, 2:5]
+Genes_Max_Matrix <- as.matrix(Genes_Max)
+pheatmap(Genes_Max_Matrix, show_rownames = F, border_color = NA, cluster_rows = T, main = "Heatmap of HMHZ Genes GP60 and MSC6-7", cluster_cols = T)
+
+#![](https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/GP60_Max_Genes.png)
+
+
+```
+
+## Heatmap of Kvac and HMHZ Samples for GP60
+```{r Distance Matrix, message = F, warning=FALSE, echo=F}
+GP60_Distance <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/GP60_Prot_Tree.csv")
+GP60_Distance <- GP60_Distance[-c(36:40), -c(37:41)]
+
+
+#dist_GP60 <- dist(GP60_Distance, method = "euclidean")
+#hc_gp60   <- hclust(dist_GP60, method = "average")
+#dend_gp60 <- as.dendrogram(hc_gp60)
+#  plot(dend_gp60)
+#dend_colored_gp60 <- color_branches(dend_gp60, h = 0.1)
+#  plot(dend_colored_gp60)
+
+
+GP60_Distance <- GP60_Distance[, 2:46]
+#pheatmap(as.matrix(GP60_Distance), 
+#        scale = "column", 
+#        col = heat.colors(256), 
+#        main = "GP60 subtype families",
+#        Rowv = NA,
+#        Colv = NA, cluster_rows = T)
+
+GP60_Distance_matrix <- as.matrix(GP60_Distance)
+pheatmap(GP60_Distance_matrix, show_rownames = F, border_color = NA, cluster_rows = T, main = "GP60 Heatmap of HMHZ Samples based on Protein Sequences")
+
+```
+
+Geneious Tree for the GP60 Sequences from Kvac and EH Study
+
+``` {r Geneious-Tree-3, echo = F, fig.cap = "Geneious Tree of available GP60 Sequences from Kvac study, EH study. Cost matrix of 65% Similarity (5.0/-4.0), Gap open penalty 12, Gap extension penalty 3, Global Alignment, Genetic Distance Model Tamura-Nei, Tree build method Neighbor-Joining, no Outgroup"}
+
+knitr::include_graphics("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Protein_Tree_GP60.png")
+
+```
+
+
+
+
+
+
+# Conclusion
+
+I would like to send in the last remaining samples into sequencing for my other marker genes (which would support my hypothesis that there is actually more diversity in the hybrid zone than differentiation into the Eastern and Western cluster, as suggested by GP60)
