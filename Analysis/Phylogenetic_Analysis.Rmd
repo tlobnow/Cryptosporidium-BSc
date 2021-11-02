@@ -1,0 +1,95 @@
+---
+title: "PhyloTrees"
+author: "Tessa Lobnow"
+date: "11/2/2021"
+output: html_document
+---
+
+``` {r load data, echo = F, message = F, warning = F}
+#install.packages("adegenet")
+#install.packages("phangorn")
+
+library(adegenet)
+library(phangorn)
+library(stats)
+library(ade4)
+library(ape)
+
+
+```
+
+
+
+# Tree Construction Methods
+
+## Distance-Based
+
+- find genetic distance between pairs of taxa + cluster species by distances
+- Pairs w/ shorter distances cluster more closely than pairs w/ larger distances
+- can be rooted/unrooted
+
+Advantages:
++ fast
++ flexible
+
+Disadvantages:
+- tree can change based on algorithm used
+- no testing for best model possible
+- tree can be inaccurate
+
+
+
+
+
+## Maximum Parsimony
+
+- aim to minimize # of character-state changes
+- simplest possible tree w/ least branches
+- Composition:
+  1) initiates algorithm for using a tree
+  2) makes small changes by simplifying relationships until we have the most parsimonious tree (no further simplifiable)
+  
+  
+  
+  
+
+## Likelihood-based
+
+- e.g. Bayesian methods
+- Max. likelihood maximizes the chances to collecting the data set in question
+  - given that the calculated tree are true (along with parameters describing evolutionary rules)
+
+- Mathematically: P(D | M)
+  - P ... Probability
+  - D ... Observed Data
+  - M ... Model
+  
+- e.g.: use an observed set of coin flips to say whether this outcome is more likely under the model that the coin is fair or biased
+
+- favors minimizing the # of mutations at "internal nodes" (divergence points) inside a tree
+- based on the assumption that the fewest # of possible substitutions to get from seq.version A to seq.version B is most likely what happened (not always displays reality)
+
+
+``` {r load FASTA sequences, echo = F, message = F, warning = F}
+
+dna <- fasta2DNAbin(file = "/Users/FinnLo/Documents/Programming/R/HZ_SC_and_Raw_Data/Cryptosporidium-BSc/FASTA_sequences/MSC6-7_seqs.fasta")
+
+dna
+
+
+D <- dist.dna(dna, model = "TN93")
+length(D) #number of pairwise distances, computed as n(n-1)/2
+
+temp <- as.data.frame(as.matrix(D))
+temp <- temp[1:9, 1:9]
+table.paint(df = temp,  
+  temp, cleg=0, clabel.row=0.5, clabel.col=0.5) 
+# darker shades of gray mean a larger distance 
+# you can also make cool color plots but they're much more complicated because they use the image() function
+```
+
+
+
+
+
+
