@@ -72,24 +72,54 @@ Disadvantages:
 
 ``` {r load FASTA sequences, echo = F, message = F, warning = F}
 
-dna <- fasta2DNAbin(file = "/Users/FinnLo/Documents/Programming/R/HZ_SC_and_Raw_Data/Cryptosporidium-BSc/FASTA_sequences/MSC6-7_seqs.fasta")
+dna <- fasta2DNAbin(file = "~/Documents/Programming/R/HZ_SC_and_Raw_Data/Cryptosporidium-BSc/FASTA_sequences/MEDLE_seqs.fasta")
 
 dna
+dna[is.na(dna)] <- 0.0
 
 
 D <- dist.dna(dna, model = "TN93")
 length(D) #number of pairwise distances, computed as n(n-1)/2
 
 temp <- as.data.frame(as.matrix(D))
-temp <- temp[1:9, 1:9]
-table.paint(df = temp,  
-  temp, cleg=0, clabel.row=0.5, clabel.col=0.5) 
-# darker shades of gray mean a larger distance 
-# you can also make cool color plots but they're much more complicated because they use the image() function
+colnames(temp)[colnames(temp)%in%"tyz_Medle2 Cryptosporidium tyzzeri isolate UGA55 Ctyz_5, whole genome shotgun sequence"] <- "MEDLE-refSeq"
+rownames(temp)[rownames(temp)%in%"tyz_Medle2 Cryptosporidium tyzzeri isolate UGA55 Ctyz_5, whole genome shotgun sequence"] <- "MEDLE-refSeq"
+
+temp[is.na(temp)] <- 0
+
+
+#temp <- temp[1:9, 1:9]
+
+#table.paint(df = temp,  
+#  temp, cleg=0, clabel.row=0.5, clabel.col=0.5) 
+
+    # darker shades of gray mean a larger distance 
+    # you can also make cool color plots but they're much more complicated because they use the image() function
+
+
 ```
 
 
+# Maximum Likelihood-based
 
+build simple ML Tree w/ Ape package, distances are calculated after a model by 
+
+## Tamura-Nei:
+
+- says that transitions (Purine <-> Purine, Pyrimidine <-> Pyrimidine) and transversions (Purine <-> Pyrimidine, vv.) may happen at different rates
+- nt have different frequencies
+- subsitution rates vary in different regions
+
+## Jukes-Cantor:
+
+- all types of nucleotide subsitutions are EQUALLY probable
+
+
+``` {r Prep ML, echo = F}
+
+tre.ini <- nj(dist.dna(dna, model = "TN93"))
+
+```
 
 
 
