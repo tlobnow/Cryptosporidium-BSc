@@ -2,7 +2,7 @@ Gene,Tyz_Gene_ID_UGA55,Tyz_Chr,Tyz_CDS_Length_nt,Par_Gene_ID_ATCC,Par_Chr,Par_CD
 GP60,CTYZ_00001283,6,1005,CPATCC_002619,6,981,"Microsatellites (TCA, TCG, TCT repeats and SNPs)",60 kDa Glycoprotein,sporozoite motility and host invasion,Yadaf et al.
 TRAP-C1,CTYZ_00003946,1,2052,CPATCC_000043,1,2064,SNPs,Thrombospondin-related adhesive Protein C1,"gliding motility, host cell attachment, host cell invasion",
 COWP,CTYZ_00001390,6,4863,CPATCC_002734,6,4872,SNPs,Oocyst Wall Protein,essential in Sexual Reproduction of Parasite,
-Actin,CTYZ_00004034,0.03,1131,CPATCC_002443,5,1131,SNPs,,Motility,
+Actin,CTYZ_00004034,,1131,CPATCC_002443,5,1131,SNPs,,Motility,
 Hsp90,CTYZ_00000973,7,2364,CPATCC_003572,7,2364,SNPs,Heat Shock Protein 90,Parasite growth in host,
 MSC6-7,CTYZ_00001179,6,531,CPATCC_002499,6,579,Minisatellites (63 bp repeats and SNPs),Serine-repeat antigen,"highly polymorphic in other species, potentially involved in host-adaptation",Yadaf et al.
 GST,CTYZ_00002625,2,807,CPATCC_000537,2,807,SNPs,Glutathion-S-Transferase,enzymes for cellular defense and detoxification,
