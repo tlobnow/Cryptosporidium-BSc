@@ -1,4 +1,4 @@
-Mouse_ID,Location,Longitude,Latitude,Country,HI,GP60_ID,GP60_Subtype,GP60_Subtype_Protein,Actin_Subtype,COWP_Subtype,TRAP_C1_Subtype,MSC6_Subtype,GST_Subtype,SKSR_Subtype,MEDLE_Subtype,CP56_Subtype,Actin_ID,COWP_ID,TRAP-C1_ID,SPECIES
+Mouse_ID,Location,Longitude,Latitude,Country,HI,GP60_ID,GP60_Subtype,GP60_Subtype_Protein,Actin_Subtype,COWP_Subtype,TRAP_C1_Subtype,MSC6_Subtype,GST_Subtype,SKSR_Subtype,MEDLE_Subtype,CP56_Subtype,Actin_ID,COWP_ID,TRAP-C1_ID,Species
 AA_0144,,14.0828,52.7,Germany,0.87,,IXb,IXb.B,,,NA,MS1,G1,S1,ME1,CP1,,,,C.tyzzeri
 AA_0209,,14.0672,52.4019,Germany,0.74,,IXb,IXb.B,,,NA,MS1,G1,S1,ME1,CP1,,,,C.tyzzeri
 AA_0282,,13.5353,52.8969,Germany,0.17,,IXb,IXb.D,,,NA,MS2,NA,NA,NA,NA,,,,C.tyzzeri
