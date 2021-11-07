@@ -1,7 +1,38 @@
-Gene,Tyz_Gene_ID_UGA55,Tyz_Chr,Tyz_CDS_Length_nt,Par_Gene_ID_ATCC,Par_Chr,Par_CDS_Length_nt
-MSC6-7,CTYZ_00001179,6,531,CPATCC_002499,6,579
-GST,CTYZ_00002625,2,807,CPATCC_000537,2,807
-SKSR,CTYZ_00003983,1,2241,CPATCC_000003,1,2058
-MEDLE,CTYZ_00003166,5,726,CPATCC_001987,5,705
-GP60,CTYZ_00001283,6,1005,CPATCC_002619,6,981
-CP56,CTYZ_00001753,4,603,CPATCC_002496,6,636
+Gene,Tyz_Gene_ID_UGA55,Tyz_Chr,Tyz_CDS_Length_nt,Par_Gene_ID_ATCC,Par_Chr,Par_CDS_Length_nt,Polymorphism,Description,Source
+GP60,CTYZ_00001283,6,1005,CPATCC_002619,6,981,"Microsatellites (TCA, TCG, TCT repeats and SNPs)","""Industry Standard"" for Species- and Supspeciestyping in _Cryptosporidium spp._ 
+
+- important in sporozoite motility and host invasion
+- in _C.tyzzeri_ 5-8 TCA-repeats (encode for amino acid Serine)
+- 8 repeats seen in 3 Czech samples
+- 6 repeats in all other samples from Czech Republic and Germany
+
+- additional 12bp repeat: (Consensus GGTACTCAAGGA)
+  - 2 copies in IXa
+  - 2 OR 3 copies in IXb??
+  
+- additional 18bp repeat
+  - 2 copies in IXa (Consensus ATTCTGGTACTGAAGATA)
+  - 2/3/4 copies in IXb (consensus GGTACTGAAAATAATTCT)",Yadaf et al.
+TRAP-C1,CTYZ_00003946,1,2052,CPATCC_000043,1,2064,SNPs,"""Thrombospondin-related adhesive Protein C1""
+
+- gliding motility
+- host cell attachment
+- host cell invasion",
+COWP,CTYZ_00001390,6,4863,CPATCC_002734,6,4872,SNPs,"""Oocyst Wall Protein""
+- essential in Sexual Reproduction of Parasite",
+Actin,CTYZ_00004034,0.03,1131,CPATCC_002443,5,1131,SNPs,- Motility,
+Hsp90,CTYZ_00000973,7,2364,CPATCC_003572,7,2364,SNPs,- Parasite growth in host,
+MSC6-7,CTYZ_00001179,6,531,CPATCC_002499,6,579,Minisatellites (63 bp repeats and SNPs),"- Serine-repeat antigen
+- relatively high diversity in comparison to _C.parvum_ (38 SNPs, 54 Indels)
+- highly polymorphic in other species
+- potentially involved in host-adaptation",Yadaf et al.
+GST,CTYZ_00002625,2,807,CPATCC_000537,2,807,SNPs,"""Glutathion-S-Transferase""",
+MEDLE,CTYZ_00003166,5,726,CPATCC_001987,5,705,Indels (Microsatellites),"Multigene Family
+-named after aa-motif at the end of the genes
+- Crypto-specific gene family
+- gene duplication
+- potential role in host specificity",
+SKSR,CTYZ_00003983,1,2241,CPATCC_000003,1,2058,SNPs,"Multigene family
+- similar to MEDLE family",
+CP56,CTYZ_00001753,4,603,CPATCC_002496,6,636,SNPs,"- Transmembrane Protein 
+- highly polymorphic (SNP-Marker)",Yadaf et al.
