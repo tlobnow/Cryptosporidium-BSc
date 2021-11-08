@@ -35,7 +35,7 @@ library(patchwork)
 library(readr)
 library(knitr)
 library(ggeffects)
-library(parasiteLoad)
+#library(parasiteLoad)
 library(scales)
 library(pheatmap)
 library(dendextend)
@@ -127,7 +127,7 @@ EIM_INFECTED <- SOTA %>% filter(Eimeria_Positive == T)
 - Sample_Locations     ... Locations that have been sampled since 2016
 - EIM_INFECTED         ... This location had samples with Eimeria Infection, radius == Infection intensity
 
-```{r mini map Eimeria-Infections Past, echo = F, message = F, warning = F, include = TRUE}
+```{r mini map Eimeria-Infections Past, echo = F, message = F, warning = F, include = FALSE}
 
 Crypto_Detection <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") %>% select(-X) %>% filter(Ct_mean > 0, !is.na(Latitude), !is.na(Longitude), !is.na(HI))
 
@@ -245,7 +245,7 @@ Since 2016, `r max(Last_Sample$Mouse_ID2)` mice were sampled by this workgroup, 
 Out of these `r Crypto_Detection %>% filter(Ct_mean >= 0) %>% count()` samples, `r Crypto_Detection %>% filter(Ct_mean > 0) %>% count() %>% sum()` tested positive for Crypto. An average Cryptosporidium prevalence of `r round((Crypto_Detection %>% filter(Ct_mean > 0) %>% count() / Crypto_Detection %>% filter(Ct_mean >= 0) %>% count()) * 100, digits = 2)`% was detected in the House Mouse Hybrid Zone.
 
 ``` {r Pos-Samples-Yr, echo = F}
-Pos_Samples_Yr <- Crypto_Detection %>% filter(Ct_mean > 0) %>% group_by(Year) %>% count()
+Pos_Samples_Yr <- SOTA %>% filter(Ct_mean > 0, Year >= 2016) %>% group_by(Year) %>% count()
 Crypto_Detection <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv")
 
 All_Samples_Yr <- Crypto_Detection %>% group_by(Year) %>% count()
@@ -414,55 +414,9 @@ addLayersControl(baseGroups = c("Samples (total)", "Samples (Crypto-tested)", "S
 ``` {r Gene-IDs, echo = F, message = F, warning = F}
 Gene_IDs <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Gene_IDs.csv")
 
-kable(Gene_IDs, align = c("lccccc"))
+
+kable(Gene_IDs, align = c("lccccccccc"))
 ```
-
-### GP60:
-"Industry Standard" for Species- and Supspeciestyping in _Cryptosporidium spp._ 
-
-- important in sporozoite motility and host invasion
-- in _C.tyzzeri_ 5-8 TCA-repeats (encode for amino acid Serine)
-- 8 repeats seen in 3 Czech samples
-- 6 repeats in all other samples from Czech Republic and Germany
-
-- additional 12bp repeat: (Consensus GGTACTCAAGGA)
-  - 2 copies in IXa
-  - 2 OR 3 copies in IXb??
-  
-- additional 18bp repeat
-  - 2 copies in IXa (Consensus ATTCTGGTACTGAAGATA)
-  - 2/3/4 copies in IXb (consensus GGTACTGAAAATAATTCT)
-
-
-### TRAP-C1:
-"Thrombospondin-related adhesive Protein C1"
-
-- gliding motility
-- host cell attachment
-- host cell invasion
-
-### MSC6-7:
-
-- Serine-repeat antigen
-- relatively high diversity in comparison to _C.parvum_ (38 SNPs, 54 Indels)
-- highly polymorphic in other species
-- potentially involved in host-adaptation
-
-
-### GST:
-"Glutathion-S-Transferase"
-
-### MEDLE Multigene Family:
-named after aa-motif at the end of the genes
-
-- Crypto-specific gene family
-- gene duplication
-- potential role in host specificity
-
-### SKSR Multigene family:
-
-- similar to MEDLE family
-
 
 
 # Sequencing Results from Kvac study and EH study
@@ -476,9 +430,9 @@ High_Infection_Samples <- read.csv("https://raw.githubusercontent.com/derele/Mou
   mutate(HI_Indicator = case_when(HI >= 0.5 ~ "East",
                                   HI < 0.5 ~ "West"))
 
-Kvac <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Kvac_Samples_Locations1.csv", na.strings=c(""," ","NA")) %>% filter(!is.na(Longitude)) 
+HMHZ <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/HMHZ_Samples_Locations.csv", na.strings=c(""," ","NA")) %>% filter(!is.na(Longitude))
 
-colnames(Kvac)[colnames(Kvac)%in%"TRAP.C1_Subtype"] <- "TRAP_C1_Subtype"
+#colnames(Kvac)[colnames(Kvac)%in%"TRAP.C1_Subtype"] <- "TRAP_C1_Subtype"
 
 
 Western_Hybrid <- High_Infection_Samples %>% filter(HI >= 0.5)
@@ -486,7 +440,7 @@ Eastern_Hybrid <- High_Infection_Samples %>% filter(HI < 0.5)
 
 
 
-map <- Kvac %>%
+map <- HMHZ %>%
   leaflet() %>%
   addProviderTiles("CartoDB") %>%
   setView(lat = 50.07245, lng =12.92014, zoom = 6)
@@ -498,13 +452,13 @@ Crypto_Detection_21$Ct_Level <- cut(Crypto_Detection_21$Ct_mean, c(1, 28, 30, 32
 
 
 
-GP60     <- Kvac %>% filter(!is.na(GP60_Subtype))
-Actin    <- Kvac %>% filter(Actin_Subtype %in% c("A1", "A2"))
-TRAP_C1  <- Kvac %>% filter(TRAP_C1_Subtype %in% c("T1", "T2"))
-COWP     <- Kvac %>% filter(COWP_Subtype %in% c("C1", "C2"))
+GP60     <- HMHZ %>% filter(!is.na(GP60_Subtype))
+Actin    <- HMHZ %>% filter(Actin_Subtype %in% c("A1", "A2"))
+TRAP_C1  <- HMHZ %>% filter(TRAP_C1_Subtype %in% c("T1", "T2"))
+COWP     <- HMHZ %>% filter(COWP_Subtype %in% c("C1", "C2"))
 
 
-data_col_HI    = colorFactor(beach(6), Kvac$HI)
+data_col_HI    = colorFactor(beach(6), HMHZ$HI)
 data_col_GP60  = colorFactor(beach(9), GP60$GP60_Subtype, rev = T)
 data_col_Actin = colorFactor(beach(2), Actin$Actin_Subtype, rev = T)
 data_col_Trap  = colorFactor(beach(2), TRAP_C1$TRAP_C1_Subtype, rev = T)
@@ -539,7 +493,7 @@ SeqSamples <- Crypto_Detection %>%
 
 ## Kvac Study Results
 ``` {r Kvac-Samples-Table, echo = F, message = F, fig.align = 'left'}
-HMHZ <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/HMHZ_Kvac_Samples_Locations.csv", na.strings=c(""," ","NA")) %>% filter(!is.na(Longitude))
+HMHZ <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/HMHZ_Samples_Locations.csv", na.strings=c(""," ","NA")) %>% filter(!is.na(Longitude))
 
 Kvac <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Kvac_Samples_Locations1.csv", na.strings=c(""," ","NA")) %>% filter(!is.na(Longitude)) 
 
@@ -563,7 +517,7 @@ Kvac %>%
 
 ## HMHZ Sequencing Reults
 ``` {r HMHZ-Samples-Table, echo = F, message = F, fig.align = 'left'}
-HMHZ <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/HMHZ_Kvac_Samples_Locations.csv", na.strings=c(""," ","NA")) %>% filter(!is.na(Longitude))
+HMHZ <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/HMHZ_Samples_Locations.csv", na.strings=c(""," ","NA")) %>% filter(!is.na(Longitude))
 
 HMHZ <- HMHZ[HMHZ$Mouse_ID %like% "AA_", ]
 
@@ -574,51 +528,55 @@ HMHZ[,c(1:6, 8:17)] %>% kable(align = c("ccccccccccccccccc"))
 
 ## Map of Sequencing Results
 ```{r mini map Sequencing-Results, echo = F, message = F, warning = F}
+HMHZ <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/HMHZ_Samples_Locations.csv", na.strings=c(""," ","NA")) %>% filter(!is.na(Longitude))
 
-HMHZ <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/HMHZ_Kvac_Samples_Locations.csv", na.strings=c(""," ","NA")) %>% filter(!is.na(Longitude))
+#Sequenced <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/HMHZ_Samples_Locations.csv")
 
-Sequenced <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/HMHZ_Samples_Locations.csv")
+HMHZ$HI_Level <-  cut(HMHZ$HI, c(0, 0.001, 0.250, 0.500, 0.750, 0.999, 1), include.lowest = T , labels = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'))
 
-Sequenced$HI_Level <-  cut(Sequenced$HI, c(0, 0.001, 0.250, 0.500, 0.750, 0.999, 1), include.lowest = T , labels = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'))
-
-Sequenced <- Sequenced %>%
+HMHZ <- HMHZ %>%
   mutate(HI_Indicator = case_when(MSC6_Subtype == "MS1" ~ "Eastern",
-                                  MSC6_Subtype == "MS2" ~ "Western"))
+                                  MSC6_Subtype == "MS2" ~ "Western"),
+         Species = case_when(Mouse_ID == 'AA_0325' ~ "C.parvum",
+                             Mouse_ID == 'AA_0669' ~ "C.meleagridis",
+                             Mouse_ID != c('AA_0325', 'AA_0669') ~ "C.tyzzeri"))
 
-Sequenced <- full_join(Sequenced, Kvac)
-Sequenced <- full_join(Sequenced, HMHZ) %>% arrange(Mouse_ID) %>% group_by(Mouse_ID) %>% fill(c(everything()), .direction = "downup") %>% ungroup() %>% distinct(Mouse_ID, .keep_all = T) 
-
-
-colnames(Sequenced)[colnames(Sequenced)%in%"TRAP.C1_Subtype"] <- "TRAP_C1_Subtype"
-
+#Sequenced <- full_join(Sequenced, Kvac)
+#Sequenced <- full_join(Sequenced, HMHZ) %>% arrange(Mouse_ID) %>% group_by(Mouse_ID) %>% fill(c(everything()), .direction = "downup") %>% ungroup() %>% distinct(Mouse_ID, .keep_all = T) 
+#colnames(Sequenced)[colnames(Sequenced)%in%"TRAP.C1_Subtype"] <- "TRAP_C1_Subtype"
 
 
 
-Ct_bl_30   <- Crypto_Detection_21 %>% filter(Ct_mean <= 30 & Ct_mean > 0)
-Ct_bl_34   <- Crypto_Detection_21 %>% filter(Ct_mean <= 34 & Ct_mean > 30)
-Ct_bl_36   <- Crypto_Detection_21 %>% filter(Ct_mean <= 36 & Ct_mean > 34)
-Ct_over_36 <- Crypto_Detection_21 %>% filter(Ct_mean > 36)
-GST   <- Sequenced %>% filter(!is.na(GST_Subtype))
-MSC6  <- Sequenced %>% filter(!is.na(MSC6_Subtype))
-GP60  <- Sequenced %>% filter(!is.na(GP60_Subtype))
-TRAP  <- Sequenced %>% filter(!is.na(TRAP_C1_Subtype))
-SKSR  <- Sequenced %>% filter(!is.na(SKSR_Subtype))
-MEDLE <- Sequenced %>% filter(!is.na(MEDLE_Subtype))
-CP56  <- Sequenced %>% filter(!is.na(CP56_Subtype))
-GP60_Prot <- Sequenced %>% filter((!is.na(GP60_Subtype_Protein)))
+#Ct_bl_30   <- Crypto_Detection_21 %>% filter(Ct_mean <= 30 & Ct_mean > 0)
+#Ct_bl_34   <- Crypto_Detection_21 %>% filter(Ct_mean <= 34 & Ct_mean > 30)
+#Ct_bl_36   <- Crypto_Detection_21 %>% filter(Ct_mean <= 36 & Ct_mean > 34)
+#Ct_over_36 <- Crypto_Detection_21 %>% filter(Ct_mean > 36)
+GST   <- HMHZ %>% filter(!is.na(GST_Subtype))
+MSC6  <- HMHZ %>% filter(!is.na(MSC6_Subtype))
+GP60  <- HMHZ %>% filter(!is.na(GP60_Subtype))
+TRAP_C1  <- HMHZ %>% filter(!is.na(TRAP_C1_Subtype))
+SKSR  <- HMHZ %>% filter(!is.na(SKSR_Subtype))
+MEDLE <- HMHZ %>% filter(!is.na(MEDLE_Subtype))
+CP56  <- HMHZ %>% filter(!is.na(CP56_Subtype))
+COWP  <- HMHZ %>% filter(!is.na(COWP_Subtype))
+GP60_Prot <- HMHZ %>% filter(!is.na(GP60_Subtype_Protein))
+Species <- HMHZ %>% filter(!is.na(Species))
 
-data_col_HI           = colorFactor(beach(6), Sequenced$HI)
-data_col_HI_Level     = colorFactor(beach(6), Sequenced$HI_Level)
-data_col_HI_Indicator = colorFactor(beach(2), Sequenced$HI_Indicator, reverse = T)
-data_col_Sequenced    = colorFactor(beach(2), Sequenced$HI)
-data_col_MSC6         = colorFactor(beach(2), Sequenced$MSC6_Subtype, rev = T)
-data_col_GP60         = colorFactor(beach(2), Sequenced$GP60_Subtype, rev = T)
-data_col_GP60_Prot    = colorFactor(beach(7), Sequenced$GP60_Subtype_Protein, reverse = T)
-data_col_GST   = colorFactor(beach(2), Sequenced$GST_Subtype, rev = T)
-data_col_Trap  = colorFactor(beach(2), Sequenced$TRAP_C1_Subtype, rev = T)
-data_col_SKSR  = colorFactor(beach(2), Sequenced$SKSR_Subtype, rev = T)
-data_col_MEDLE = colorFactor(beach(2), Sequenced$MEDLE_Subtype, rev = T)
-data_col_CP56  = colorFactor(beach(2), Sequenced$CP56_Subtype, rev = T)
+data_col_HI           = colorFactor(beach(6), HMHZ$HI)
+data_col_HI_Level     = colorFactor(beach(6), HMHZ$HI_Level)
+data_col_HI_Indicator = colorFactor(beach(2), HMHZ$HI_Indicator, reverse = T)
+data_col_HMHZ    = colorFactor(beach(2), HMHZ$HI)
+data_col_MSC6         = colorFactor(beach(2), HMHZ$MSC6_Subtype, rev = T)
+data_col_GP60         = colorFactor(beach(2), HMHZ$GP60_Subtype, rev = T)
+data_col_GP60_Prot    = colorFactor(beach(7), HMHZ$GP60_Subtype_Protein, reverse = T)
+data_col_GST   = colorFactor(beach(2), HMHZ$GST_Subtype, rev = T)
+data_col_Trap  = colorFactor(beach(2), HMHZ$TRAP_C1_Subtype, rev = T)
+data_col_SKSR  = colorFactor(beach(2), HMHZ$SKSR_Subtype, rev = T)
+data_col_MEDLE = colorFactor(beach(2), HMHZ$MEDLE_Subtype, rev = T)
+data_col_CP56  = colorFactor(beach(2), HMHZ$CP56_Subtype, rev = T)
+data_col_COWP  = colorFactor(beach(2), HMHZ$COWP_Subtype, rev = T)
+data_col_Species = colorFactor(brewer.pal(3, "Spectral"), HMHZ$Species)
+
 
 
 
@@ -629,7 +587,7 @@ map <- Sequenced %>%
 
 map %>%
   addPolylines(lat = c(55.0000, 53.6000, 53.51885, 52.8875  , 52.6053, 51.8978, 45.0000), lng = c(10.0000, 11.4563, 12.4464,13.8119 , 13.8756, 13.8103, 13.5000), color = "purple", weight = 55, opacity = 0.1) %>%
-  addCircleMarkers(data = Sequenced, 
+  addCircleMarkers(data = HMHZ, 
                    col = ~data_col_HI(HI),
                    label = ~htmlEscape(Mouse_ID),
                    popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
@@ -639,6 +597,17 @@ map %>%
                    opacity = 5,
                    radius = 3,
                    group = "Colored by HI") %>%
+  addCircleMarkers(data = Species, 
+                   col = ~data_col_Species(Species),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  "<b>Species:<b>",      as.character(Species), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius = 3,
+                   group = "Colored by Species") %>%
     addCircleMarkers(data = MSC6, 
                    col = ~data_col_MSC6(MSC6_Subtype),
                    label = ~htmlEscape(Mouse_ID),
@@ -780,7 +749,7 @@ map %>%
                    opacity = 5,
                    radius = 3,
                    group = "Colored by GP60 Detail") %>%
-  addCircleMarkers(data = TRAP, 
+  addCircleMarkers(data = TRAP_C1, 
                    col = ~data_col_Trap(TRAP_C1_Subtype),
                    label = ~htmlEscape(Mouse_ID),
                    popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
@@ -834,16 +803,23 @@ map %>%
   addLegend("bottomleft", 
             pal = data_col_HI_Level, 
             title = "HI",
-            values = Sequenced$HI_Level, 
+            values = HMHZ$HI_Level, 
             group = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'),
             opacity = 1) %>%
-  addLegend("bottomright", 
+  addLegend("bottomleft",
             pal = data_col_HI_Indicator, 
             title = "Type",
-            values = Sequenced$HI_Indicator, 
+            values = HMHZ$HI_Indicator, 
             group = c('Western', 'Eastern'),
             opacity = 1) %>%
+  addLegend("bottomright", 
+            pal = data_col_Species, 
+            title = "Species",
+            values = HMHZ$Species, 
+            group = c('C.tyzzeri', 'C.parvum', 'C.meleagridis'),
+            opacity = 1) %>%
 addLayersControl(baseGroups = c("Colored by HI", 
+                                "Colored by Species",
                                 "Colored by MSC6-7", 
                                 "Colored by GST",
                                 "Colored by SKSR",
@@ -859,9 +835,7 @@ addLayersControl(baseGroups = c("Colored by HI",
 
 
 
-# Consensus Trees and Heatmap
 
-## Sequenced Samples
 
 Concatenating helps understanding HOW different individual samples are, but since I don't have sequences for all my genes (gp60, MSC6-7, SKSR, MEDLE, GST, and CP56) from all Samples (AA_0144 - AA_0900), I have to cut down the number of sequences (less genes in the comparison) or the number of samples (less samples, but more sequences).
 
@@ -873,7 +847,7 @@ Seq_Logical %>%
   geom_tile() +
   scale_fill_paletteer_d("beyonce::X2") +
   theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
-library(paletteer)
+
 ```
 
 
@@ -977,6 +951,5 @@ BiocManager::install("phyloTree")
 
 library(ggtree)
 library(phyloTree)
-
 
 ```
