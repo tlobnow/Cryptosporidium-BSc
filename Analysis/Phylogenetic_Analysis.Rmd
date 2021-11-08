@@ -14,6 +14,10 @@ library(phangorn)
 library(stats)
 library(ade4)
 library(ape)
+library(DECIPHER)
+library(tidyverse)
+library(data.table)
+
 
 
 ```
@@ -69,35 +73,129 @@ Disadvantages:
 - favors minimizing the # of mutations at "internal nodes" (divergence points) inside a tree
 - based on the assumption that the fewest # of possible substitutions to get from seq.version A to seq.version B is most likely what happened (not always displays reality)
 
+# Distance-based Models
+
+# Step I
 
 ``` {r load FASTA sequences, echo = F, message = F, warning = F}
 
-dna <- fasta2DNAbin(file = "~/Documents/Programming/R/HZ_SC_and_Raw_Data/Cryptosporidium-BSc/FASTA_sequences/MEDLE_seqs.fasta")
+dna <- fasta2DNAbin(file = "https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/FASTA_sequences/EH_seqs.fasta")
+
 
 dna
-dna[is.na(dna)] <- 0.0
-
+#dna[is.na(dna)] <- 0.0
 
 D <- dist.dna(dna, model = "TN93")
+D[is.na(D)] <- 0 
+
 length(D) #number of pairwise distances, computed as n(n-1)/2
 
 temp <- as.data.frame(as.matrix(D))
-colnames(temp)[colnames(temp)%in%"tyz_Medle2 Cryptosporidium tyzzeri isolate UGA55 Ctyz_5, whole genome shotgun sequence"] <- "MEDLE-refSeq"
-rownames(temp)[rownames(temp)%in%"tyz_Medle2 Cryptosporidium tyzzeri isolate UGA55 Ctyz_5, whole genome shotgun sequence"] <- "MEDLE-refSeq"
 
-temp[is.na(temp)] <- 0
+
+
+#colnames(temp)[colnames(temp)%in%"tyz_Medle2 Cryptosporidium tyzzeri isolate UGA55 Ctyz_5, whole genome shotgun sequence"] <- "MEDLE-refSeq"
+#rownames(temp)[rownames(temp)%in%"tyz_Medle2 Cryptosporidium tyzzeri isolate UGA55 Ctyz_5, whole genome shotgun sequence"] <- "MEDLE-refSeq"
+
+#temp[is.na(temp)] <- 0
 
 
 #temp <- temp[1:9, 1:9]
 
-#table.paint(df = temp,  
-#  temp, cleg=0, clabel.row=0.5, clabel.col=0.5) 
+table.paint(df = temp, cleg=0, clabel.row=.5, clabel.col=.5) 
 
     # darker shades of gray mean a larger distance 
     # you can also make cool color plots but they're much more complicated because they use the image() function
 
 
 ```
+
+
+## Step II
+
+``` {r step II, echo = F}
+tre <- njs(D)
+#class(tre)
+tre <- ladderize(tre)
+tre 
+
+plot(tre, cex = 0.6)
+title("my NJ tree")
+
+
+
+D[is.na(D)] <- 0 
+h_cluster <- hclust(D, method = "average", members = NULL)
+
+plot(h_cluster, cex = 0.6)
+
+plot(tre, show.tip = T)
+title("Unrooted NJ tree")
+myPal <- colorRampPalette(c("red", "yellow", "green", "blue"))
+# tiplabels(annotation$Year, bg = num2col(annot$year, col.pal=myPal), cex = 0.5)
+# temp <- pretty(1993:2008, 5)
+# legend("bottomleft", fill=num2col(temp, col.pal=myPal), leg=temp, ncol=2)
+
+
+plot(tre, type = "unrooted", show.tip = T)
+title("Unrooted NJ Tree")
+#tiplabels(tre$tip.label, bg = num2col(tre$tip.label, col.pal = myPal), cex = 0.5)
+
+tre2 <- root(tre, out = 1)
+tre2 <- ladderize(tre2)
+plot(tre2, show.tip=T, edge.width=2)
+title("Rooted NJ tree")
+#tiplabels(tre$tip.label, bg=transp(num2col(annot$year, col.pal=myPal),.7), cex=.5, fg="transparent")
+axisPhylo()
+#temp <- pretty(1993:2008, 5)
+#legend("topright", fill=transp(num2col(temp, col.pal=myPal),.7), leg=temp, ncol=2)
+
+```
+
+
+
+## Part III - Choosing the right algorithm
+
+``` {r step III, echo = F}
+
+x <- as.vector(D)
+y <- as.vector(as.dist(cophenetic(tre2)))
+plot(x, y, xlab="original pairwise distances", ylab="pairwise distances on the tree", main="Is NJ appropriate?", pch=20, col=transp("black",.1), cex=3)
+abline(lm(y~x), col="red")
+
+tre3 <- as.phylo(hclust(D,method="average"))
+y <- as.vector(as.dist(cophenetic(tre3)))
+plot(x, y, xlab="original pairwise distances", ylab="pairwise distances on the tree", main="Is UPGMA appropriate?", pch=20, col=transp("black",.1), cex=3)
+abline(lm(y~x), col="red")
+
+cor(x,y)^2
+
+plot(tre3, cex=.5)
+title("UPGMA tree")
+```
+
+--> NJ doesn't work for us
+--> UMPGA is also a bad choice it seems
+
+
+
+
+### Bootstrapping
+``` {r Boots, echo = F}
+myBoots <- boot.phylo(tre2, dna, function(e) root(njs(dist.dna(e, model = "TN93")),1))
+
+a <- tre2$tip.label %>% duplicated()
+
+
+```
+
+
+
+
+
+
+
+
 
 
 # Maximum Likelihood-based
@@ -117,7 +215,9 @@ build simple ML Tree w/ Ape package, distances are calculated after a model by
 
 ``` {r Prep ML, echo = F}
 
-tre.ini <- nj(dist.dna(dna, model = "TN93"))
+tre.ini <- njs(dist.dna(dna, model = "TN93"))
+
+pml(tre.ini, dna2)
 
 ```
 

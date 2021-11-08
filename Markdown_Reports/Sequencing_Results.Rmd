@@ -873,7 +873,7 @@ Seq_Logical %>%
   geom_tile() +
   scale_fill_paletteer_d("beyonce::X2") +
   theme(axis.text.x = element_text(angle = 45, vjust = 0.5))
-
+library(paletteer)
 ```
 
 
@@ -977,5 +977,6 @@ BiocManager::install("phyloTree")
 
 library(ggtree)
 library(phyloTree)
+
 
 ```
