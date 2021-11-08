@@ -11,6 +11,7 @@ library(BiocManager)
 library(DECIPHER)
 
 
+
 # WORKFLOW
 # all paths are relative to the installed datasets
 data_dir <- "/Users/FinnLo/Documents/Programming/R/HZ_SC_and_Raw_Data/Cryptosporidium-BSc/Analysis/LGC_Seq"

@@ -32,7 +32,7 @@ library(patchwork)
 library(readr)
 library(knitr)
 library(ggeffects)
-library(parasiteLoad)
+#library(parasiteLoad)
 
 SOTA <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/SOTA_Data_Product.csv") %>% select(-X)
 Crypto_Detection <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") %>% select(-X)
