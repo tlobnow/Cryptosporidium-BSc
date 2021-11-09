@@ -1,5 +1,11 @@
 library(phangorn)
 library(ape)
+library(adegenet)
+library(stats)
+library(ade4)
+library(DECIPHER)
+library(tidyverse)
+library(data.table)
 
 ##### MEDLE
 
@@ -150,3 +156,8 @@ plot(fit_treeUPGMA_opt1, cex = 0.8)  # top = original topology with optimized br
 plot(fit_treeUPGMA_opt2, cex = 0.8)    # bottom = optimized topology AND branch lengths
 
 AIC(fit_treeUPGMA_opt1, fit_treeUPGMA_opt2)
+
+getwd()
+
+##### MSC6-7
+
