@@ -26,10 +26,10 @@
   - f(T)= 0.29072
 
 . Run ID:				none
-. Random seed:				1636363205
+. Random seed:				1636376015
 . Subtree patterns aliasing:		no
 . Version:				20120412
-. Time used:				0h0m7s (7 seconds)
+. Time used:				0h0m6s (6 seconds)
 
  oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
  Suggested citations:
