@@ -22,7 +22,7 @@ library(cowplot)
 # 1. COWP
 
 
-tree <- read.tree("~/Cryptosporidium-BSc/Analysis/Trees 2.0/COWP-Tree.phy_phyml_tree.txt")
+tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%202.0/COWP-Tree.phy_phyml_tree.txt")
 
 
 bs_tibble <- tibble(
@@ -59,7 +59,7 @@ C.meleagridis", offset.text=.001, offset = .02, fontsize = 3) +
   
 p
 
-save_plot(p, filename = "COWP-ML-Tree.jpg", base_height = 20, base_width = 30)
+#save_plot(p, filename = "COWP-ML-Tree.jpg", base_height = 20, base_width = 30)
 
 
 
@@ -69,11 +69,12 @@ save_plot(p, filename = "COWP-ML-Tree.jpg", base_height = 20, base_width = 30)
 # 3. GP60
 
 
-tree <- read.tree("~/Cryptosporidium-BSc/Analysis/Trees 2.0/GP60-Tree.phy_phyml_tree.txt")
+tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%202.0/GP60-Tree.phy_phyml_tree.txt")
+
 
 bs_tibble <- tibble(
   node=1:Nnode(tree) + Ntip(tree),
-  bootstrap = ifelse(tree$node.label < 0.9, "", tree$node.label))
+  bootstrap = ifelse(tree$node.label < 50, "", tree$node.label))
 
 ggtree(tree)%<+% bs_tibble +
   geom_text(aes(label=bootstrap), hjust=1, nudge_y = 0.5, size = 3) +
@@ -112,7 +113,7 @@ C.parvum", offset.text=.01, offset = .1, extend = 1, fontsize = 2.5) +
 
 p
 
-save_plot(p, filename = "GP60-ML-Tree.jpg", base_height = 20, base_width = 30)
+save_plot(p, filename = "GP60-ML-Tree.jpg", base_height = 10, base_width = 15)
 
 
 
@@ -121,7 +122,7 @@ save_plot(p, filename = "GP60-ML-Tree.jpg", base_height = 20, base_width = 30)
 # 4. MEDLE
 
 
-tree <- read.tree("~/Cryptosporidium-BSc/Analysis/Trees 2.0/MEDLE-Tree.phy_phyml_tree.txt")
+tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%202.0/MEDLE-Tree.phy_phyml_tree.txt")
 
 bs_tibble <- tibble(
   node=1:Nnode(tree) + Ntip(tree),
@@ -155,7 +156,7 @@ C.parvum", offset.text=.01, offset = .06, extend = 0.2, fontsize = 4) +
 
 p
 
-save_plot(p, filename = "MEDLE-ML-Tree.jpg", base_height = 20, base_width = 30)
+#save_plot(p, filename = "MEDLE-ML-Tree.jpg", base_height = 20, base_width = 30)
 
 
 ###############################################################################
@@ -163,7 +164,7 @@ save_plot(p, filename = "MEDLE-ML-Tree.jpg", base_height = 20, base_width = 30)
 # 4. GST
 
 
-tree <- read.tree("~/Cryptosporidium-BSc/Analysis/Trees 2.0/GST-Tree.phy_phyml_tree.txt")
+tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%202.0/GST-Tree.phy_phyml_tree.txt")
 
 bs_tibble <- tibble(
   node=1:Nnode(tree) + Ntip(tree),
@@ -201,7 +202,81 @@ C.meleagridis", offset.text=.003, offset = .02, extend = 0.3, fontsize = 4) +
 
 p
 
-save_plot(p, filename = "GST-ML-Tree.jpg", base_height = 20, base_width = 30)
+#save_plot(p, filename = "GST-ML-Tree.jpg", base_height = 20, base_width = 30)
+
+
+
+
+
+
+
+
+###############################################################################
+###############################################################################
+# 4. CP56
+
+
+tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%202.0/CP56-Tree.phy_phyml_tree.txt")
+
+bs_tibble <- tibble(
+  node=1:Nnode(tree) + Ntip(tree),
+  bootstrap = ifelse(tree$node.label < 0.9, "", tree$node.label))
+
+ggtree(tree)%<+% bs_tibble +
+  geom_text(aes(label=bootstrap), hjust=1, nudge_y = 0.1, nudge_x = -0.001, size = 3) +
+  geom_tiplab(aes(label=label))
+
+
+p <-ggtree(tree) %<+% bs_tibble +
+  geom_tiplab() +
+  xlim(NA,1.2) +
+  geom_treescale()  +
+  geom_text(aes(label=bootstrap), hjust=1.1, nudge_y = 0.11, size = 3)
+p
+
+p <- p +
+  #geom_text(aes(label=node), nudge_x = -0.002) +
+  geom_strip('Tyz-CP56', 'AA_0282', barsize=2, color='blue', 
+             label="CP1", offset.text=.01, offset = 0.08, extend = 0.3) +
+  geom_strip('AA_0209', 'AA_0144', barsize=2, color='blue', 
+             label="CP2", offset.text=.01, offset = 0.08, extend = 0.3) +
+  geom_strip('Tyz-CP56', 'AA_0144', barsize=2, color='purple', 
+             label="C.tyzzeri", offset.text=.01, offset = .15, extend = 0.3) +
+  geom_strip('Hom-CP56', 'Mel-CP56', barsize=2, color='darkgreen', 
+             label=
+               "C.hominis
+C.parvum
+C.meleagridis", offset.text=.01, offset = .15, extend = 0.3, fontsize = 4) +
+  ggtitle("CP56 Maximum-Likelihood Tree", subtitle = "Genetic Distance Tamura-Nei, C.parvum Outgroup") +
+  theme(plot.title = element_text(hjust = 0.5, size = 30),
+        plot.subtitle = element_text(hjust = 0.5, size = 20))
+
+
+
+p
+
+save_plot(p, filename = "CP56-ML-Tree.jpg", base_height = 20, base_width = 30)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -211,7 +286,7 @@ save_plot(p, filename = "GST-ML-Tree.jpg", base_height = 20, base_width = 30)
 # 2. TRAP-C1
 
 
-tree <- read.nexus('~/Trees 2.0/TRAP-C1-Tree.nex')
+tree <- read.nexus('https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%202.0/TRAP-C1-Tree.nex')
 
 p <-ggtree(tree) + 
   #geom_text(aes(label=node), nudge_x = -0.002) +
@@ -244,7 +319,7 @@ C.parvum", offset.text=.001, offset = .01, extend = 1) +
 # 5. MSC6-7
 
 
-tree <- read.nexus('~/Trees 2.0/MSC6-7-Tree.nex')
+tree <- read.nexus('https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%202.0/MSC6-7-Tree.nex')
 
 p <- ggtree(tree) + 
   geom_tiplab()
@@ -255,28 +330,9 @@ p
 # 7. SKSR
 
 
-tree <- read.nexus('~/Trees 2.0/SKSR-Tree.nex')
+tree <- read.nexus('https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%202.0/SKSR-Tree.nex')
 
 p <- ggtree(tree) + 
   geom_tiplab()
-p
-
-###############################################################################
-###############################################################################
-# 8. GST
-
-
-tree <- read.nexus('~/Trees 2.0/GST-Tree.nex')
-
-p <- ggtree(tree) + 
-  geom_tiplab()
-p
-
-tree <- read.tree("~/PhyML-3.1/GST-Tree.phy_phyml_tree.txt")
-p <- ggtree(tree) +
- # geom_text(aes(label=node)) +
-  geom_tiplab() +
-  xlim(NA, 0.1) +
-  geom_treescale()
 p
 
