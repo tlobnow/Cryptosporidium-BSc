@@ -18,7 +18,7 @@ knitr::opts_chunk$set(fig.align = 'center', echo = TRUE)
 ```
 
 
-``` {r libraries-and-data, echo = F, message = F}
+``` {r libraries-and-data, echo = F, message = F, warning = F}
 library(tidyverse)
 library(data.table)
 library(leaflet)
@@ -58,6 +58,29 @@ b <- c(255, 249, 243, 191,  95,   0)
 beach <- function (n, name = c("beach.colors")) 
   {
     beach.colors = rgb(r,g,b,maxColorValue = 255)
+    name = match.arg(name)
+    orig = eval(parse(text = name))
+    rgb = t(col2rgb(orig))
+    temp = matrix(NA, ncol = 3, nrow = n)
+    x = seq(0, 1, , length(orig))
+    xg = seq(0, 1, , n)
+    for (k in 1:3) {
+      hold = spline(x, rgb[, k], n = n)$y
+      hold[hold < 0] = 0
+      hold[hold > 255] = 255
+      temp[, k] = round(hold)
+    }
+    palette = rgb(temp[, 1], temp[, 2], temp[, 3], maxColorValue = 255)
+    palette
+}
+
+c <- c(143,250,246)
+d <- c(206,247,178)
+e <- c(0,83,107)
+
+YlOrGn <- function (n, name = c("Yl_Or_Gn")) 
+  {
+    Yl_Or_Gn = rgb(c,d,e,maxColorValue = 255)
     name = match.arg(name)
     orig = eval(parse(text = name))
     rgb = t(col2rgb(orig))
@@ -227,6 +250,7 @@ map %>%
 
 Crypto_Detection_21 <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") %>% select(-X) %>% filter(Year == 2021, Ct_mean > 0, !is.na(Latitude), !is.na(Longitude))
 
+
 Crypto_Detection_21 <- Crypto_Detection_21 %>% 
   filter(Ct_mean > 0) %>% 
   select(Mouse_ID, Ct_mean, Oocyst_Predict, Latitude, Longitude) %>% arrange(desc(Oocyst_Predict))
@@ -260,7 +284,6 @@ Crypto_Detection <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eim
 All_Samples_Yr <- Crypto_Detection %>% group_by(Year) %>% count()
 Samples_Yr <- full_join(Pos_Samples_Yr, All_Samples_Yr, by = "Year") %>% mutate(Prevalence = (n.x / n.y)) %>% filter(!is.na(Prevalence))
 
-
 Samples_Yr %>%
   ggplot(aes(x = Year, label = Prevalence)) +
       geom_col(aes(y = n.y, fill = "blue")) +
@@ -269,8 +292,8 @@ Samples_Yr %>%
                     y = (n.x / n.y)), nudge_y = 9) +
       labs(y = "Samples [n]") +
   theme(legend.position = "none") +
-  theme(plot.title = element_text("Cryptosporidium Prevalence since 2016")) + 
-  theme(plot.caption = element_text("Number of Samples caught per year (red) vs. number of Crypto-positive Samples per year, prevalence in percent"))
+  ggtitle("Cryptosporidium spp. prevalence in the HMHZ since 2016")
+  
 ```
 
 ## Table of Highly Infected Samples
@@ -278,6 +301,9 @@ Samples_Yr %>%
 Samples <- Crypto_Detection %>% select(Mouse_ID, Ct_mean, Oocyst_Predict, Year, Latitude, Longitude) %>% filter(Ct_mean > 0) %>% arrange(Ct_mean) %>% head(20)
 
 kable(Samples, caption = "Table 1.1: Crypto-Positive Samples collected since 2016, arranged by Ct_mean, 20 highest infected samples displayed", align = c("cccccc"))
+
+Samples <- Samples[colnames(a) %in% c("Mouse_ID", "Ct_mean", "Oocyst_Predict", "Latitude", "Longitude")] 
+write.csv(Samples, "highest_infected_samples.csv")
 ```
 
 ## Geographic distribution of positive Samples in the HMHZ
@@ -311,6 +337,7 @@ map <- Crypto_Detection_21 %>%
 SOTA$HI <- as.numeric(SOTA$HI)
 SOTA$HI_Level <-  cut(SOTA$HI, c(0, 0.001, 0.250, 0.500, 0.750, 0.999, 1), include.lowest = T , labels = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'))
 Crypto_Detection_21$Ct_Level <- cut(Crypto_Detection_21$Ct_mean, c(1, 28, 30, 32, 34, 36, 40), include.lowest = F , labels = c(' < 28  ', '28 - 30', '30 - 32', '32 - 34', '34 - 36', ' > 36'))
+
 
 SeqSamples <- Crypto_Detection %>%
   mutate(Sequenced = Mouse_ID %in% c("AA_0144", "AA_0325", "AA_0689", "AA_0209",
@@ -603,7 +630,7 @@ map <- Sequenced %>%
   setView(lat = 51.676761 , lng =13.679507, zoom = 6)
 
 map %>%
-  addPolylines(lat = c(55.0000, 53.6000, 53.51885, 52.8875  , 52.6053, 51.8978, 45.0000), lng = c(10.0000, 11.4563, 12.4464,13.8119 , 13.8756, 13.8103, 13.5000), color = "purple", weight = 55, opacity = 0.1) %>%
+  addPolylines(lat = c(55.0000, 53.6000, 53.51885, 52.8875, 52.6053, 51.8978, 50.08506775 , 48.13659738768638, 45.0000), lng = c(10.0000, 11.4563, 12.4464,13.8119 , 13.8756, 13.8103, 12.5988909, 11.582597486663213, 11.50000), color = "purple", weight = 75, opacity = 0.1)  %>%
   addCircleMarkers(data = HMHZ, 
                    col = ~data_col_HI(HI),
                    label = ~htmlEscape(Mouse_ID),
@@ -614,6 +641,16 @@ map %>%
                    opacity = 0.5,
                    radius = 6,
                    group = "Colored by HI") %>%
+  addCircleMarkers(data = HMHZ, 
+                   col = ~data_col_HI(HI),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  sep=" "),
+                   opacity = 0.5,
+                   radius = 3,
+                   group = "Colored by HI_small_rad") %>%
   addCircleMarkers(data = Species, 
                    col = ~data_col_Species(Species),
                    label = ~htmlEscape(Mouse_ID),
@@ -823,19 +860,21 @@ map %>%
             values = HMHZ$HI_Level, 
             group = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'),
             opacity = 1) %>%
-  addLegend("bottomleft",
-            pal = data_col_HI_Indicator, 
-            title = "Type",
-            values = HMHZ$HI_Indicator, 
-            group = c('Western', 'Eastern'),
-            opacity = 1) %>%
-  addLegend("bottomright", 
-            pal = data_col_Species, 
-            title = "Species",
-            values = HMHZ$Species, 
-            group = c('C.tyzzeri', 'C.parvum', 'C.meleagridis'),
-            opacity = 1) %>%
-addLayersControl(baseGroups = c("Colored by MSC6-7", 
+#  addLegend("bottomleft",
+#            pal = data_col_HI_Indicator, 
+#            title = "Type",
+#            values = HMHZ$HI_Indicator, 
+#            group = c('Western', 'Eastern'),
+#            opacity = 1) %>%
+#  addLegend("bottomright", 
+#            pal = data_col_Species, 
+#            title = "Species",
+#            values = HMHZ$Species, 
+#            group = c('C.tyzzeri', 'C.parvum', 'C.meleagridis'),
+#            opacity = 1) %>%
+addLayersControl(baseGroups = c("Colored by HI",
+                                "Colored by HI_small_rad",
+                                "Colored by MSC6-7", 
                                 "Colored by GST",
                                 "Colored by SKSR",
                                 "Colored by MEDLE",
@@ -847,5 +886,218 @@ addLayersControl(baseGroups = c("Colored by MSC6-7",
                                 "Colored by Actin"),
                  overlayGroups = c("Colored by HI",
                                   "Colored by Species"), 
-                 options = layersControlOptions(collapsed = F))
+                 options = layersControlOptions(collapsed = T))
+
+
+```
+
+## Map of Clade Memberships
+```{r mini map Clades, echo = F, message = F, warning = F}
+HMHZ <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/HMHZ_Samples_Locations.csv", na.strings=c(""," ","NA")) %>% filter(!is.na(Longitude))
+
+Clades <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Clade_Memberships.csv")
+
+#Sequenced <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/HMHZ_Samples_Locations.csv")
+
+Clades$HI_Level <-  cut(Clades$HI, c(0, 0.001, 0.250, 0.500, 0.750, 0.999, 1), include.lowest = T , labels = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'))
+
+GST   <- Clades %>% filter(!is.na(GST))
+
+
+TRAP_C1  <- Clades %>% filter(!is.na(TRAP_C1))
+SKSR  <- Clades %>% filter(!is.na(SKSR))
+MEDLE <- Clades %>% filter(!is.na(MEDLE))
+CP56  <- Clades %>% filter(!is.na(CP56))
+
+Actin  <- Clades %>% filter(!is.na(Actin))
+
+Light_green <- Clades %>% filter(GP60    == "IXa"|
+                                 Actin   == "A1"|
+                                 COWP    == "C1"|
+                                 TRAP_C1 == "T1")
+
+Yellow <- Clades %>% filter(GP60    == "IXb.2"|
+                            Actin   == "A2"|
+                            COWP    == "C2"|
+                            TRAP_C1 == "T2"|
+                            MSC6    == "MS1"|
+                            GST     == "G1"|
+                            CP56    == "CP1"|
+                            SKSR    == "S1"|
+                            MEDLE   == "ME1")
+Orange <- Clades %>% filter(GP60    == "IXb.1"|
+                            Actin   == "A3"|
+                            MSC6    == "MS2"|
+                            GST     == "G2"|
+                            CP56    == "CP2")
+Dark_Orange <- Clades %>% filter(GP60 == "IXb.3")
+
+
+
+
+data_col_HI           = colorFactor(beach(6), Clades$HI)
+data_col_HI_Level     = colorFactor(beach(6), Clades$HI_Level)
+data_col_Clades       = colorFactor(beach(2), Clades$HI)
+
+
+
+MSC6  <- Clades %>% filter(!is.na(MSC6))
+  MS1 <- MSC6 %>% filter(MSC6 == "MS1")
+  MS2 <- MSC6 %>% filter(MSC6 == "MS2")
+
+map <- Clades %>%
+  leaflet() %>%
+  addProviderTiles("CartoDB") %>%
+  setView(lat = 51.676761 , lng =13.679507, zoom = 6)
+
+map %>%
+  addPolylines(lat = c(55.0000, 53.6000, 53.51885, 52.8875, 52.6053, 51.8978, 50.08506775 , 48.13659738768638, 45.0000), lng = c(10.0000, 11.4563, 12.4464,13.8119 , 13.8756, 13.8103, 12.5988909, 11.582597486663213, 11.50000), color = "purple", weight = 75, opacity = 0.1)  %>%
+  addCircleMarkers(data = Clades, 
+                   col = ~data_col_HI(HI),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  sep=" "),
+                   opacity = 0.1,
+                   radius = 10,
+                   group = "Colored by HI") %>%
+  addCircleMarkers(data = MS1, 
+                   col = "yellow",
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius = 3,
+                   group = "MS1") %>%
+  addCircleMarkers(data = MS2, 
+                   col = "orange",
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius = 3,
+                   group = "MS2") %>%
+  addLegend("bottomright", 
+            pal = data_col_HI_Level, 
+            title = "HI",
+            values = Clades$HI_Level, 
+            group = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'),
+            opacity = 1)
+
+
+
+COWP  <- Clades %>% filter(!is.na(COWP))
+  C1 <- COWP %>% filter(COWP == "C1")
+  C2 <- COWP %>% filter(COWP == "C2")
+
+map %>%
+  addPolylines(lat = c(55.0000, 53.6000, 53.51885, 52.8875, 52.6053, 51.8978, 50.08506775 , 48.13659738768638, 45.0000), lng = c(10.0000, 11.4563, 12.4464,13.8119 , 13.8756, 13.8103, 12.5988909, 11.582597486663213, 11.50000), color = "purple", weight = 75, opacity = 0.1)  %>%
+  addCircleMarkers(data = Clades, 
+                   col = ~data_col_HI(HI),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  sep=" "),
+                   opacity = 0.1,
+                   radius = 10,
+                   group = "Colored by HI") %>%
+  addCircleMarkers(data = C1, 
+                   col = "#8fce00",
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius = 3,
+                   group = "C1") %>%
+  addCircleMarkers(data = C2, 
+                   col = "orange",
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius = 3,
+                   group = "C2") %>%
+  addLegend("bottomright", 
+            pal = data_col_HI_Level, 
+            title = "HI",
+            values = Clades$HI_Level, 
+            group = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'),
+            opacity = 1)
+
+GP60  <- Clades %>% filter(!is.na(GP60))
+  IXa <- GP60 %>% filter(GP60 == "IXa")
+  IXb.1 <- GP60 %>% filter(GP60 == "IXb.1")
+  IXb.2 <- GP60 %>% filter(GP60 == "IXb.2")
+  IXb.3 <- GP60 %>% filter(GP60 == "IXb.3")
+
+
+map %>%
+  addPolylines(lat = c(55.0000, 53.6000, 53.51885, 52.8875, 52.6053, 51.8978, 50.08506775 , 48.13659738768638, 45.0000), lng = c(10.0000, 11.4563, 12.4464,13.8119 , 13.8756, 13.8103, 12.5988909, 11.582597486663213, 11.50000), color = "purple", weight = 75, opacity = 0.1)  %>%
+  addCircleMarkers(data = Clades, 
+                   col = ~data_col_HI(HI),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  sep=" "),
+                   opacity = 0.1,
+                   radius = 10,
+                   group = "Colored by HI") %>%
+  addCircleMarkers(data = IXa, 
+                   col = "#8fce00",
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius = 3,
+                   group = "IXa") %>%
+  addCircleMarkers(data = IXb.1, 
+                   col = "#fbe419",
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius = 3,
+                   group = "IXb.1") %>%
+  addCircleMarkers(data = IXb.2, 
+                   col = "orange",
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius = 3,
+                   group = "IXb.2") %>%
+  addCircleMarkers(data = IXb.3, 
+                   col = "#b46d23",
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius = 3,
+                   group = "IXb.3") %>%
+  addLegend("bottomright", 
+            pal = data_col_HI_Level, 
+            title = "HI",
+            values = Clades$HI_Level, 
+            group = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'),
+            opacity = 1)
+
 ```
