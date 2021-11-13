@@ -27,21 +27,28 @@ tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc
 
 bs_tibble <- tibble(
   node=1:Nnode(tree) + Ntip(tree),
-  bootstrap = ifelse(tree$node.label < 0.01, "", tree$node.label))
+  bootstrap = ifelse(tree$node.label < 50, "", tree$node.label))
 
-ggtree(tree) %<+% bs_tibble +
+
+COWP_HI <- HMHZ %>% filter(!is.na(COWP_Ssp)) %>% select(Mouse_ID, HI)
+
+ggtree(tree) %<+% bs_tibble %<+% COWP_HI +
   geom_text(aes(label=bootstrap), hjust=2, nudge_y = 1, size = 3) +
-  geom_tiplab(aes(label=label))
+  geom_tiplab(aes(label=label)) +
+  geom_text(aes(label = HI))
 
 
-p <-ggtree(tree) %<+% bs_tibble +
-  geom_tiplab() +
-  xlim(NA, 0.1) +
+p <-ggtree(tree) %<+% bs_tibble %<+% COWP_HI +
+  geom_tiplab(fontsize = 2) +
+  xlim(NA, 0.07) +
   geom_treescale() +
   geom_text(aes(label=bootstrap), hjust=1.3, nudge_y = 0.5, size = 3)
+#  geom_text(aes(label = HI), hjust=-5, size = 3)
 
+p
 
 p <- p %>% flip(55,56)  +
+  #geom_text(aes(label=node), nudge_x = -0.002) +
   geom_strip("NZ_1642", "AA_0585", barsize=2, color='blue', 
              label="C 2", offset.text=.001, offset = 0.01, extend = 1) +
   geom_strip('CR_2084', 'CR_2128', barsize=2, color='red', 
@@ -53,7 +60,7 @@ C.hominis
 C.meleagridis", offset.text=.001, offset = .02, fontsize = 3) +
   geom_strip('Tyz-COWP', 'CR_2128', barsize=2, color='purple', 
              label="C.tyzzeri", offset.text=.001, offset = .02, extend = 0.5) +
-  ggtitle("COWP Maximum-Likelihood Tree", subtitle = "Genetic Distance Tamura-Nei, C.parvum Outgroup") +
+  ggtitle("COWP Maximum-Likelihood Tree") +
   theme(plot.title = element_text(hjust = 0.5, size = 30),
         plot.subtitle = element_text(hjust = 0.5, size = 20))
   

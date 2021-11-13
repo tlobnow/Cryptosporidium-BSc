@@ -252,3 +252,27 @@ C2_Clade  <- C2[C2$COWP_Ssp == "C2", "HI"]
     #alternative hypothesis: true location shift is not equal to 0
 
 
+HMHZ <- HMHZ %>% select(-GP60_Subtype_Protein)
+    write.csv(HMHZ, "Analysis/HMHZ_Samples_Locations.csv")
+    
+
+
+################################################################################
+
+a <- SOTA_Data_Product[SOTA_Data_Product$Mouse_ID %like% "AA_", ]
+
+a <- a %>% filter(Ct_mean > 0)
+b <- Crypto_Detection %>% filter(Ct_mean > 0)
+c <- Crypto_Detection %>% filter(Ct_mean < 29, Ct_mean > 0)
+
+  ggplot(b, aes(x = Ct_mean, y = Oocyst_Predict)) +
+  geom_point() +
+  geom_density_2d() +
+  geom_label(data = c, aes(label = Mouse_ID), nudge_x = +1, nudge_y = +100000) +
+    ggtitle("Distribution of Cryptosporidium Infection in the HMHZ", 
+            subtitle = "Highest infections labeled with Mouse_ID")
+
+
+a 
+
+
