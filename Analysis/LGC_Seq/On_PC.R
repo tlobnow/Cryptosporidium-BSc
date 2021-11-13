@@ -48,22 +48,14 @@ p <-ggtree(tree) %<+% bs_tibble %<+% COWP_HI +
 
 
 
-p <- p %>% flip(55,56)  +
+p <- p %>% flip(55,56) +
   #geom_text(aes(label=node), nudge_x = -0.002) +
-  geom_strip("Tyz-COWP", "AA_0585", barsize=2, color='#ff9C37', 
+  geom_strip("Tyz-COWP", "AA_0585", barsize=2, color='orange', 
              label="C2", offset.text=.001, offset = 0.01, extend = 0.2) +
   geom_strip('AA_0660', 'CR_2128', barsize=2, color='#8fce00', 
              label="C1", offset.text=.001, offset = 0.01, extend = 0.2) +
-  geom_strip('Par-COWP', 'Mel-COWP', barsize=2, color='black', 
-             label=
-               "C.parvum
-C.hominis
-C.meleagridis", offset.text=.001, offset = .02, fontsize = 3) +
-  geom_strip('Tyz-COWP', 'CR_2128', barsize=2, color='purple', 
-             label="C.tyzzeri", offset.text=.001, offset = .02, extend = 0.5) +
-  ggtitle("COWP Maximum-Likelihood Tree") +
-  theme(plot.title = element_text(hjust = 0.5, size = 30),
-        plot.subtitle = element_text(hjust = 0.5, size = 20))
+  geom_strip('Tyz-COWP', 'CR_2128', barsize=2, color='black', 
+             label="C.tyzzeri", offset.text=.001, offset = -.02, extend = 0.5)
   
 p
 
@@ -75,6 +67,7 @@ p
 ###############################################################################
 ###############################################################################
 # 3. GP60
+
 
 
 tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%202.0/GP60-Tree.phy_phyml_tree.txt")
@@ -101,7 +94,7 @@ p <- p %>% flip(81,84) +
              label="IXb", offset.text=.01, offset = 0.09, extend = 0.5) +
   geom_strip('CR_2085', 'CR_2206', barsize=2, color='#8fce00', 
              label="IXa", offset.text=.01, offset = 0.09) +
-  geom_strip('AA_0523', 'CR_2206', barsize=2, color='purple', 
+  geom_strip('AA_0523', 'CR_2206', barsize=2, color='black', 
              label="C.tyzzeri", offset.text=.01, offset = .15, extend = 0.6) +
   geom_strip('AA_0523', 'G_2136', barsize = 2, color = "#c78239",
              label = 'IXb.3', offset.text = .006, offset = 0.04, extend = 0.5) +
@@ -151,7 +144,7 @@ p <- p +
   #geom_text(aes(label=node), nudge_x = -0.002) +
   geom_strip('Tyz-MEDLE', 'AA_0209', barsize=2, color='#ff9C37', 
              label="ME1", offset.text=.01, offset = -0.1, extend = 0.1) +
-  geom_strip('Tyz-MEDLE', 'AA_0209', barsize=2, color='purple', 
+  geom_strip('Tyz-MEDLE', 'AA_0209', barsize=2, color='black', 
              label="C.tyzzeri", offset.text=.01, offset = .06, extend = 0.1) +
   geom_strip('Hom-MEDLE', 'Par-MEDLE', barsize=2, color='black', 
              label=
@@ -195,7 +188,7 @@ p <- p %>% flip(8,9)+
              label="G2", offset.text=.003, offset = -0.05, extend = 0.2) +
   geom_strip('AA_0209', 'AA_0144', barsize=2, color='#F1C232', 
              label="G1", offset.text=.003, offset = -0.05, extend = 0.2) +
-  geom_strip('Tyz-GST', 'AA_0144', barsize=2, color='purple', 
+  geom_strip('Tyz-GST', 'AA_0144', barsize=2, color='black', 
              label="C.tyzzeri", offset.text=.003, offset = .02, extend = 0.2) +
   geom_strip('Hom-GST', 'Mel-GST', barsize=2, color='black', 
              label=
@@ -248,7 +241,7 @@ p <- p +
              label="CP2", offset.text=.01, offset = 0.1, extend = 0.3) +
   geom_strip('AA_0209', 'AA_0144', barsize=2, color='#F1C232', 
              label="CP1", offset.text=.01, offset = 0.1, extend = 0.3) +
-  geom_strip('Tyz-CP56', 'AA_0144', barsize=2, color='purple', 
+  geom_strip('Tyz-CP56', 'AA_0144', barsize=2, color='black', 
              label="C.tyzzeri", offset.text=.01, offset = .2, extend = 0.3) +
   geom_strip('Hom-CP56', 'Mel-CP56', barsize=2, color='black', 
              label=
@@ -312,7 +305,7 @@ p <-ggtree(tree) +
                "C.meleagridis
 C.hominis
 C.parvum", offset.text=.001, offset = .02, extend = 0.6) +
-  geom_strip('CR_2084', 'AA_0667', barsize=2, color='purple', 
+  geom_strip('CR_2084', 'AA_0667', barsize=2, color='black', 
              label="C.tyzzeri", offset.text=.001, offset = .02) +
    ggtitle("TRAP-C1 NJ Tree", subtitle = "Genetic Distance Tamura-Nei, C.parvum Outgroup") +
    theme(plot.title = element_text(hjust = 0.5, size = 30),
@@ -322,12 +315,12 @@ C.parvum", offset.text=.001, offset = .02, extend = 0.6) +
 
 
 
-###############################################################################
 
 ###############################################################################
 ###############################################################################
 # 5. MSC6-7
 
+# DONE
 
 tree <- read.nexus('https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%202.0/MSC6-7-Tree.nex')
 
@@ -338,21 +331,22 @@ tree <- read.nexus('https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BS
    xlim(NA, 0.5) +
    geom_treescale()
 
-p + 
-  geom_strip('AA_0523', 'AA_0282', barsize=2, color='#ff9C37', 
-             label="MS2", offset.text=.01, offset = -0.3, extend = 0.5) +
-  geom_strip('Tyz-MSC6-7', 'AA_0667', barsize=2, color='#F1C232', 
-             label="MS1", offset.text=.01, offset = -0.3, extend = 0.2) +
-  geom_strip('Par-MSC6-7', 'Mel-MSC6-7', barsize=2, color='black', 
+p %>% collapse(20) + 
+  geom_point2(aes(subset=(node==20)), shape=17, size=5, fill='black') +
+  geom_strip('AA_0523', 'AA_0282', barsize=2, color='#ee6611', 
+             label="MS2", offset.text=.01, offset = -0.1, extend = 0.5) +
+  geom_strip('Tyz-MSC6-7', 'AA_0667', barsize=2, color='#ffc000', 
+             label="MS1", offset.text=.01, offset = -0.1, extend = 0.2) +
+  geom_strip('Par-MSC6-7', 20, barsize=2, color='black',
              label=
                "C.parvum
 C.hominis
-C.meleagridis", offset.text=.01, offset = .07, extend = 0.5) +
-  geom_strip('AA_0523', 'AA_0667', barsize=2, color='purple', 
-             label="C.tyzzeri", offset.text=.01, offset = .07) +
-  ggtitle("MSC6-7 NJ Tree", subtitle = "Genetic Distance Tamura-Nei, C.parvum Outgroup") +
-  theme(plot.title = element_text(hjust = 0.5, size = 30),
-        plot.subtitle = element_text(hjust = 0.5, size = 20))
+C.meleagridis", offset.text=-.06, offset = -0.18, extend = 0.2) +
+  geom_strip('AA_0523', 'AA_0667', barsize=2, color='black', 
+             label="C.tyzzeri", offset.text=-.04, offset = -0.18, extend = 0.5)
+
+
+
 
 ###############################################################################
 ###############################################################################
@@ -377,7 +371,7 @@ p +
                "C.hominis
 C.meleagridis
 C.parvum", offset.text=.01, offset = .07, extend = 0.5) +
-  geom_strip('Tyz-SKSR', 'AA_0209', barsize=2, color='purple', 
+  geom_strip('Tyz-SKSR', 'AA_0209', barsize=2, color='black', 
              label="C.tyzzeri", offset.text=.01, offset = .07, extend = 0.3) +
   ggtitle("SKSR NJ Tree", subtitle = "Genetic Distance Tamura-Nei, C.parvum Outgroup") +
   theme(plot.title = element_text(hjust = 0.5, size = 30),
@@ -407,7 +401,7 @@ p +
                "C.hominis
 C.meleagridis
 C.parvum", offset.text=.01, offset = .07, extend = 0.5) +
-  geom_strip('Tyz-SKSR', 'AA_0209', barsize=2, color='purple', 
+  geom_strip('Tyz-SKSR', 'AA_0209', barsize=2, color='black', 
              label="C.tyzzeri", offset.text=.01, offset = .07, extend = 0.3) +
   ggtitle("SKSR NJ Tree", subtitle = "Genetic Distance Tamura-Nei, C.parvum Outgroup") +
   theme(plot.title = element_text(hjust = 0.5, size = 30),
