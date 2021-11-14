@@ -12,7 +12,7 @@
 . Model of nucleotides substitution: 	HKY85
 . Number of taxa: 			6
 . Log-likelihood: 			-308.61153
-. Unconstrained likelihood: 		-406.09236
+. Unconstrained likelihood: 		-349.85384
 . Parsimony: 				0
 . Tree size: 				0.00000
 . Discrete gamma model: 		Yes
@@ -20,16 +20,16 @@
   - Gamma shape parameter: 		5.041
 . Transition/transversion ratio: 	4.000
 . Nucleotides frequencies:
-  - f(A)= 0.27191
-  - f(C)= 0.20674
-  - f(G)= 0.18652
-  - f(T)= 0.33483
+  - f(A)= 0.33483
+  - f(C)= 0.18652
+  - f(G)= 0.20674
+  - f(T)= 0.27191
 
 . Run ID:				none
-. Random seed:				1636886139
+. Random seed:				1636887808
 . Subtree patterns aliasing:		no
 . Version:				20120412
-. Time used:				0h0m1s (1 seconds)
+. Time used:				0h0m0s (0 seconds)
 
  oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
  Suggested citations:
