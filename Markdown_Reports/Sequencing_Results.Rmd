@@ -35,18 +35,16 @@ library(patchwork)
 library(readr)
 library(knitr)
 library(ggeffects)
-#library(parasiteLoad)
 library(scales)
-library(pheatmap)
-library(dendextend)
-library(paletteer)
-library(ctv)
-library(ape)
-library(ggtree)
-library(phytools)
-library(ggtree)
 library(tibble)
 library(paletteer)
+
+#library(parasiteLoad)
+#library(pheatmap)
+#library(dendextend)
+#library(ctv)
+#library(ape)
+#library(phytools)
 
 
 
@@ -74,11 +72,12 @@ beach <- function (n, name = c("beach.colors"))
     palette
 }
 
-c <- c(143,250,246)
-d <- c(206,247,178)
-e <- c(0,83,107)
+c <- c(245,  255,   192,   182)
+d <- c(255,  184,   105,   255)
+e <- c(91,    76,   105,    97)
+#   yellow, orange, brown, green
 
-YlOrGn <- function (n, name = c("Yl_Or_Gn")) 
+Yl_Or_Gn <- function (n, name = c("Yl_Or_Gn")) 
   {
     Yl_Or_Gn = rgb(c,d,e,maxColorValue = 255)
     name = match.arg(name)
@@ -98,7 +97,7 @@ YlOrGn <- function (n, name = c("Yl_Or_Gn"))
 }
 
 
-SOTA <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/SOTA_Data_Product.csv") %>% select(-X)
+SOTA <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/SOTA_Data_Product.csv") 
 SOTA <- SOTA %>%
   mutate(Eim_Species = ifelse(eimeriaSpecies == "E_falciformis", "E_falciformis",
                               ifelse(eimeriaSpecies == "E_ferrisi", "E_ferrisi",
@@ -109,24 +108,24 @@ SOTA <- SOTA %>%
                                                                  ifelse(eimeriaSpecies == "Eimeria_vermiformis", "Eimeria_vermiformis",
                                                                         ifelse(eimeriaSpecies == "Negative", "Negative",
                                                                                ifelse(NA)))))))))) %>%
-  mutate(Tested_for = case_when(Ct_mean >= 0 & is.na(Ct.Eimeria) & is.na(Eim_Species) ~ "Crypto",
-                                is.na(Ct_mean) & !is.na(Eim_Species) ~ "Eimeria",
-                                is.na(Ct_mean) & (!is.na(Ct.Eimeria) | !is.na(Eim_Species)) ~ "Eimeria",
-                                !is.na(Ct_mean) & (!is.na(Ct.Eimeria) | !is.na(Eim_Species)) ~ "Crypto_Eimeria",
-                                is.na(Ct_mean) & is.na(Ct.Eimeria) & is.na(Eim_Species) ~ "none",
-                                is.na(Ct_mean) & (is.na(Ct.Eimeria) | is.na(Eim_Species)) ~ "none"),
-         Crypto_Positive  = case_when(Ct_mean > 0 ~ T,
-                                      Ct_mean == 0 ~ F),
+  mutate(Tested_for = case_when(ILWE_Crypto_Ct >= 0 & is.na(Ct.Eimeria) & is.na(Eim_Species) ~ "Crypto",
+                                is.na(ILWE_Crypto_Ct) & !is.na(Eim_Species) ~ "Eimeria",
+                                is.na(ILWE_Crypto_Ct) & (!is.na(Ct.Eimeria) | !is.na(Eim_Species)) ~ "Eimeria",
+                                !is.na(ILWE_Crypto_Ct) & (!is.na(Ct.Eimeria) | !is.na(Eim_Species)) ~ "Crypto_Eimeria",
+                                is.na(ILWE_Crypto_Ct) & is.na(Ct.Eimeria) & is.na(Eim_Species) ~ "none",
+                                is.na(ILWE_Crypto_Ct) & (is.na(Ct.Eimeria) | is.na(Eim_Species)) ~ "none"),
+         Crypto_Positive  = case_when(ILWE_Crypto_Ct > 0 ~ T,
+                                      ILWE_Crypto_Ct == 0 ~ F),
          Eimeria_Positive = case_when(Eim_Species != "Negative" | Ct.Eimeria > 0 | OPG > 0 ~ T,
                                       Eim_Species == "Negative" | Ct.Eimeria == 0 | OPG == 0 ~ F),
-         Infection = case_when(Tested_for == "Crypto" & Ct_mean > 0                                                          ~ "Positive Crypto",
-                               Tested_for == "Crypto" & Ct_mean == 0                                                         ~ "Negative Crypto",
+         Infection = case_when(Tested_for == "Crypto" & ILWE_Crypto_Ct > 0                                                          ~ "Positive Crypto",
+                               Tested_for == "Crypto" & ILWE_Crypto_Ct == 0                                                         ~ "Negative Crypto",
                                Tested_for == "Eimeria" & Eimeria_Positive == T                                               ~ "Positive Eimeria",
                                Tested_for == "Eimeria" & Eimeria_Positive == F                                               ~ "Negative Eimeria",
-                               Tested_for == "Crypto_Eimeria" & Ct_mean > 0  & (Ct.Eimeria > 0 |  Eim_Species != "Negative" | OPG > 0) ~ "Positive Crypto_Eimeria",
-                               Tested_for == "Crypto_Eimeria" & Ct_mean > 0  & (Ct.Eimeria == 0 | Eim_Species == "Negative"| OPG == 0) ~ "Positive Crypto",
-                               Tested_for == "Crypto_Eimeria" & Ct_mean == 0 & (Ct.Eimeria > 0 | Eim_Species != "Negative" | OPG > 0)  ~ "Positive Eimeria",
-                               Tested_for == "Crypto_Eimeria" & Ct_mean == 0 & (Ct.Eimeria == 0 | Eim_Species == "Negative" | OPG == 0) ~ "Negative Crypto_Eimeria",
+                               Tested_for == "Crypto_Eimeria" & ILWE_Crypto_Ct > 0  & (Ct.Eimeria > 0 |  Eim_Species != "Negative" | OPG > 0) ~ "Positive Crypto_Eimeria",
+                               Tested_for == "Crypto_Eimeria" & ILWE_Crypto_Ct > 0  & (Ct.Eimeria == 0 | Eim_Species == "Negative"| OPG == 0) ~ "Positive Crypto",
+                               Tested_for == "Crypto_Eimeria" & ILWE_Crypto_Ct == 0 & (Ct.Eimeria > 0 | Eim_Species != "Negative" | OPG > 0)  ~ "Positive Eimeria",
+                               Tested_for == "Crypto_Eimeria" & ILWE_Crypto_Ct == 0 & (Ct.Eimeria == 0 | Eim_Species == "Negative" | OPG == 0) ~ "Negative Crypto_Eimeria",
                                Tested_for == "none" ~ "not tested"),
          Infected = case_when(Infection == "not tested" ~ F,
                               Infection == "Negative Crypto" ~ F,
@@ -136,9 +135,9 @@ SOTA <- SOTA %>%
                               Crypto_Positive == F & is.na(Eimeria_Positive) ~ F,
                               ))
 
-Crypto_Detection <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") %>% select(-X)
+Crypto_Detection <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") 
 
-Crypto_Detection_21 <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") %>% select(-X) %>% filter(Year == 2021, Ct_mean > 0, !is.na(Latitude), !is.na(Longitude))
+Crypto_Detection_21 <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv")  %>% filter(Year == 2021, ILWE_Crypto_Ct > 0, !is.na(Latitude), !is.na(Longitude))
 
 
 Last_Sample <- SOTA[SOTA$Mouse_ID %like% "AA_", ] %>% select(Mouse_ID)
@@ -161,33 +160,33 @@ EIM_INFECTED <- SOTA %>% filter(Eimeria_Positive == T)
 
 ```{r mini map Eimeria-Infections Past, echo = F, message = F, warning = F, include = FALSE}
 
-Crypto_Detection <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") %>% select(-X) %>% filter(Ct_mean > 0, !is.na(Latitude), !is.na(Longitude), !is.na(HI))
+Crypto_Detection <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv")  %>% filter(ILWE_Crypto_Ct > 0, !is.na(Latitude), !is.na(Longitude), !is.na(HI))
 
-Crypto_Detection_21 <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") %>% select(-X) %>% filter(Year == 2021, Ct_mean > 0, !is.na(Latitude), !is.na(Longitude))
+Crypto_Detection_21 <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv")  %>% filter(Year == 2021, ILWE_Crypto_Ct > 0, !is.na(Latitude), !is.na(Longitude))
 
-SOTA <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/SOTA_Data_Product.csv") %>% select(-X)
+SOTA <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/SOTA_Data_Product.csv") 
 
 map <- Crypto_Detection_21 %>%
   leaflet() %>%
   addProviderTiles("CartoDB") %>%
-  setView(lat = 52.6967 , lng =14.0833, zoom = 10)
+  setView(lat = 52.6967 , lng =14.0833, zoom = 6)
 
 # Cutting
 Crypto_Detection$HI <- as.numeric(Crypto_Detection$HI)
-Crypto_Detection$HI_Level <-  cut(Crypto_Detection$HI, c(0, 0.001, 0.250, 0.500, 0.750, 0.999, 1), include.lowest = T , labels = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'))
-Crypto_Detection_21$Ct_Level <- cut(Crypto_Detection_21$Ct_mean, c(1, 28, 30, 32, 34, 36, 40), include.lowest = F , labels = c(' < 28  ', '28 - 30', '30 - 32', '32 - 34', '34 - 36', ' > 36'))
+Crypto_Detection$HI_Level <-  cut(Crypto_Detection$HI, c(0, 0.001, 0.250, 0.500, 0.750, 0.999, 1), include.lowest = T , labels = c('HI = 0.00', 'HI < 0.25', 'HI < 0.50', 'HI < 0.75', 'HI < 1.00', 'HI = 1.00'))
+Crypto_Detection_21$Ct_Level <- cut(Crypto_Detection_21$ILWE_Crypto_Ct, c(1, 28, 30, 32, 34, 36, 40), include.lowest = F , labels = c(' < 28  ', '28 - 30', '30 - 32', '32 - 34', '34 - 36', ' > 36'))
 
 data_col_HI       = colorFactor(beach(6), Crypto_Detection$HI)
 data_col_HI_Level = colorFactor(beach(6), Crypto_Detection$HI_Level)
 data_col_Ct_Level = colorFactor(brewer.pal(4, "YlOrRd"), Crypto_Detection_21$Ct_Level, reverse = T)
 data_col_Sampled  = colorFactor(brewer.pal(6, "Accent"), SOTA$Year)
 
-Ct_bl_30   <- Crypto_Detection_21 %>% filter(Ct_mean <= 30 & Ct_mean > 0)
-Ct_bl_34   <- Crypto_Detection_21 %>% filter(Ct_mean <= 34 & Ct_mean > 30)
-Ct_bl_36   <- Crypto_Detection_21 %>% filter(Ct_mean <= 36 & Ct_mean > 34)
-Ct_over_36 <- Crypto_Detection_21 %>% filter(Ct_mean > 36)
-Crypto_Positives_21 <- Crypto_Detection_21 %>% filter(Ct_mean > 28)
-Sampled <- SOTA %>% filter(!is.na(Year), Year != 2021)
+Ct_bl_30   <- Crypto_Detection_21 %>% filter(ILWE_Crypto_Ct <= 30 & ILWE_Crypto_Ct > 0)
+Ct_bl_34   <- Crypto_Detection_21 %>% filter(ILWE_Crypto_Ct <= 34 & ILWE_Crypto_Ct > 30)
+Ct_bl_36   <- Crypto_Detection_21 %>% filter(ILWE_Crypto_Ct <= 36 & ILWE_Crypto_Ct > 34)
+Ct_over_36 <- Crypto_Detection_21 %>% filter(ILWE_Crypto_Ct > 36)
+Crypto_Positives_21 <- Crypto_Detection_21 %>% filter(ILWE_Crypto_Ct > 28)
+Sampled <- SOTA %>% filter(!is.na(Year))
 
 
 
@@ -201,8 +200,8 @@ map %>%
                                   "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
                                   "<b>HI:<b>",      as.character(HI), "<br>",
                                   "<b>Year:<b>",    as.character(Year),"<br>",
-                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
-                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  "<b>Ct:<b>",      as.character(ILWE_Crypto_Ct),"<br>",
+                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict_Crypto), "<br>",
                                   "<b>Sex:<b>", Sex, "<br>",
                                   sep=" "),
                    opacity = 0.3,
@@ -215,8 +214,8 @@ map %>%
                                   "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
                                   "<b>HI:<b>",      as.character(HI), "<br>",
                                   "<b>Year:<b>",    as.character(Year),"<br>",
-                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
-                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  "<b>Ct:<b>",      as.character(ILWE_Crypto_Ct),"<br>",
+                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict_Crypto), "<br>",
                                   "<b>Sex:<b>", Sex, "<br>",
                                   sep=" "),
                    opacity = 0.3,
@@ -228,11 +227,11 @@ map %>%
                    popup = ~paste("<b>Mouse_ID:<b>", as.character(Mouse_ID), "<br>",
                                   "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
                                   "<b>Crypto Infections:<b>",  as.character(Crypto_mus_caught), "<b>/<b>", as.character(mus_caught), "<br>",
-                                  "<b>Oocyst Prediction:<b>",  as.character(Oocyst_Predict), "<br>",
+                                  "<b>Oocyst Prediction:<b>",  as.character(Oocyst_Predict_Crypto), "<br>",
                                   sep=" "),
-                   radius = (Crypto_Positives_21$Oocyst_Predict)/1000,
-                   #opacity = (Crypto_Positives_21$Ct_mean),
-                   opacity = (Crypto_Positives_21$Oocyst_Predict)/1000,
+                   radius = (Crypto_Positives_21$Oocyst_Predict_Crypto)/1000,
+                   #opacity = (Crypto_Positives_21$ILWE_Crypto_Ct),
+                   opacity = (Crypto_Positives_21$Oocyst_Predict_Crypto)/1000,
                    group = "Crypto Positives 2021") %>%
   addLayersControl(overlayGroups = c("Sample Locations", "EIM_INFECTED"),
                    baseGroups = c("Crypto Positives 2021"),
@@ -248,17 +247,17 @@ map %>%
 ## Highest Crypto-Infections in 2021
 ``` {r Table of Infected Samples, message = F, warning = F, echo = F}
 
-Crypto_Detection_21 <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") %>% select(-X) %>% filter(Year == 2021, Ct_mean > 0, !is.na(Latitude), !is.na(Longitude))
+Crypto_Detection_21 <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv")  %>% filter(Year == 2021, ILWE_Crypto_Ct > 0, !is.na(Latitude), !is.na(Longitude))
 
 
 Crypto_Detection_21 <- Crypto_Detection_21 %>% 
-  filter(Ct_mean > 0) %>% 
-  select(Mouse_ID, Ct_mean, Oocyst_Predict, Latitude, Longitude) %>% arrange(desc(Oocyst_Predict))
+  filter(ILWE_Crypto_Ct > 0) %>% 
+  select(Mouse_ID, ILWE_Crypto_Ct, Oocyst_Predict_Crypto, Latitude, Longitude) %>% arrange(desc(Oocyst_Predict_Crypto))
 
 kable(Crypto_Detection_21[1:12,],
-      col.names = c("Mouse_ID", "Ct_mean", "Oocyst_Predict", "Latitude", "Longitude"),
+      col.names = c("Mouse_ID", "ILWE_Crypto_Ct", "Oocyst_Predict_Crypto", "Latitude", "Longitude"),
       #align = "ccc",
-      caption = "Table 1: _Cryptosporidium_-positive samples from 2021, arranged by Ct_mean")
+      caption = "Table 1: _Cryptosporidium_-positive samples from 2021, arranged by ILWE_Crypto_Ct")
 ```
 
 ## Testing for Eimeria in Crypto-infected Samples
@@ -266,19 +265,17 @@ kable(Crypto_Detection_21[1:12,],
 - Green arrows indicate samples that I sent
 - Samples AA_0901 and AA_0902 showed (strong) amplification for the COI Eimeria marker and where therefore not among the samples that I sent you
 
-![](https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/PCRs/Screenshot%202021-10-26%20at%2010.20.44%20AM.png)
-
 
 
 
 
 
 # Cryptosporidium Detection in Wild Samples in the House Mouse Hybrid Zone
-Since 2016, `r max(Last_Sample$Mouse_ID2)` mice were sampled by this workgroup, `r Crypto_Detection %>% filter(Ct_mean >= 0) %>% count()` were tested for Cryptosporidium sp. by performing qPCR on DNA extracted from Ileum wall tissue.
-Out of these `r Crypto_Detection %>% filter(Ct_mean >= 0) %>% count()` samples, `r Crypto_Detection %>% filter(Ct_mean > 0) %>% count() %>% sum()` tested positive for Crypto. An average Cryptosporidium prevalence of `r round((Crypto_Detection %>% filter(Ct_mean > 0) %>% count() / Crypto_Detection %>% filter(Ct_mean >= 0) %>% count()) * 100, digits = 2)`% was detected in the House Mouse Hybrid Zone.
+Since 2016, `r max(Last_Sample$Mouse_ID2)` mice were sampled by this workgroup, `r Crypto_Detection %>% filter(ILWE_Crypto_Ct >= 0) %>% count()` were tested for Cryptosporidium sp. by performing qPCR on DNA extracted from Ileum wall tissue.
+Out of these `r Crypto_Detection %>% filter(ILWE_Crypto_Ct >= 0) %>% count()` samples, `r Crypto_Detection %>% filter(ILWE_Crypto_Ct > 0) %>% count() %>% sum()` tested positive for Crypto. An average Cryptosporidium prevalence of `r round((Crypto_Detection %>% filter(ILWE_Crypto_Ct > 0) %>% count() / Crypto_Detection %>% filter(ILWE_Crypto_Ct >= 0) %>% count()) * 100, digits = 2)`% was detected in the House Mouse Hybrid Zone.
 
 ``` {r Pos-Samples-Yr, echo = F}
-Pos_Samples_Yr <- SOTA %>% filter(Ct_mean > 0, Year >= 2016) %>% group_by(Year) %>% count()
+Pos_Samples_Yr <- SOTA %>% filter(ILWE_Crypto_Ct > 0, Year >= 2016) %>% group_by(Year) %>% count()
 Crypto_Detection <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv")
 
 All_Samples_Yr <- Crypto_Detection %>% group_by(Year) %>% count()
@@ -298,34 +295,32 @@ Samples_Yr %>%
 
 ## Table of Highly Infected Samples
 ``` {r Top-infected, echo = F}
-Samples <- Crypto_Detection %>% select(Mouse_ID, Ct_mean, Oocyst_Predict, Year, Latitude, Longitude) %>% filter(Ct_mean > 0) %>% arrange(Ct_mean) %>% head(20)
+Samples <- Crypto_Detection %>% select(Mouse_ID, ILWE_Crypto_Ct, Oocyst_Predict_Crypto, Year, Latitude, Longitude) %>% filter(ILWE_Crypto_Ct > 0) %>% arrange(ILWE_Crypto_Ct) %>% head(20)
 
-kable(Samples, caption = "Table 1.1: Crypto-Positive Samples collected since 2016, arranged by Ct_mean, 20 highest infected samples displayed", align = c("cccccc"))
+kable(Samples, caption = "Table 1.1: Crypto-Positive Samples collected since 2016, arranged by ILWE_Crypto_Ct, 20 highest infected samples displayed", align = c("cccccc"))
 
-Samples <- Samples[colnames(a) %in% c("Mouse_ID", "Ct_mean", "Oocyst_Predict", "Latitude", "Longitude")] 
+Samples <- Samples[colnames(a) %in% c("Mouse_ID", "ILWE_Crypto_Ct", "Oocyst_Predict_Crypto", "Latitude", "Longitude")] 
 write.csv(Samples, "highest_infected_samples.csv")
 ```
 
 ## Geographic distribution of positive Samples in the HMHZ
 
 ```{r mini map HI , echo = F, message = F, warning = F}
-SOTA <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/SOTA_Data_Product.csv") %>% select(-X) %>% filter(!is.na(Latitude), !is.na(Longitude), !is.na(HI), !Mouse_ID %in% c("SK_2697", "SK_3173", "SK_905"))
+SOTA <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/SOTA_Data_Product.csv")  %>% filter(!is.na(Latitude), !is.na(Longitude), !is.na(HI), !Mouse_ID %in% c("SK_2697", "SK_3173", "SK_905"))
 
-Crypto_Detection <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") %>% select(-X)
+Crypto_Detection <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") 
 
-Crypto_Detection_tested <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") %>% select(-X) %>% filter(Ct_mean >= 0, !is.na(Latitude), !is.na(Longitude))
+Crypto_Detection_tested <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv")  %>% filter(ILWE_Crypto_Ct >= 0, !is.na(Latitude), !is.na(Longitude))
 
-Crypto_Positive <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") %>% select(-X) %>% filter(Ct_mean > 0, !is.na(Latitude), !is.na(Longitude))
+Crypto_Positive <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv")  %>% filter(ILWE_Crypto_Ct > 0, !is.na(Latitude), !is.na(Longitude))
 
 
-Crypto_Detection_21 <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") %>% select(-X) %>% filter(Year == 2021, Ct_mean > 0, !is.na(Latitude), !is.na(Longitude))
+Crypto_Detection_21 <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv")  %>% filter(Year == 2021, ILWE_Crypto_Ct > 0, !is.na(Latitude), !is.na(Longitude))
 
-High_Infection_Samples <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_input/Cryptosporidium/High_Infection_Samples.csv") %>%
-  mutate(HI_Indicator = case_when(HI >= 0.5 ~ "East",
-                                  HI < 0.5 ~ "West"))
+High_Infection_Samples <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_input/Cryptosporidium/High_Infection_Samples.csv")
 
 Western_Hybrid <- High_Infection_Samples %>% filter(HI >= 0.5)
-Eastern_Hybrid <- High_Infection_Samples %>% filter(HI < 0.5)
+Eastern_Hybrid <- High_Infection_Samples %>% filter(HI < 0.50)
 
 
 map <- Crypto_Detection_21 %>%
@@ -335,8 +330,8 @@ map <- Crypto_Detection_21 %>%
 
 # Cutting
 SOTA$HI <- as.numeric(SOTA$HI)
-SOTA$HI_Level <-  cut(SOTA$HI, c(0, 0.001, 0.250, 0.500, 0.750, 0.999, 1), include.lowest = T , labels = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'))
-Crypto_Detection_21$Ct_Level <- cut(Crypto_Detection_21$Ct_mean, c(1, 28, 30, 32, 34, 36, 40), include.lowest = F , labels = c(' < 28  ', '28 - 30', '30 - 32', '32 - 34', '34 - 36', ' > 36'))
+SOTA$HI_Level <-  cut(SOTA$HI, c(0, 0.001, 0.250, 0.500, 0.750, 0.999, 1), include.lowest = T , labels = c('HI = 0.00', 'HI < 0.25', 'HI < 0.50', 'HI < 0.75', 'HI < 1.00', 'HI = 1.00'))
+Crypto_Detection_21$Ct_Level <- cut(Crypto_Detection_21$ILWE_Crypto_Ct, c(1, 28, 30, 32, 34, 36, 40), include.lowest = F , labels = c(' < 28  ', '28 - 30', '30 - 32', '32 - 34', '34 - 36', ' > 36'))
 
 
 SeqSamples <- Crypto_Detection %>%
@@ -345,22 +340,19 @@ SeqSamples <- Crypto_Detection %>%
                                      "AA_0900", "AA_0523",
                                      "AA_0534", "AA_0537", "AA_0545", "AA_0553",
                                      "AA_0554", "AA_0578", "AA_0580", "AA_0585",
-                                     "AA_0546", "AA_0589", "AA_0571", "AA_0667"),
-         HI_Indicator = case_when(HI >= 0.5 ~ "East",
-                                  HI < 0.5 ~ "West"))
+                                     "AA_0546", "AA_0589", "AA_0571", "AA_0667"))
 
 
-Ct_bl_30   <- Crypto_Detection_21 %>% filter(Ct_mean <= 30 & Ct_mean > 0)
-Ct_bl_34   <- Crypto_Detection_21 %>% filter(Ct_mean <= 34 & Ct_mean > 30)
-Ct_bl_36   <- Crypto_Detection_21 %>% filter(Ct_mean <= 36 & Ct_mean > 34)
-Ct_over_36 <- Crypto_Detection_21 %>% filter(Ct_mean > 36)
+Ct_bl_30   <- Crypto_Detection_21 %>% filter(ILWE_Crypto_Ct <= 30 & ILWE_Crypto_Ct > 0)
+Ct_bl_34   <- Crypto_Detection_21 %>% filter(ILWE_Crypto_Ct <= 34 & ILWE_Crypto_Ct > 30)
+Ct_bl_36   <- Crypto_Detection_21 %>% filter(ILWE_Crypto_Ct <= 36 & ILWE_Crypto_Ct > 34)
+Ct_over_36 <- Crypto_Detection_21 %>% filter(ILWE_Crypto_Ct > 36)
 Sequenced  <- SeqSamples %>% filter(Sequenced == T)
 Not_Sequenced <- SeqSamples %>% filter(Sequenced == F)
 
 data_col_HI       = colorFactor(beach(6), SOTA$HI)
 data_col_HI_Level = colorFactor(beach(6), SOTA$HI_Level)
 data_col_Ct_Level = colorFactor(brewer.pal(4, "YlOrRd"), Crypto_Detection_21$Ct_Level, reverse = T)
-#data_col_Sequenced = colorFactor(brewer.pal(2, "YlOrRd"), SeqSamples$HI_Indicator, reverse = T)
 data_col_Sequenced = colorFactor(beach(2), SeqSamples$HI)
 
 
@@ -373,8 +365,8 @@ map %>%
                                   "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
                                   "<b>HI:<b>",      as.character(HI), "<br>",
                                   "<b>Year:<b>",    as.character(Year),"<br>",
-                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
-                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  #"<b>Ct:<b>",      as.character(ILWE_Crypto_Ct),"<br>",
+                                  #"<b>Oocysts:<b>", as.character(Oocyst_Predict_Crypto), "<br>",
                                   "<b>Sex:<b>", Sex, "<br>",
                                   sep=" "),
                    opacity = 1,
@@ -387,8 +379,8 @@ map %>%
                                   "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
                                   "<b>HI:<b>",      as.character(HI), "<br>",
                                   "<b>Year:<b>",    as.character(Year),"<br>",
-                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
-                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  #"<b>Ct:<b>",      as.character(ILWE_Crypto_Ct),"<br>",
+                                  #"<b>Oocysts:<b>", as.character(Oocyst_Predict_Crypto), "<br>",
                                   "<b>Sex:<b>", Sex, "<br>",
                                   sep=" "),
                    opacity = 1,
@@ -401,8 +393,8 @@ map %>%
                                   "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
                                   "<b>HI:<b>",      as.character(HI), "<br>",
                                   "<b>Year:<b>",    as.character(Year),"<br>",
-                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
-                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  #"<b>Ct:<b>",      as.character(ILWE_Crypto_Ct),"<br>",
+                                  #"<b>Oocysts:<b>", as.character(Oocyst_Predict_Crypto), "<br>",
                                   "<b>Sex:<b>", Sex, "<br>",
                                   sep=" "),
                    opacity = 1,
@@ -414,8 +406,8 @@ map %>%
                    popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
                                   "<b>HI:<b>",      as.character(HI), "<br>",
                                   "<b>Year:<b>",    as.character(Year),"<br>",
-                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
-                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  #"<b>Ct:<b>",      as.character(ILWE_Crypto_Ct),"<br>",
+                                  #"<b>Oocysts:<b>", as.character(Oocyst_Predict_Crypto), "<br>",
                                   "<b>Sex:<b>", Sex, "<br>",
                                   sep=" "),
                    opacity = 5,
@@ -427,8 +419,8 @@ map %>%
                    popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
                                   "<b>HI:<b>",      as.character(HI), "<br>",
                                   "<b>Year:<b>",    as.character(Year),"<br>",
-                                  "<b>Ct:<b>",      as.character(Ct_mean),"<br>",
-                                  "<b>Oocysts:<b>", as.character(Oocyst_Predict), "<br>",
+                                  #"<b>Ct:<b>",      as.character(ILWE_Crypto_Ct),"<br>",
+                                  #"<b>Oocysts:<b>", as.character(Oocyst_Predict_Crypto), "<br>",
                                   "<b>Sex:<b>", Sex, "<br>",
                                   sep=" "),
                    opacity = 3,
@@ -438,7 +430,7 @@ map %>%
             pal = data_col_HI_Level, 
             title = "HI",
             values = SOTA$HI_Level, 
-            group = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'),
+            group = c('HI = 0.00', 'HI < 0.25', 'HI < 0.50', 'HI < 0.75', 'HI < 1.00', 'HI = 1.00'),
             opacity = 1) %>%
 addLayersControl(baseGroups = c("Samples (total)", "Samples (Crypto-tested)", "Samples (Crypto-positive)", "High_Infection_Samples", "Sequenced"), 
                  options = layersControlOptions(collapsed = F))
@@ -458,22 +450,14 @@ kable(Gene_IDs, align = c("lccccccccc"))
 # Sequencing Results from Kvac study and EH study
 
 ``` {r Map Prep, echo = F, message = F, warning = F}
-SOTA <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/SOTA_Data_Product.csv") %>% select(-X) %>% filter(!is.na(Latitude), !is.na(Longitude), !is.na(HI), !Mouse_ID %in% c("SK_2697", "SK_3173", "SK_905"))
+SOTA <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/SOTA_Data_Product.csv")  %>% filter(!is.na(Latitude), !is.na(Longitude), !is.na(HI), !Mouse_ID %in% c("SK_2697", "SK_3173", "SK_905"))
 
-Crypto_Detection <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") %>% select(-X)
+Crypto_Detection <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") 
 
-High_Infection_Samples <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_input/Cryptosporidium/High_Infection_Samples.csv") %>%
-  mutate(HI_Indicator = case_when(HI >= 0.5 ~ "East",
-                                  HI < 0.5 ~ "West"))
+High_Infection_Samples <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_input/Cryptosporidium/High_Infection_Samples.csv")
 
 HMHZ <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/HMHZ_Samples_Locations.csv", na.strings=c(""," ","NA")) %>% filter(!is.na(Longitude))
-
-#colnames(Kvac)[colnames(Kvac)%in%"TRAP.C1_Subtype"] <- "TRAP_C1_Subtype"
-
-
-Western_Hybrid <- High_Infection_Samples %>% filter(HI >= 0.5)
-Eastern_Hybrid <- High_Infection_Samples %>% filter(HI < 0.5)
-
+HMHZ$HI[ HMHZ$Mouse_ID %in% "AA_0900"] <- 0.94444444
 
 
 map <- HMHZ %>%
@@ -483,8 +467,8 @@ map <- HMHZ %>%
 
 # Cutting
 SOTA$HI <- as.numeric(SOTA$HI)
-SOTA$HI_Level <-  cut(SOTA$HI, c(0, 0.001, 0.250, 0.500, 0.750, 0.999, 1), include.lowest = T , labels = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'))
-Crypto_Detection_21$Ct_Level <- cut(Crypto_Detection_21$Ct_mean, c(1, 28, 30, 32, 34, 36, 40), include.lowest = F , labels = c(' < 28  ', '28 - 30', '30 - 32', '32 - 34', '34 - 36', ' > 36'))
+SOTA$HI_Level <-  cut(SOTA$HI, c(0, 0.001, 0.250, 0.500, 0.750, 0.999, 1), include.lowest = T , labels = c('HI = 0.00', 'HI < 0.25', 'HI < 0.50', 'HI < 0.75', 'HI < 1.00', 'HI = 1.00'))
+Crypto_Detection_21$Ct_Level <- cut(Crypto_Detection_21$ILWE_Crypto_Ct, c(1, 28, 30, 32, 34, 36, 40), include.lowest = F , labels = c(' < 28  ', '28 - 30', '30 - 32', '32 - 34', '34 - 36', ' > 36'))
 
 
 
@@ -508,8 +492,6 @@ SeqSamples <- Crypto_Detection %>%
                                      "AA_0534", "AA_0537", "AA_0545", "AA_0553",
                                      "AA_0554", "AA_0578", "AA_0580", "AA_0585",
                                      "AA_0546", "AA_0589", "AA_0571"),
-         HI_Indicator = case_when(HI >= 0.5 ~ "East",
-                                  HI < 0.5 ~ "West"),
          TRAP_C1_Subtype = case_when(Mouse_ID %in% c("AA_0546", "AA_0578", "AA_0580", "AA_0589") ~ "Eastern",
                                      Mouse_ID %in% c("AA_0571", "AA_0667") ~ "Western"),
          GP60_Subtype = case_when(Mouse_ID %in% c("AA_0900", "AA_0523",
@@ -530,6 +512,7 @@ SeqSamples <- Crypto_Detection %>%
 ## Kvac Study Results
 ``` {r Kvac-Samples-Table, echo = F, message = F, fig.align = 'left'}
 HMHZ <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/HMHZ_Samples_Locations.csv", na.strings=c(""," ","NA")) %>% filter(!is.na(Longitude))
+HMHZ$HI[ HMHZ$Mouse_ID %in% "AA_0900"] <- 0.94444444
 
 Kvac <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Kvac_Samples_Locations1.csv", na.strings=c(""," ","NA")) %>% filter(!is.na(Longitude)) 
 
@@ -554,6 +537,7 @@ Kvac %>%
 ## HMHZ Sequencing Reults
 ``` {r HMHZ-Samples-Table, echo = F, message = F, fig.align = 'left'}
 HMHZ <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/HMHZ_Samples_Locations.csv", na.strings=c(""," ","NA")) %>% filter(!is.na(Longitude))
+HMHZ$HI[ HMHZ$Mouse_ID %in% "AA_0900"] <- 0.94444444
 
 HMHZ <- HMHZ[HMHZ$Mouse_ID %like% "AA_", ]
 
@@ -565,17 +549,16 @@ HMHZ[,c(1:6, 8:17)] %>% kable(align = c("ccccccccccccccccc"))
 ## Map of Sequencing Results
 ```{r mini map Sequencing-Results, echo = F, message = F, warning = F}
 HMHZ <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/HMHZ_Samples_Locations.csv", na.strings=c(""," ","NA")) %>% filter(!is.na(Longitude))
+HMHZ$HI[ HMHZ$Mouse_ID %in% "AA_0900"] <- 0.94444444
 
-#Sequenced <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/HMHZ_Samples_Locations.csv")
-
-HMHZ$HI_Level <-  cut(HMHZ$HI, c(0, 0.001, 0.250, 0.500, 0.750, 0.999, 1), include.lowest = T , labels = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'))
+HMHZ$HI_Level <-  cut(HMHZ$HI, c(0, 0.001, 0.250, 0.500, 0.750, 0.999, 1), include.lowest = T , labels = c('HI = 0.00', 'HI < 0.25', 'HI < 0.50', 'HI < 0.75', 'HI < 1.00', 'HI = 1.00'))
 
 HMHZ <- HMHZ %>%
-  mutate(HI_Indicator = case_when(MSC6_Subtype == "MS1" ~ "Eastern",
-                                  MSC6_Subtype == "MS2" ~ "Western"),
-         Species = case_when(Mouse_ID == 'AA_0325' ~ "C.parvum",
-                             Mouse_ID == 'AA_0669' ~ "C.meleagridis",
-                             Mouse_ID != c('AA_0325', 'AA_0669') ~ "C.tyzzeri"),
+  mutate(Species = ifelse(Mouse_ID %in% c('AA_0325', 'AA_0669'), 'other',
+                          ifelse(NA)),
+         Species = case_when(is.na(Species) ~ 'C.tyzzeri',
+                             Mouse_ID == 'AA_0325' ~ 'C.parvum', 
+                             Mouse_ID == 'AA_0669' ~ 'C.meleagridis'),
          GP60_Ssp = case_when(Mouse_ID %in% c("CR_2085", "CR_2084", "CR_2090",
                                               "CR_2125", "CR_2126", "CR_2127",
                                               "CR_2128", "CR_2149", "CR_2208", "CR_2206") ~ "IXa",
@@ -604,23 +587,21 @@ COWP  <- HMHZ %>% filter(!is.na(COWP_Subtype))
 GP60_Sub  <- HMHZ %>% filter(!is.na(GP60_Ssp))
 Species   <- HMHZ %>% filter(!is.na(Species))
 
-data_col_HI           = colorFactor(beach(6), HMHZ$HI)
-data_col_HI_Level     = colorFactor(beach(6), HMHZ$HI_Level)
-data_col_HI_Indicator = colorFactor(beach(2), HMHZ$HI_Indicator, reverse = T)
-data_col_HMHZ    = colorFactor(beach(2), HMHZ$HI)
-data_col_MSC6         = colorFactor(brewer.pal(2, "YlGn"), HMHZ$MSC6_Subtype, reverse = F)
-data_col_GP60         = colorFactor(brewer.pal(2, "YlGn"), HMHZ$GP60_Subtype, reverse = F)
-data_col_GP60_Ssp    = colorFactor(brewer.pal(4, "YlGn"), HMHZ$GP60_Ssp, reverse = F)
-data_col_GST   = colorFactor(brewer.pal(2, "YlGn"), HMHZ$GST_Subtype, reverse = F)
-data_col_Trap  = colorFactor(brewer.pal(2, "YlGn"), HMHZ$TRAP_C1_Subtype, reverse = F)
-data_col_SKSR  = colorFactor(brewer.pal(2, "YlGn"), HMHZ$SKSR_Subtype, reverse = F)
-data_col_MEDLE = colorFactor(brewer.pal(2, "YlGn"), HMHZ$MEDLE_Subtype, reverse = F)
-data_col_CP56  = colorFactor(brewer.pal(2, "YlGn"), HMHZ$CP56_Subtype, reverse = F)
-data_col_Actin  = colorFactor(brewer.pal(2, "YlGn"), HMHZ$Actin_Subtype, reverse = F)
-data_col_COWP  = colorFactor(brewer.pal(2, "YlGn"), HMHZ$COWP_Subtype, reverse = F)
-data_col_Species = colorFactor(brewer.pal(3, "Blues"), HMHZ$Species)
+data_col_HI           = colorFactor(     beach(6), HMHZ$HI)
+data_col_HI_Level     = colorFactor(     beach(6), HMHZ$HI_Level)
+data_col_HMHZ         = colorFactor(     beach(2), HMHZ$HI)
+data_col_MSC6         = colorFactor(  Yl_Or_Gn(3), HMHZ$MSC6_Subtype,    reverse = F)
+data_col_GP60         = colorFactor(  Yl_Or_Gn(3), HMHZ$GP60_Subtype,    reverse = T)
+data_col_GP60_Ssp     = colorFactor(  Yl_Or_Gn(4), HMHZ$GP60_Ssp,        reverse = T)
+data_col_GST          = colorFactor(  Yl_Or_Gn(3), HMHZ$GST_Subtype,     reverse = F)
+data_col_Trap         = colorFactor(  Yl_Or_Gn(3), HMHZ$TRAP_C1_Subtype, reverse = F)
+data_col_SKSR         = colorFactor(  Yl_Or_Gn(3), HMHZ$SKSR_Subtype,    reverse = F)
+data_col_MEDLE        = colorFactor(  Yl_Or_Gn(3), HMHZ$MEDLE_Subtype,   reverse = F)
+data_col_CP56         = colorFactor(  Yl_Or_Gn(3), HMHZ$CP56_Subtype,    reverse = F)
+data_col_Actin        = colorFactor(  Yl_Or_Gn(3), HMHZ$Actin_Subtype,   reverse = F)
+data_col_COWP         = colorFactor(  Yl_Or_Gn(3), HMHZ$COWP_Subtype,    reverse = F)
+data_col_Species      = colorFactor(brewer.pal(3, "Set3"), HMHZ$Species, reverse = F)
 
-#names(wes_palettes)
 #display.brewer.all()
 
 
@@ -857,21 +838,15 @@ map %>%
   addLegend("bottomleft", 
             pal = data_col_HI_Level, 
             title = "HI",
-            values = HMHZ$HI_Level, 
-            group = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'),
+            values = SOTA$HI_Level, 
+            group = c('HI = 0.00', 'HI < 0.25', 'HI < 0.50', 'HI < 0.75', 'HI < 1.00', 'HI = 1.00'),
             opacity = 1) %>%
-#  addLegend("bottomleft",
-#            pal = data_col_HI_Indicator, 
-#            title = "Type",
-#            values = HMHZ$HI_Indicator, 
-#            group = c('Western', 'Eastern'),
-#            opacity = 1) %>%
-#  addLegend("bottomright", 
-#            pal = data_col_Species, 
-#            title = "Species",
-#            values = HMHZ$Species, 
-#            group = c('C.tyzzeri', 'C.parvum', 'C.meleagridis'),
-#            opacity = 1) %>%
+  addLegend("bottomright", 
+            pal = data_col_Species, 
+            title = "Species",
+            values = HMHZ$Species, 
+            group = c('C.tyzzeri', 'C.parvum', 'C.meleagridis'),
+            opacity = 1) %>%
 addLayersControl(baseGroups = c("Colored by HI",
                                 "Colored by HI_small_rad",
                                 "Colored by MSC6-7", 
@@ -892,14 +867,19 @@ addLayersControl(baseGroups = c("Colored by HI",
 ```
 
 ## Map of Clade Memberships
+
+### MSC6-7
 ```{r mini map Clades, echo = F, message = F, warning = F}
+#![Population Structure HMHZ](https://raw.githubusercontent.com/tlobnow/Crypto/main/Map_BSc.jpeg)
+
 HMHZ <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/HMHZ_Samples_Locations.csv", na.strings=c(""," ","NA")) %>% filter(!is.na(Longitude))
+HMHZ$HI[ HMHZ$Mouse_ID %in% "AA_0900"] <- 0.94444444
 
 Clades <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Clade_Memberships.csv")
 
 #Sequenced <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/HMHZ_Samples_Locations.csv")
 
-Clades$HI_Level <-  cut(Clades$HI, c(0, 0.001, 0.250, 0.500, 0.750, 0.999, 1), include.lowest = T , labels = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'))
+Clades$HI_Level <-  cut(Clades$HI, c(0, 0.001, 0.250, 0.500, 0.750, 0.999, 1), include.lowest = T , labels = c('HI = 0.00', 'HI < 0.25', 'HI < 0.50', 'HI < 0.75', 'HI < 1.00', 'HI = 1.00'))
 
 GST   <- Clades %>% filter(!is.na(GST))
 
@@ -982,15 +962,17 @@ map %>%
                    opacity = 5,
                    radius = 3,
                    group = "MS2") %>%
-  addLegend("bottomright", 
+  addLegend("bottomleft", 
             pal = data_col_HI_Level, 
             title = "HI",
-            values = Clades$HI_Level, 
-            group = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'),
+            values = SOTA$HI_Level, 
+            group = c('HI = 0.00', 'HI < 0.25', 'HI < 0.50', 'HI < 0.75', 'HI < 1.00', 'HI = 1.00'),
             opacity = 1)
 
+```
 
-
+### COWP
+```{r, echo = F, message = F, warning = F}
 COWP  <- Clades %>% filter(!is.na(COWP))
   C1 <- COWP %>% filter(COWP == "C1")
   C2 <- COWP %>% filter(COWP == "C2")
@@ -1027,13 +1009,17 @@ map %>%
                    opacity = 5,
                    radius = 3,
                    group = "C2") %>%
-  addLegend("bottomright", 
+  addLegend("bottomleft", 
             pal = data_col_HI_Level, 
             title = "HI",
-            values = Clades$HI_Level, 
-            group = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'),
+            values = SOTA$HI_Level, 
+            group = c('HI = 0.00', 'HI < 0.25', 'HI < 0.50', 'HI < 0.75', 'HI < 1.00', 'HI = 1.00'),
             opacity = 1)
 
+```
+
+### GP60
+```{r, echo = F, message = F, warning = F}
 GP60  <- Clades %>% filter(!is.na(GP60))
   IXa <- GP60 %>% filter(GP60 == "IXa")
   IXb.1 <- GP60 %>% filter(GP60 == "IXb.1")
@@ -1093,11 +1079,11 @@ map %>%
                    opacity = 5,
                    radius = 3,
                    group = "IXb.3") %>%
-  addLegend("bottomright", 
+  addLegend("bottomleft", 
             pal = data_col_HI_Level, 
             title = "HI",
-            values = Clades$HI_Level, 
-            group = c('HI = 0', 'HI < 0.25', 'HI < 0.5', 'HI < 0.75', 'HI < 1', 'HI = 1'),
+            values = SOTA$HI_Level, 
+            group = c('HI = 0.00', 'HI < 0.25', 'HI < 0.50', 'HI < 0.75', 'HI < 1.00', 'HI = 1.00'),
             opacity = 1)
 
 ```

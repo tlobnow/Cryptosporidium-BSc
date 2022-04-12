@@ -211,3 +211,14 @@ T2 <- T2[T2$TRAP_C1 == "T2", "HI"]
 t.test(T1, T2) #p-value = 1.822e-05
 wilcox.test(T1, T2) # p-value = 5.055e-05
 
+
+################################################################################
+# DAVIDs DATA
+WT  <- data.frame(WT = c(3568, 1455, 1730))
+SER <- data.frame(SER = c(0, 541, 60))
+df  <- cbind(WT, SER)
+
+t.test(WT, SER)
+wilcox.test(df$WT, df$SER)
+
+

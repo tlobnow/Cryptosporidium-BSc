@@ -34,7 +34,7 @@ library(knitr)
 library(ggeffects)
 #library(parasiteLoad)
 
-SOTA <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/SOTA_Data_Product.csv") %>% select(-X)
+SOTA <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/SOTA_Data_Product.csv")
 Crypto_Detection <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") %>% select(-X)
 
 
@@ -99,7 +99,7 @@ Crypto_qPCR$Oocyst_Predict <- as.integer(Crypto_qPCR$Oocyst_Predict)
 Hybrid Index for samples from previous years (as 2021 host genotyping data is not available yet) gives an outline of the hybrid zone area (light purple background).
 
 ```{r mini map HI , echo = F, message = F, warning = F}
-SOTA <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/SOTA_Data_Product.csv") %>% select(-X) %>% filter(!is.na(Latitude), !is.na(Longitude), !is.na(HI), Mouse_ID != "SK_2697")
+SOTA <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/SOTA_Data_Product.csv")%>% filter(!is.na(Latitude), !is.na(Longitude), !is.na(HI), Mouse_ID != "SK_2697")
 #SOTA <- SOTA[SOTA$Mouse_ID %like% "AA_", ]
 
 
@@ -328,11 +328,11 @@ map %>%
 ```
 
 ```{r mini map Eimeria-Infections Past, echo = F, message = F, warning = F}
-Crypto_Detection <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") %>% select(-X) %>% filter(Ct_mean > 0, !is.na(Latitude), !is.na(Longitude), !is.na(HI))
+Crypto_Detection <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") %>% filter(Ct_mean > 0, !is.na(Latitude), !is.na(Longitude), !is.na(HI))
 
-Crypto_Detection_21 <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") %>% select(-X) %>% filter(Year == 2021, Ct_mean > 0, !is.na(Latitude), !is.na(Longitude))
+Crypto_Detection_21 <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") %>% filter(Year == 2021, Ct_mean > 0, !is.na(Latitude), !is.na(Longitude))
 
-SOTA <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/SOTA_Data_Product.csv") %>% select(-X)
+SOTA <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/SOTA_Data_Product.csv")
 
 map <- Crypto_Detection_21 %>%
   leaflet() %>%
