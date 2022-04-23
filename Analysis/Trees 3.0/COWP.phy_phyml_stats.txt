@@ -5,31 +5,31 @@
                          Copyright CNRS - Universite Montpellier II                                 
  oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 
-. Sequence filename: 			MSC6-7.phy
+. Sequence filename: 			COWP.phy
 . Data set: 				#1
 . Tree topology search : 		NNIs
 . Initial tree: 			BioNJ
 . Model of nucleotides substitution: 	HKY85
-. Number of taxa: 			13
-. Log-likelihood: 			-404.85933
-. Unconstrained likelihood: 		-570.74414
-. Parsimony: 				24
-. Tree size: 				0.12813
+. Number of taxa: 			56
+. Log-likelihood: 			-771.89259
+. Unconstrained likelihood: 		-1064.70376
+. Parsimony: 				25
+. Tree size: 				0.05636
 . Discrete gamma model: 		Yes
   - Number of categories: 		4
-  - Gamma shape parameter: 		119.350
-. Transition/transversion ratio: 	5.204
+  - Gamma shape parameter: 		236.160
+. Transition/transversion ratio: 	6.821
 . Nucleotides frequencies:
-  - f(A)= 0.25876
-  - f(C)= 0.24934
-  - f(G)= 0.19171
-  - f(T)= 0.30019
+  - f(A)= 0.31746
+  - f(C)= 0.21298
+  - f(G)= 0.17884
+  - f(T)= 0.29072
 
 . Run ID:				none
-. Random seed:				1650720552
+. Random seed:				1650720340
 . Subtree patterns aliasing:		no
 . Version:				20120412
-. Time used:				0h0m1s (1 seconds)
+. Time used:				0h0m6s (6 seconds)
 
  oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
  Suggested citations:

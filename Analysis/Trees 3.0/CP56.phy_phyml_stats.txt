@@ -5,31 +5,31 @@
                          Copyright CNRS - Universite Montpellier II                                 
  oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 
-. Sequence filename: 			MEDLE.phy
+. Sequence filename: 			CP56.phy
 . Data set: 				#1
 . Tree topology search : 		NNIs
 . Initial tree: 			BioNJ
 . Model of nucleotides substitution: 	HKY85
-. Number of taxa: 			14
-. Log-likelihood: 			-616.88164
-. Unconstrained likelihood: 		-658.63910
-. Parsimony: 				89
-. Tree size: 				0.59845
+. Number of taxa: 			10
+. Log-likelihood: 			-724.71769
+. Unconstrained likelihood: 		-874.59805
+. Parsimony: 				120
+. Tree size: 				1.63699
 . Discrete gamma model: 		Yes
   - Number of categories: 		4
-  - Gamma shape parameter: 		2.172
-. Transition/transversion ratio: 	3.180
+  - Gamma shape parameter: 		0.695
+. Transition/transversion ratio: 	2.463
 . Nucleotides frequencies:
-  - f(A)= 0.27385
-  - f(C)= 0.18579
-  - f(G)= 0.17883
-  - f(T)= 0.36153
+  - f(A)= 0.30334
+  - f(C)= 0.14555
+  - f(G)= 0.27602
+  - f(T)= 0.27508
 
 . Run ID:				none
-. Random seed:				1650720519
+. Random seed:				1650727342
 . Subtree patterns aliasing:		no
 . Version:				20120412
-. Time used:				0h0m0s (0 seconds)
+. Time used:				0h0m2s (2 seconds)
 
  oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
  Suggested citations:
