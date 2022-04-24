@@ -1,0 +1,8 @@
+# Experiment File Name : Plate_5.eds
+# Created By :tlobnow@googlemail.com
+# Last Modified Date : 2021-05-27 04:43:54 PM
+# Instrument Type : QuantStudio 1 System
+
+"Name","Plate Barcode","Experiment Run Date","Inter-plate Control Fail","FLAGS","AMPNC","AMPSCORE","BADROX","OFFSCALE","NOAMP","NOISE","SPIKE","NOSIGNAL","NOSAMPLE","EXPFAIL","BLFAIL","THOLDFAIL","CTFAIL","HIGHSD","OUTLIERRG","MTP","PRFLOW","PRFDROP","DRNMIN","CQCONF",
+"Plate_5.eds","","2021-05-27 04:24:11 PM","No","294.0","0.0","72.0","0.0","0.0","68.0","0.0","6.0","0.0","0.0","69.0","0.0","3.0","0.0","3.0","1.0","0.0","0.0","0.0","0.0","72.0",
+
