@@ -5,31 +5,31 @@
                          Copyright CNRS - Universite Montpellier II                                 
  oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 
-. Sequence filename: 			GST.phy
+. Sequence filename: 			cc.phy
 . Data set: 				#1
 . Tree topology search : 		NNIs
 . Initial tree: 			BioNJ
 . Model of nucleotides substitution: 	HKY85
-. Number of taxa: 			13
-. Log-likelihood: 			-459.71037
-. Unconstrained likelihood: 		-432.95848
-. Parsimony: 				28
-. Tree size: 				0.14235
+. Number of taxa: 			12
+. Log-likelihood: 			-3482.94033
+. Unconstrained likelihood: 		-5500.57457
+. Parsimony: 				403
+. Tree size: 				0.79596
 . Discrete gamma model: 		Yes
   - Number of categories: 		4
-  - Gamma shape parameter: 		0.115
-. Transition/transversion ratio: 	10.888
+  - Gamma shape parameter: 		0.269
+. Transition/transversion ratio: 	3.357
 . Nucleotides frequencies:
-  - f(A)= 0.34631
-  - f(C)= 0.13531
-  - f(G)= 0.16960
-  - f(T)= 0.34878
+  - f(A)= 0.29907
+  - f(C)= 0.17224
+  - f(G)= 0.20870
+  - f(T)= 0.32000
 
 . Run ID:				none
-. Random seed:				1650805623
+. Random seed:				1650807350
 . Subtree patterns aliasing:		no
 . Version:				20120412
-. Time used:				0h0m1s (1 seconds)
+. Time used:				0h0m6s (6 seconds)
 
  oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
  Suggested citations:
