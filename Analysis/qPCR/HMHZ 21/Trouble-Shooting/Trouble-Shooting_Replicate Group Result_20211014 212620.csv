@@ -1,0 +1,32 @@
+# File Name: Trouble-Shooting.eds
+# Comment: 
+# Operator: DEFAULT
+# Barcode: 
+# Instrument Type: QuantStudio™ 1 System
+# Block Type: 96-Well 0.2-mL Block
+# Instrument Name: 2721220100840
+# Instrument Serial Number: 2721220100840
+# Heated Cover Serial Number: 
+# Block Serial Number: 
+# Run Start Date/Time: 2021-10-10 11:07:18 AM UTC
+# Run End Date/Time: 2021-10-10 12:07:55 PM UTC
+# Run Duration: 60 minutes 37 seconds
+# Sample Volume: 20.0
+# Cover Temperature: 105.0
+# Passive Reference: ROX
+# PCR Stage/Step Number: Stage 2 Step 2
+# Quantification Cycle Method: CT
+# Analysis Date/Time: 2021-10-14 09:25:54 PM UTC
+# Software Name and Version: Design & Analysis Software v2.6.1
+# Plugin Name and Version: Primary Analysis v1.7.0, Standard Curve v1.6.0
+# Exported By: guest
+# Exported On: 2021-10-14 09:26:20 PM UTC
+"Sample","Target","Number of Replicates","Quantity","Number of Cqs","Cq Mean","Cq SD","Cq SE","Biogroup"
+"10","Standard Curve","9","10.0","0","36.58095408938979","","",
+"153","Standard Curve","9","153.0","0","35.54194366487058","2.763937543134951","1.595760084552277",
+"1221","Standard Curve","9","1221.0","0","31.855143432594918","1.2486046151302912","0.7208822106568827",
+"9765","Standard Curve","9","9765.0","0","28.239822466971038","1.0578267168002171","0.6107365397005834",
+"5x10_6","Standard Curve","9","5000000.0","0","18.433055722759406","0.6659640379450639","0.3844945165781928",
+"625.000","Standard Curve","9","625000.0","0","21.615055968713175","1.4557486579520458","0.8404768795410501",
+"78.125","Standard Curve","9","78125.0","0","25.06001076969734","1.4731220202740292","0.8505073949543761",
+"NTC","NTC","9","-","0","","","",
