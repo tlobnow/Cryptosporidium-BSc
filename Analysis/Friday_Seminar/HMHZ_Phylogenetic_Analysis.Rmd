@@ -3,7 +3,6 @@ title: "HMHZ Phylogenetic Analysis"
 author: Finn
 output:
   html_document:
-    css: styles.css
     toc: yes
     number_section: yes
     fig_caption: true
@@ -26,6 +25,12 @@ library(ggtree)
 library(tidyverse)
 library(tibble)
 library(cowplot)
+library(data.table) #install.packages('data.table') # for the setnames() function
+library(knitr)      #install.packages('knitr')      # for making tables in markdown
+library(visdat)     #install.packages('visdat')     # for looking at missing data
+library(RColorBrewer) #display.brewer.all()
+library(leaflet)
+library(htmltools)
 ```
 
 
@@ -34,6 +39,7 @@ library(cowplot)
 
 - GP60
 - COWP
+- TRAP-C1
 - Actin
 - Hsp90
 - MSC6-7
@@ -41,6 +47,7 @@ library(cowplot)
 - CP56
 - SKSR
 - MEDLE
+- Concatenated Sequences
 
 # Alignments
 
@@ -48,197 +55,8 @@ library(cowplot)
 
 # Phylogenetic Trees
 
-## GST
-``` {r}
-tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/GST.phy_phyml_tree.txt")
-
-
-bs_tibble <- tibble(
-  node=1:Nnode(tree) + Ntip(tree),
-  bootstrap = ifelse(tree$node.label < 50, "", tree$node.label))
-
-
-ggtree(tree) %<+% bs_tibble +
-  geom_text(aes(label=bootstrap), hjust=2, nudge_y = 1, size = 3) +
-  geom_tiplab(aes(label=label))
-
-
-p <-ggtree(tree) %<+% bs_tibble +
-  geom_tiplab(fontsize = 2) +
-  xlim(NA, 0.2) +
-  geom_treescale() +
-  geom_text(aes(label=bootstrap), hjust=1.3, nudge_y = 0.5, size = 3)
-p
-```
-
-## COWP
-``` {r}
-tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/COWP.phy_phyml_tree.txt")
-
-bs_tibble <- tibble(
-  node=1:Nnode(tree) + Ntip(tree),
-  bootstrap = ifelse(tree$node.label < 50, "", tree$node.label))
-
-
-ggtree(tree) %<+% bs_tibble +
-  geom_text(aes(label=bootstrap), hjust=2, nudge_y = 1, size = 3) +
-  geom_tiplab(aes(label=label))
-
-
-p <-ggtree(tree) %<+% bs_tibble +
-  geom_tiplab(fontsize = 2) +
-  xlim(NA, 0.05) +
-  geom_treescale() +
-  geom_text(aes(label=bootstrap), hjust=1.3, nudge_y = 0.5, size = 3)
-p
-
-```
-
-## MEDLE
-``` {r}
-tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/MEDLE.phy_phyml_tree.txt")
-
-bs_tibble <- tibble(
-  node=1:Nnode(tree) + Ntip(tree),
-  bootstrap = ifelse(tree$node.label < 50, "", tree$node.label))
-
-
-ggtree(tree) %<+% bs_tibble +
-  geom_text(aes(label=bootstrap), hjust=2, nudge_y = 1, size = 3) +
-  geom_tiplab(aes(label=label))
-
-
-p <-ggtree(tree) %<+% bs_tibble +
-  geom_tiplab(fontsize = 2) +
-  xlim(NA, 0.5) +
-  geom_treescale() +
-  geom_text(aes(label=bootstrap), hjust=1.3, nudge_y = 0.5, size = 3)
-p
-```
-
-## MEDLE_2
-``` {r}
-tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/MEDLE_2.phy_phyml_tree.txt")
-
-bs_tibble <- tibble(
-  node=1:Nnode(tree) + Ntip(tree),
-  bootstrap = ifelse(tree$node.label < 50, "", tree$node.label))
-
-
-ggtree(tree) %<+% bs_tibble +
-  geom_text(aes(label=node), nudge_x = -0.002) +
-  geom_text(aes(label=parent), nudge_x =  -0.2) +
-  geom_text(aes(label=bootstrap), hjust=2, nudge_y = 1, size = 3) +
-  geom_tiplab(aes(label=label))
-
-
-p <-ggtree(tree) %<+% bs_tibble +
-  #geom_text(aes(label=parent), nudge_x =  -0.2) +
-  geom_tiplab(fontsize = 2) +
-  xlim(NA, 0.5) +
-  geom_treescale() +
-  geom_text(aes(label=bootstrap), hjust=1.3, nudge_y = 0.5, size = 3)
-p %>% 
-  #flip(1,18) %>% 
-  flip(19, 20) %>% 
-  flip(3,4)
-```
-
-## MEDLE_3
-``` {r}
-tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/MEDLE_3.phy_phyml_tree.txt")
-
-bs_tibble <- tibble(
-  node=1:Nnode(tree) + Ntip(tree),
-  bootstrap = ifelse(tree$node.label < 50, "", tree$node.label))
-
-
-ggtree(tree) %<+% bs_tibble +
-  geom_text(aes(label=bootstrap), hjust=2, nudge_y = 0, size = 3) +
-  geom_tiplab(aes(label=label))
-
-
-p <-ggtree(tree) %<+% bs_tibble +
-  geom_tiplab(fontsize = 2) +
-  xlim(NA, 0.5) +
-  geom_treescale() +
-  geom_text(aes(label=bootstrap), hjust=1.3, nudge_y = 0, size = 3)
-p
-```
-
-## CP56
-``` {r}
-tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/CP56.phy_phyml_tree.txt")
-
-bs_tibble <- tibble(
-  node=1:Nnode(tree) + Ntip(tree),
-  bootstrap = ifelse(tree$node.label < 50, "", tree$node.label))
-
-
-ggtree(tree) %<+% bs_tibble +
-  geom_text(aes(label=bootstrap), hjust=2, nudge_y = 1, size = 3) +
-  geom_tiplab(aes(label=label))
-
-
-p <-ggtree(tree) %<+% bs_tibble +
-  geom_tiplab(fontsize = 2) +
-  xlim(NA, 2) +
-  geom_treescale() +
-  geom_text(aes(label=bootstrap), hjust=1.3, nudge_y = 0.5, size = 3)
-p
-```
-
-
-## CP56-2
-``` {r}
-tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/CP56_2.phy_phyml_tree.txt")
-
-bs_tibble <- tibble(
-  node=1:Nnode(tree) + Ntip(tree),
-  bootstrap = ifelse(tree$node.label < 50, "", tree$node.label))
-
-
-ggtree(tree) %<+% bs_tibble +
-  geom_text(aes(label=bootstrap), hjust=2, nudge_y = 1, size = 3) +
-  geom_tiplab(aes(label=label))
-
-
-p <-ggtree(tree) %<+% bs_tibble +
-  geom_tiplab(fontsize = 2) +
-  xlim(NA, 2) +
-  geom_treescale() +
-  geom_text(aes(label=bootstrap), hjust=1.3, nudge_y = 0.5, size = 3)
-p
-
-```
-
-
-## CP56-3
-``` {r}
-tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/CP56_3.phy_phyml_tree.txt")
-
-bs_tibble <- tibble(
-  node=1:Nnode(tree) + Ntip(tree),
-  bootstrap = ifelse(tree$node.label < 100, "", tree$node.label))
-
-
-ggtree(tree) %<+% bs_tibble +
-  geom_text(aes(label=node), nudge_x = -0.002) +
-  geom_text(aes(label=parent), nudge_x =  -0.2) +
-  geom_text(aes(label=bootstrap), hjust=2, nudge_y = 1, size = 3) +
-  geom_tiplab(aes(label=label))
-
-
-p <-ggtree(tree) %<+% bs_tibble +
-  geom_tiplab(fontsize = 2) +
-  xlim(NA, 2) +
-  geom_treescale() +
-  geom_text(aes(label=bootstrap), hjust=1.3, nudge_y = 0.5, size = 3)
-p
-```
-
 ## GP60
-``` {r}
+``` {r, echo = F, message = F}
 tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/GP60.phy_phyml_tree.txt")
 
 bs_tibble <- tibble(
@@ -246,9 +64,9 @@ bs_tibble <- tibble(
   bootstrap = ifelse(tree$node.label < 50, "", tree$node.label))
 
 
-ggtree(tree) %<+% bs_tibble +
-  geom_text(aes(label=bootstrap), hjust=2, nudge_y = 1, size = 3) +
-  geom_tiplab(aes(label=label))
+#ggtree(tree) %<+% bs_tibble +
+#  geom_text(aes(label=bootstrap), hjust=1.1, nudge_y = 0, size = 3) +
+#  geom_tiplab(aes(label=label))
 
 
 p <-ggtree(tree) %<+% bs_tibble +
@@ -259,76 +77,52 @@ p <-ggtree(tree) %<+% bs_tibble +
 p
 ```
 
-## MSC6-7
-``` {r}
-tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/MSC6-7.phy_phyml_tree.txt")
+## COWP
+``` {r, echo = F, message = F}
+tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/COWP.phy_phyml_tree.txt")
 
 bs_tibble <- tibble(
   node=1:Nnode(tree) + Ntip(tree),
   bootstrap = ifelse(tree$node.label < 50, "", tree$node.label))
 
 
-ggtree(tree) %<+% bs_tibble +
-  geom_text(aes(label=bootstrap), hjust=1.1, nudge_y = 0, size = 3) +
-  geom_tiplab(aes(label=label))
-
-
-p <-ggtree(tree) %<+% bs_tibble +
-  geom_tiplab(fontsize = 2) +
-  xlim(NA, 2) +
-  geom_treescale() +
-  geom_text(aes(label=bootstrap), hjust=1.3, nudge_y = 0.5, size = 3)
-p
-```
-
-
-## SKSR
-``` {r}
-tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/SKSR.phy_phyml_tree.txt")
-
-bs_tibble <- tibble(
-  node=1:Nnode(tree) + Ntip(tree),
-  bootstrap = ifelse(tree$node.label < 50, "", tree$node.label))
-
-
-ggtree(tree) %<+% bs_tibble +
-  geom_text(aes(label=bootstrap), hjust=1.1, nudge_y = 0, size = 3) +
-  geom_tiplab(aes(label=label))
-
+#ggtree(tree) %<+% bs_tibble +
+#  geom_text(aes(label=bootstrap), hjust=1.1, nudge_y = 0, size = 3) +
+#  geom_tiplab(aes(label=label))
 
 p <-ggtree(tree) %<+% bs_tibble +
   geom_tiplab(fontsize = 2) +
-  xlim(NA, 2) +
+  xlim(NA, 0.05) +
   geom_treescale() +
   geom_text(aes(label=bootstrap), hjust=1.3, nudge_y = 0.5, size = 3)
 p
+
 ```
 
-
-## Concatenated
-``` {r}
-tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/cc.phy_phyml_tree.txt")
+## TRAP-C1
+``` {r, echo = F, message = F}
+tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/TRAP-C1.phy_phyml_tree.txt")
 
 bs_tibble <- tibble(
   node=1:Nnode(tree) + Ntip(tree),
   bootstrap = ifelse(tree$node.label < 1, "", tree$node.label))
 
 
-ggtree(tree) %<+% bs_tibble +
-  geom_text(aes(label=bootstrap), hjust=1.1, nudge_y = 0, size = 3) +
-  geom_tiplab(aes(label=label))
+#ggtree(tree) %<+% bs_tibble +
+#  geom_text(aes(label=bootstrap), hjust=1.1, nudge_y = 0, size = 3) +
+#  geom_tiplab(aes(label=label))
 
 
 p <-ggtree(tree) %<+% bs_tibble +
   geom_tiplab(fontsize = 2) +
-  xlim(NA, 0.9) +
+  xlim(NA, 0.01) +
   geom_treescale() +
   geom_text(aes(label=bootstrap), hjust=1.3, nudge_y = 0, size = 3)
-p %>% flip(5,15)
+p
 ```
 
 ## Actin
-``` {r}
+``` {r, echo = F, message = F}
 tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/Actin.phy_phyml_tree.txt")
 
 bs_tibble <- tibble(
@@ -336,9 +130,9 @@ bs_tibble <- tibble(
   bootstrap = ifelse(tree$node.label < 1, "", tree$node.label))
 
 
-ggtree(tree) %<+% bs_tibble +
-  geom_text(aes(label=bootstrap), hjust=1.1, nudge_y = 0, size = 3) +
-  geom_tiplab(aes(label=label))
+#ggtree(tree) %<+% bs_tibble +
+#  geom_text(aes(label=bootstrap), hjust=1.1, nudge_y = 0, size = 3) +
+#  geom_tiplab(aes(label=label))
 
 
 p <-ggtree(tree) %<+% bs_tibble +
@@ -350,7 +144,7 @@ p
 ```
 
 ## Hsp90
-``` {r}
+``` {r, echo = F, message = F, include = F}
 tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/Hsp90.phy_phyml_tree.txt")
 
 bs_tibble <- tibble(
@@ -358,18 +152,593 @@ bs_tibble <- tibble(
   bootstrap = ifelse(tree$node.label < 1, "", tree$node.label))
 
 
-ggtree(tree) %<+% bs_tibble +
-  geom_text(aes(label=bootstrap), hjust=1.1, nudge_y = 0, size = 3) +
-  geom_tiplab(aes(label=label))
+#ggtree(tree) %<+% bs_tibble +
+#  geom_text(aes(label=bootstrap), hjust=1.1, nudge_y = 0, size = 3) +
+#  geom_tiplab(aes(label=label))
 
 
 p <-ggtree(tree) %<+% bs_tibble +
   geom_tiplab(fontsize = 2) +
-  xlim(NA, 0.01) +
+  #xlim(NA, 0.01) +
+  geom_treescale() +
+  geom_text(aes(label=bootstrap), hjust=1.3, nudge_y = 0, size = 3)
+p
+```
+
+## Hsp90
+``` {r, echo = F, message = F, include = F}
+tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/Hsp90.phy_phyml_tree.txt")
+
+bs_tibble <- tibble(
+  node=1:Nnode(tree) + Ntip(tree),
+  bootstrap = ifelse(tree$node.label < 1, "", tree$node.label))
+
+
+#ggtree(tree) %<+% bs_tibble +
+#  geom_text(aes(label=bootstrap), hjust=1.1, nudge_y = 0, size = 3) +
+#  geom_tiplab(aes(label=label))
+
+
+p <-ggtree(tree) %<+% bs_tibble +
+  geom_tiplab(fontsize = 2) +
+  #xlim(NA, 0.01) +
+  geom_treescale() +
+  geom_text(aes(label=bootstrap), hjust=1.3, nudge_y = 0, size = 3)
+p
+```
+
+## MSC6-7
+``` {r, echo = F, message = F}
+tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/MSC6-7.phy_phyml_tree.txt")
+
+bs_tibble <- tibble(
+  node=1:Nnode(tree) + Ntip(tree),
+  bootstrap = ifelse(tree$node.label < 50, "", tree$node.label))
+
+
+#ggtree(tree) %<+% bs_tibble +
+#  geom_text(aes(label=bootstrap), hjust=1.1, nudge_y = 0, size = 3) +
+#  geom_tiplab(aes(label=label))
+
+
+p <-ggtree(tree) %<+% bs_tibble +
+  geom_tiplab(fontsize = 2) +
+  xlim(NA, 2) +
+  geom_treescale() +
+  geom_text(aes(label=bootstrap), hjust=1.3, nudge_y = 0.5, size = 3)
+p
+```
+
+
+
+## GST
+``` {r, echo = F, message = F}
+tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/GST.phy_phyml_tree.txt")
+
+
+bs_tibble <- tibble(
+  node=1:Nnode(tree) + Ntip(tree),
+  bootstrap = ifelse(tree$node.label < 50, "", tree$node.label))
+
+
+#ggtree(tree) %<+% bs_tibble +
+#  geom_text(aes(label=bootstrap), hjust=1.1, nudge_y = 0, size = 3) +
+#  geom_tiplab(aes(label=label))
+
+
+p <-ggtree(tree) %<+% bs_tibble +
+  geom_tiplab(fontsize = 2) +
+  xlim(NA, 0.2) +
+  geom_treescale() +
+  geom_text(aes(label=bootstrap), hjust=1.3, nudge_y = 0.5, size = 3)
+p
+```
+
+
+
+## CP56
+``` {r, echo = F, message = F}
+tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/CP56.phy_phyml_tree.txt")
+
+bs_tibble <- tibble(
+  node=1:Nnode(tree) + Ntip(tree),
+  bootstrap = ifelse(tree$node.label < 50, "", tree$node.label))
+
+
+#ggtree(tree) %<+% bs_tibble +
+#  geom_text(aes(label=bootstrap), hjust=1.1, nudge_y = 0, size = 3) +
+#  geom_tiplab(aes(label=label))
+
+
+p <-ggtree(tree) %<+% bs_tibble +
+  geom_tiplab(fontsize = 2) +
+  xlim(NA, 2) +
+  geom_treescale() +
+  geom_text(aes(label=bootstrap), hjust=1.3, nudge_y = 0.5, size = 3)
+p
+```
+
+
+
+
+
+## SKSR
+``` {r, echo = F, message = F}
+tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/SKSR.phy_phyml_tree.txt")
+
+bs_tibble <- tibble(
+  node=1:Nnode(tree) + Ntip(tree),
+  bootstrap = ifelse(tree$node.label < 50, "", tree$node.label))
+
+
+#ggtree(tree) %<+% bs_tibble +
+#  geom_text(aes(label=bootstrap), hjust=1.1, nudge_y = 0, size = 3) +
+#  geom_tiplab(aes(label=label))
+
+
+p <-ggtree(tree) %<+% bs_tibble +
+  geom_tiplab(fontsize = 2) +
+  xlim(NA, 2) +
+  geom_treescale() +
+  geom_text(aes(label=bootstrap), hjust=1.3, nudge_y = 0.5, size = 3)
+p
+```
+
+## MEDLE
+``` {r, echo = F, message = F}
+tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/MEDLE_3.phy_phyml_tree.txt")
+
+bs_tibble <- tibble(
+  node=1:Nnode(tree) + Ntip(tree),
+  bootstrap = ifelse(tree$node.label < 50, "", tree$node.label))
+
+
+#ggtree(tree) %<+% bs_tibble +
+#  geom_text(aes(label=bootstrap), hjust=1.1, nudge_y = 0, size = 3) +
+#  geom_tiplab(aes(label=label))
+
+
+p <-ggtree(tree) %<+% bs_tibble +
+  geom_tiplab(fontsize = 2) +
+  xlim(NA, 0.5) +
   geom_treescale() +
   geom_text(aes(label=bootstrap), hjust=1.3, nudge_y = 0, size = 3)
 p
 ```
 
 
+## Concatenated
+``` {r, echo = F, message = F}
+tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/cc.phy_phyml_tree.txt")
+
+bs_tibble <- tibble(
+  node=1:Nnode(tree) + Ntip(tree),
+  bootstrap = ifelse(tree$node.label < 1, "", tree$node.label))
+
+
+#ggtree(tree) %<+% bs_tibble +
+#  geom_text(aes(label=bootstrap), hjust=1.1, nudge_y = 0, size = 3) +
+#  geom_tiplab(aes(label=label))
+
+
+p <-ggtree(tree) %<+% bs_tibble +
+  geom_tiplab(fontsize = 2) +
+  xlim(NA, 0.9) +
+  geom_treescale() +
+  geom_text(aes(label=bootstrap), hjust=1.3, nudge_y = 0, size = 3)
+p %>% flip(5,15)
+```
+
+
+
+
 # Map
+
+``` {r, map}
+
+SOTA <- read.csv('https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/SOTA_Data_Product.csv')
+PCR_Res <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/PCR_Results.csv")
+Amp_Res <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Amplification_Success.csv")
+Crypto_Detection <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv") 
+Crypto_Detection_tested <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv")  %>% filter(ILWE_Crypto_Ct >= 0, !is.na(Latitude), !is.na(Longitude))
+Crypto_Positive <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv")  %>% filter(ILWE_Crypto_Ct > 0, !is.na(Latitude), !is.na(Longitude))
+Crypto_Detection_21 <- read.csv("https://raw.githubusercontent.com/derele/Mouse_Eimeria_Field/master/data_products/Crypto_Detection.csv")  %>% filter(Year == 2021, ILWE_Crypto_Ct > 0, !is.na(Latitude), !is.na(Longitude))
+HMHZ <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/HMHZ_Samples_Locations.csv", na.strings=c(""," ","NA")) %>% filter(!is.na(Longitude)) %>% select(-X)
+qual_div <- read.csv('https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Quality_Diversity_Assessment.csv')
+pairs_designed <- read.csv('https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Primer_Pairs_designed.csv', na.strings = c('', ' ', '-'))
+
+
+
+# Load Palette 
+r <- c(0, 64, 128, 179, 217, 255)
+g <- c(0, 12, 25, 25, 12,  0)
+b <- c(255, 249, 243, 191,  95,   0)
+
+myPal <- function (n, name = c("myPal.colors")) 
+{
+  myPal.colors = rgb(r,g,b,maxColorValue = 255)
+  name = match.arg(name)
+  orig = eval(parse(text = name))
+  rgb = t(col2rgb(orig))
+  temp = matrix(NA, ncol = 3, nrow = n)
+  x = seq(0, 1, , length(orig))
+  xg = seq(0, 1, , n)
+  for (k in 1:3) {
+    hold = spline(x, rgb[, k], n = n)$y
+    hold[hold < 0] = 0
+    hold[hold > 255] = 255
+    temp[, k] = round(hold)
+  }
+  palette = rgb(temp[, 1], temp[, 2], temp[, 3], maxColorValue = 255)
+  palette
+}
+
+# Load Palette 
+s <- c(255, 147, 111)
+t <- c(217, 196, 168)
+u <- c(102, 125, 220)
+
+YlGnBl <- function (n, name = c("YlGnBl.colors")) 
+{
+  YlGnBl.colors = rgb(s,t,u,maxColorValue = 255)
+  name = match.arg(name)
+  orig = eval(parse(text = name))
+  rgb = t(col2rgb(orig))
+  temp = matrix(NA, ncol = 3, nrow = n)
+  x = seq(0, 1, , length(orig))
+  xg = seq(0, 1, , n)
+  for (k in 1:3) {
+    hold = spline(x, rgb[, k], n = n)$y
+    hold[hold < 0] = 0
+    hold[hold > 255] = 255
+    temp[, k] = round(hold)
+  }
+  palette = rgb(temp[, 1], temp[, 2], temp[, 3], maxColorValue = 255)
+  palette
+}
+
+
+
+
+## HYBRID INDEX MAP ------------------------------------------------------------
+
+library(RColorBrewer) #display.brewer.all()
+library(leaflet)
+library(htmltools)
+
+High_Infection_Samples <- SOTA %>% 
+  select(Mouse_ID, ILWE_Crypto_Ct, Oocyst_Predict_Crypto, Year, Latitude, Longitude, HI, Sex) %>% 
+  filter(ILWE_Crypto_Ct > 0, Year >= 2016) %>% 
+  arrange(ILWE_Crypto_Ct) %>% 
+  head(30)
+
+SOTA <- SOTA %>% 
+  mutate(Eim_Species = ifelse(eimeriaSpecies == "E_falciformis", "E_falciformis",
+                              ifelse(eimeriaSpecies == "E_ferrisi", "E_ferrisi",
+                                     ifelse(eimeriaSpecies == "Eimeria_alorani", "Eimeria_alorani",
+                                            ifelse(eimeriaSpecies == "Eimeria_apionodes", "Eimeria_apionodes",
+                                                   ifelse(eimeriaSpecies == "Eimeria_falciformis", "Eimeria_falciformis",
+                                                          ifelse(eimeriaSpecies == "Eimeria_sp_Apodemus", "Eimeria_sp_Apodemus",
+                                                                 ifelse(eimeriaSpecies == "Eimeria_vermiformis", "Eimeria_vermiformis",
+                                                                        ifelse(eimeriaSpecies == "Negative", "Negative",
+                                                                               ifelse(NA))))))))),
+         Eimeria_Positive = case_when(Eim_Species != "Negative" | Ct.Eimeria  > 0 | OPG > 0 ~ T,
+                                      Eim_Species == "Negative" | Ct.Eimeria == 0 | OPG == 0 ~ F))
+
+
+# Cutting the data into slices helps to make nice legends!
+SOTA$HI <- as.numeric(SOTA$HI)
+SOTA$HI_Level <-  cut(SOTA$HI, c(0, 0.001, 0.250, 0.500, 0.750, 0.999, 1), include.lowest = T , 
+                      labels = c('HI = 0.00', 'HI < 0.25', 'HI < 0.50', 'HI < 0.75', 'HI < 1.00', 'HI = 1.00'))
+HMHZ$HI_Level <-  cut(HMHZ$HI, c(0, 0.001, 0.250, 0.500, 0.750, 0.999, 1), include.lowest = T , 
+                          labels = c('HI = 0.00', 'HI < 0.25', 'HI < 0.50', 'HI < 0.75', 'HI < 1.00', 'HI = 1.00'))
+
+# We also want to look at samples that sent into sequencing (was interesting for my Bachelor thesis)
+Sequenced <- Crypto_Detection %>%
+  mutate(seq = Mouse_ID %in% c("AA_0144", "AA_0325", "AA_0689", "AA_0209", "AA_0282", "AA_0793", "AA_0667", "AA_0805", "AA_0900",
+                               "AA_0523", "AA_0534", "AA_0537", "AA_0545", "AA_0546", "AA_0553", "AA_0554", "AA_0555", "AA_0557",
+                               "AA_0559", "AA_0571", "AA_0578", "AA_0580", "AA_0585", "AA_0589",  "AA_0601", "AA_0660",  "AA_0666",
+                               "AA_0667", "AA_0669", "AA_0679")) %>%
+  filter(seq == T) # only retain samples that fulfill this condition
+
+Illumina <- SOTA %>%
+  mutate(illumina = Mouse_ID %in% c("AA_0900", "AA_0866", "AA_0942")) %>%
+  filter(illumina == T)
+
+HMHZ <- HMHZ %>% mutate(seq_by = case_when(Mouse_ID %in% c("AA_0144", "AA_0325", "AA_0689", "AA_0209", "AA_0282", "AA_0793", "AA_0805", "AA_0900", "AA_0523", "AA_0667") ~ 'Finn (2021)',
+                                           Mouse_ID %in% c("AA_0534", "AA_0537", "AA_0545", "AA_0546", "AA_0553", "AA_0554", "AA_0555", "AA_0557", "AA_0559", "AA_0571",
+                                                           "AA_0578", "AA_0580", "AA_0585", "AA_0589", "AA_0601", "AA_0660", "AA_0666", "AA_0669", "AA_0679") ~ 'Yasmin (2019)',
+                                           !is.na(Location) ~ 'Kvac (2013)'))
+
+HMHZ <- HMHZ %>% 
+  select(Mouse_ID, GP60_Subtype, Actin_Subtype, COWP_Subtype, TRAP_C1_Subtype, 
+         MSC6_Subtype, GST_Subtype, SKSR_Subtype, MEDLE_Subtype, CP56_Subtype, Location, seq_by, Longitude, Latitude, HI, Country)
+HMHZ$summed <- rowSums(!is.na(HMHZ[2:10]))
+
+Finn    <- HMHZ %>% filter(seq_by == "Finn (2021)")
+Yasmin  <- HMHZ %>% filter(seq_by == "Yasmin (2019)")
+Kvac    <- HMHZ %>% filter(seq_by == "Kvac (2013)")
+
+data_col_HI        = colorFactor(myPal(6), SOTA$HI) # for our samples, uncut
+data_col_HI_HMHZ   = colorFactor(myPal(6), HMHZ$HI) # for our samples, uncut
+data_col_HI_Level  = colorFactor(myPal(6), HMHZ$HI_Level) # for our legend palette, cut
+data_col_HI_Level  = colorFactor(myPal(6), SOTA$HI_Level) # for our legend palette, cut
+data_col_seq       = colorFactor(YlGnBl(3), HMHZ$seq_by, reverse = F)
+
+
+map <- HMHZ %>% leaflet() %>% addProviderTiles("CartoDB") %>% setView(lat = 52.520007, lng =13.404954, zoom = 6)
+map1 <- map %>%
+  addPolylines(lat = c(55.0000, 53.6000, 53.51885, 52.8875  , 52.6053, 51.8978, 45.0000), 
+               lng = c(10.0000, 11.4563, 12.4464,13.8119 , 13.8756, 13.8103, 10.0000), 
+               color = "purple", 
+               weight = 55, 
+               opacity = 0.1) %>%
+  addCircleMarkers(data = SOTA,
+                   col = ~data_col_HI(HI),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  "<b>HI:<b>",      as.character(round(HI, digits = 2)), "<br>",
+                                  "<b>Year:<b>",    as.character(Year),"<br>",
+                                  "<b>Ct Mean:<b>",      as.character(round(ILWE_Crypto_Ct, digits = 2)),"<br>",
+                                  "<b>Oocyst Prediction:<b>", as.character(Oocyst_Predict_Crypto), "<br>",
+                                  "<b>Sex:<b>", Sex, "<br>",
+                                  sep=" "),
+                   opacity = 1,
+                   radius = 3,
+                   group = "Samples (total)") %>%
+  addCircleMarkers(data = Crypto_Detection_tested,
+                   col = ~data_col_HI(HI),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  "<b>HI:<b>",      as.character(round(HI, digits = 2)), "<br>",
+                                  "<b>Year:<b>",    as.character(Year),"<br>",
+                                  "<b>Ct Mean:<b>",      as.character(round(ILWE_Crypto_Ct, digits = 2)),"<br>",
+                                  "<b>Oocyst Prediction:<b>", as.character(Oocyst_Predict_Crypto), "<br>",
+                                  "<b>Sex:<b>", Sex, "<br>",
+                                  sep=" "),
+                   opacity = 1,
+                   radius = 3,
+                   group = "Samples (Crypto-tested)") %>%
+  addCircleMarkers(data = Crypto_Positive,
+                   col = ~data_col_HI(HI),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  "<b>HI:<b>",      as.character(round(HI, digits = 2)), "<br>",
+                                  "<b>Year:<b>",    as.character(Year),"<br>",
+                                  "<b>Ct Mean:<b>",      as.character(round(ILWE_Crypto_Ct, digits = 2)),"<br>",
+                                  "<b>Oocyst Prediction:<b>", as.character(Oocyst_Predict_Crypto), "<br>",
+                                  "<b>Sex:<b>", Sex, "<br>",
+                                  sep=" "),
+                   opacity = 1,
+                   radius = 3,
+                   group = "Samples (Crypto-positive)") %>%
+  addCircleMarkers(data = Sequenced, 
+                   col = ~data_col_HI(HI),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  "<b>HI:<b>",      as.character(round(HI, digits = 2)), "<br>",
+                                  "<b>Year:<b>",    as.character(Year),"<br>",
+                                  "<b>Ct Mean:<b>",      as.character(round(ILWE_Crypto_Ct, digits = 2)),"<br>",
+                                  "<b>Oocyst Prediction:<b>", as.character(Oocyst_Predict_Crypto), "<br>",
+                                  "<b>Sex:<b>", Sex, "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius = 3,
+                   group = "Sequenced") %>%
+  addCircleMarkers(data = High_Infection_Samples, 
+                   color = ~data_col_HI(HI),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  "<b>HI:<b>",      as.character(round(HI, digits = 2)), "<br>",
+                                  "<b>Year:<b>",    as.character(Year),"<br>",
+                                  "<b>Ct Mean:<b>",      as.character(round(ILWE_Crypto_Ct, digits = 2)),"<br>",
+                                  "<b>Oocyst Prediction:<b>", as.character(Oocyst_Predict_Crypto), "<br>",
+                                  "<b>Sex:<b>", Sex, "<br>",
+                                  sep=" "),
+                   opacity = 3,
+                   radius = 3,
+                   group = "High_Infection_Samples") %>%
+  addCircleMarkers(data = HMHZ, 
+                   color = ~data_col_HI_HMHZ(HI),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  "<b>HI:<b>",      as.character(round(HI, digits = 2)), "<br>",
+                                  sep=" "),
+                   opacity = 3,
+                   radius = 3,
+                   group = "HMHZ") %>%
+  addCircleMarkers(data = HMHZ, 
+                   color = ~data_col_seq(seq_by),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  "<b>HI:<b>",      as.character(round(HI, digits = 2)), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius = 3,
+                   group = "sequenced") %>%
+  addCircleMarkers(data = Illumina,
+                   color = 'yellowgreen',
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  "<b>HI:<b>",      as.character(round(HI, digits = 2)), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius = 3,
+                   group = 'Illumina') %>%
+  addLegend("bottomleft", 
+            pal = data_col_HI_Level, 
+            title = "HI",
+            values = SOTA$HI_Level, 
+            group = c('HI = 0.00', 'HI < 0.25', 'HI < 0.50', 'HI < 0.75', 'HI < 1.00', 'HI = 1.00'),
+            opacity = 1) %>%
+  addLegend("bottomright",
+            pal = data_col_seq,
+            title = 'Data Origin',
+            values = HMHZ$seq_by,
+            group = c('BR-HZ (2021)', 'BR-HZ (2019', 'CZ/BAV-HZ (2013'),
+            opacity = 1) %>%
+  addLayersControl(baseGroups = c("Samples (total)", "Samples (Crypto-tested)", "Samples (Crypto-positive)", "High_Infection_Samples", "Sequenced", 'HMHZ', 'sequenced'), #, "Eim_Infected"), 
+                   overlayGroups = c(#"Underlay", 'Labels_F', 'Labels_Y', 'Labels_K', 
+                                     'Illumina'),
+                   options = layersControlOptions(collapsed = T))
+map1
+
+HMHZ <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/HMHZ_Samples_Locations.csv", na.strings=c(""," ","NA")) %>% filter(!is.na(Longitude)) %>% select(-X)
+
+Yellow <- HMHZ %>% filter(GP60_Ssp        == "IXb.1"|
+                            MSC6_Subtype    == "MS1"|
+                            GST_Subtype     == "G1"|
+                            CP56_Subtype    == "CP1" |
+                            SKSR_Subtype    == "S1")
+
+Light_green <- HMHZ %>% filter(GP60_Ssp    == "IXa"|
+                                 Actin_Subtype   == "A1"|
+                                 COWP_Subtype    == "C1"|
+                                 TRAP_C1_Subtype == "T1")
+
+Orange <- HMHZ %>% filter(GP60_Ssp    == "IXb.2"|
+                            Actin_Subtype   == "A2"|
+                            COWP_Subtype    == "C2"|
+                            TRAP_C1_Subtype == "T2"|
+                            MSC6_Subtype    == "MS2"|
+                            GST_Subtype     == "G2"|
+                            CP56_Subtype    == "CP2"|
+                            SKSR_Subtype    == "S2")
+
+
+Dark_Orange <- HMHZ %>% filter(GP60_Ssp == "IXb.3")
+
+
+map <- Clades %>%
+  leaflet() %>%
+  addProviderTiles("CartoDB") %>%
+  setView(lat = 51.2 , lng =13.679507, zoom = 6)
+
+map2 <- map %>%
+  addPolylines(lat = c(55.0000, 53.6000, 53.51885, 52.8875, 52.6053, 51.8978, 50.08506775 , 48.13659738768638, 45.0000), lng = c(10.0000, 11.4563, 12.4464,13.8119 , 13.8756, 13.8103, 12.5988909, 11.582597486663213, 11.50000), color = "purple", weight = 75, opacity = 0.1)  %>%
+  addCircleMarkers(data = HMHZ, 
+                   col = ~data_col_HI(HI),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  "<b>GP60 Subtype:<b>",      as.character(GP60_Subtype), "<br>",
+                                  "<b>MSC6-7 Subtype:<b>",      as.character(MSC6_Subtype), "<br>",
+                                  "<b>GST Subtype:<b>",      as.character(GST_Subtype), "<br>",
+                                  "<b>CP56 Subtype:<b>",      as.character(CP56_Subtype), "<br>",
+                                  "<b>SKSR Subtype:<b>",      as.character(SKSR_Subtype), "<br>",
+                                  "<b>MEDLE Subtype:<b>",      as.character(MEDLE_Subtype), "<br>",
+                                  "<b>Actin Subtype:<b>",      as.character(Actin_Subtype), "<br>",
+                                  "<b>TRAP-C1 Subtype:<b>",    as.character(TRAP_C1_Subtype), "<br>",
+                                  "<b>COWP Subtype:<b>",      as.character(COWP_Subtype), "<br>",
+                                  sep=" "),
+                   opacity = 0.1,
+                   radius = 10,
+                   group = "Colored by HI") %>%
+  addCircleMarkers(data = Yellow,
+                   col = 'gold',
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  "<b>GP60 Subtype:<b>",      as.character(GP60_Subtype), "<br>",
+                                  "<b>MSC6-7 Subtype:<b>",      as.character(MSC6_Subtype), "<br>",
+                                  "<b>GST Subtype:<b>",      as.character(GST_Subtype), "<br>",
+                                  "<b>CP56 Subtype:<b>",      as.character(CP56_Subtype), "<br>",
+                                  "<b>SKSR Subtype:<b>",      as.character(SKSR_Subtype), "<br>",
+                                  "<b>MEDLE Subtype:<b>",      as.character(MEDLE_Subtype), "<br>",
+                                  "<b>Actin Subtype:<b>",      as.character(Actin_Subtype), "<br>",
+                                  "<b>TRAP-C1 Subtype:<b>",    as.character(TRAP_C1_Subtype), "<br>",
+                                  "<b>COWP Subtype:<b>",      as.character(COWP_Subtype), "<br>",
+                                  sep=" "),
+                   opacity = 1,
+                   radius = 3,
+                   group = '1 .. East BR') %>%
+  addCircleMarkers(data = Light_green,
+                   col = 'yellowgreen',
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  "<b>GP60 Subtype:<b>",      as.character(GP60_Subtype), "<br>",
+                                  "<b>MSC6-7 Subtype:<b>",      as.character(MSC6_Subtype), "<br>",
+                                  "<b>GST Subtype:<b>",      as.character(GST_Subtype), "<br>",
+                                  "<b>CP56 Subtype:<b>",      as.character(CP56_Subtype), "<br>",
+                                  "<b>SKSR Subtype:<b>",      as.character(SKSR_Subtype), "<br>",
+                                  "<b>MEDLE Subtype:<b>",      as.character(MEDLE_Subtype), "<br>",
+                                  "<b>Actin Subtype:<b>",      as.character(Actin_Subtype), "<br>",
+                                  "<b>TRAP-C1 Subtype:<b>",    as.character(TRAP_C1_Subtype), "<br>",
+                                  "<b>COWP Subtype:<b>",      as.character(COWP_Subtype), "<br>",
+                                  sep=" "),
+                   opacity = 1,
+                   radius = 3,
+                   group = '1 .. East BR/CZ') %>%
+  addCircleMarkers(data = Orange,
+                   col = 'orange',
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  "<b>GP60 Subtype:<b>",      as.character(GP60_Subtype), "<br>",
+                                  "<b>MSC6-7 Subtype:<b>",      as.character(MSC6_Subtype), "<br>",
+                                  "<b>GST Subtype:<b>",      as.character(GST_Subtype), "<br>",
+                                  "<b>CP56 Subtype:<b>",      as.character(CP56_Subtype), "<br>",
+                                  "<b>SKSR Subtype:<b>",      as.character(SKSR_Subtype), "<br>",
+                                  "<b>MEDLE Subtype:<b>",      as.character(MEDLE_Subtype), "<br>",
+                                  "<b>Actin Subtype:<b>",      as.character(Actin_Subtype), "<br>",
+                                  "<b>TRAP-C1 Subtype:<b>",    as.character(TRAP_C1_Subtype), "<br>",
+                                  "<b>COWP Subtype:<b>",      as.character(COWP_Subtype), "<br>",
+                                  sep=" "),
+                   opacity = 1,
+                   radius = 3,
+                   group = '2 .. West BR/CZ') %>%
+  addCircleMarkers(data = Dark_Orange,
+                   col = 'brown',
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  "<b>GP60 Subtype:<b>",      as.character(GP60_Subtype), "<br>",
+                                  "<b>MSC6-7 Subtype:<b>",      as.character(MSC6_Subtype), "<br>",
+                                  "<b>GST Subtype:<b>",      as.character(GST_Subtype), "<br>",
+                                  "<b>CP56 Subtype:<b>",      as.character(CP56_Subtype), "<br>",
+                                  "<b>SKSR Subtype:<b>",      as.character(SKSR_Subtype), "<br>",
+                                  "<b>MEDLE Subtype:<b>",      as.character(MEDLE_Subtype), "<br>",
+                                  "<b>Actin Subtype:<b>",      as.character(Actin_Subtype), "<br>",
+                                  "<b>TRAP-C1 Subtype:<b>",    as.character(TRAP_C1_Subtype), "<br>",
+                                  "<b>COWP Subtype:<b>",      as.character(COWP_Subtype), "<br>",
+                                  sep=" "),
+                   opacity = 1,
+                   radius = 3,
+                   group = '3 .. West BR') %>%
+  addLegend("bottomleft", 
+            pal = data_col_HI_Level, 
+            title = "HI",
+            values = SOTA$HI_Level, 
+            group = c('HI = 0.00', 'HI < 0.25', 'HI < 0.50', 'HI < 0.75', 'HI < 1.00', 'HI = 1.00'),
+            opacity = 1) %>%
+  addLegend("bottomright", 
+            colors = c('yellow', 'yellowgreen', 'darkorange', 'brown'),
+            #colors =c("#FFC125",  "#FFC125", "#8A4117", "#7D0552", "#571B7E"),
+            labels = c('1 .. East BR',
+                       '1 .. East BR/CZ',
+                       '2 .. West BR/CZ', 
+                       '3 .. West BR'),
+            title = 'Clades',
+            opacity = 1) %>%
+  addLayersControl(baseGroups = "Colored by HI",
+                   overlayGroups = c('1 .. East BR',
+                                     '1 .. East BR/CZ',
+                                     '2 .. West BR/CZ',
+                                     '3 .. West BR'), 
+                   options = layersControlOptions(collapsed = T))
+#map2
+```

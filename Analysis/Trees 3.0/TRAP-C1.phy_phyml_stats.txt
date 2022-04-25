@@ -5,31 +5,31 @@
                          Copyright CNRS - Universite Montpellier II                                 
  oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 
-. Sequence filename: 			Hsp90.phy
+. Sequence filename: 			TRAP-C1.phy
 . Data set: 				#1
 . Tree topology search : 		NNIs
 . Initial tree: 			BioNJ
 . Model of nucleotides substitution: 	HKY85
-. Number of taxa: 			29
-. Log-likelihood: 			-2610.71044
-. Unconstrained likelihood: 		-2375.03844
-. Parsimony: 				443
-. Tree size: 				1.80775
+. Number of taxa: 			40
+. Log-likelihood: 			-966.43654
+. Unconstrained likelihood: 		-1149.84653
+. Parsimony: 				46
+. Tree size: 				0.09603
 . Discrete gamma model: 		Yes
   - Number of categories: 		4
-  - Gamma shape parameter: 		0.252
-. Transition/transversion ratio: 	8.107
+  - Gamma shape parameter: 		0.315
+. Transition/transversion ratio: 	4.253
 . Nucleotides frequencies:
-  - f(A)= 0.31271
-  - f(C)= 0.15582
-  - f(G)= 0.21151
-  - f(T)= 0.31995
+  - f(A)= 0.29285
+  - f(C)= 0.14207
+  - f(G)= 0.25673
+  - f(T)= 0.30834
 
 . Run ID:				none
-. Random seed:				1650871618
+. Random seed:				1650880617
 . Subtree patterns aliasing:		no
 . Version:				20120412
-. Time used:				0h0m29s (29 seconds)
+. Time used:				0h0m4s (4 seconds)
 
  oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
  Suggested citations:
