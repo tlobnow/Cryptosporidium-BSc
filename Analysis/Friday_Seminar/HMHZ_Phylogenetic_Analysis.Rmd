@@ -1,3 +1,23 @@
+---
+title: "HMHZ Phylogenetic Analysis"
+author: Finn
+output:
+  html_document:
+    css: styles.css
+    toc: yes
+    number_section: yes
+    fig_caption: true
+  pdf_document:
+    toc: yes
+  always_allow_html: true
+date: "`r format(Sys.time(), '%d %B %Y')`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+``` {r libraries, echo = F}
 library(ctv)
 library(ape)
 library(ggtree)
@@ -6,9 +26,30 @@ library(ggtree)
 library(tidyverse)
 library(tibble)
 library(cowplot)
+```
 
 
-## GST #########################################################################
+
+# Genes of Interest
+
+- GP60
+- COWP
+- Actin
+- Hsp90
+- MSC6-7
+- GST
+- CP56
+- SKSR
+- MEDLE
+
+# Alignments
+
+
+
+# Phylogenetic Trees
+
+## GST
+``` {r}
 tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/GST.phy_phyml_tree.txt")
 
 
@@ -28,8 +69,10 @@ p <-ggtree(tree) %<+% bs_tibble +
   geom_treescale() +
   geom_text(aes(label=bootstrap), hjust=1.3, nudge_y = 0.5, size = 3)
 p
+```
 
-## COWP #########################################################################
+## COWP
+``` {r}
 tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/COWP.phy_phyml_tree.txt")
 
 bs_tibble <- tibble(
@@ -49,9 +92,10 @@ p <-ggtree(tree) %<+% bs_tibble +
   geom_text(aes(label=bootstrap), hjust=1.3, nudge_y = 0.5, size = 3)
 p
 
+```
 
-
-## MEDLE #######################################################################
+## MEDLE
+``` {r}
 tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/MEDLE.phy_phyml_tree.txt")
 
 bs_tibble <- tibble(
@@ -70,8 +114,10 @@ p <-ggtree(tree) %<+% bs_tibble +
   geom_treescale() +
   geom_text(aes(label=bootstrap), hjust=1.3, nudge_y = 0.5, size = 3)
 p
+```
 
-## MEDLE_2 #######################################################################
+## MEDLE_2
+``` {r}
 tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/MEDLE_2.phy_phyml_tree.txt")
 
 bs_tibble <- tibble(
@@ -96,8 +142,10 @@ p %>%
   #flip(1,18) %>% 
   flip(19, 20) %>% 
   flip(3,4)
+```
 
-## MEDLE_3 #######################################################################
+## MEDLE_3
+``` {r}
 tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/MEDLE_3.phy_phyml_tree.txt")
 
 bs_tibble <- tibble(
@@ -116,10 +164,10 @@ p <-ggtree(tree) %<+% bs_tibble +
   geom_treescale() +
   geom_text(aes(label=bootstrap), hjust=1.3, nudge_y = 0, size = 3)
 p
+```
 
-
-## CP56 #########################################################################
-
+## CP56
+``` {r}
 tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/CP56.phy_phyml_tree.txt")
 
 bs_tibble <- tibble(
@@ -138,9 +186,11 @@ p <-ggtree(tree) %<+% bs_tibble +
   geom_treescale() +
   geom_text(aes(label=bootstrap), hjust=1.3, nudge_y = 0.5, size = 3)
 p
+```
 
-## CP56-2 #########################################################################
 
+## CP56-2
+``` {r}
 tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/CP56_2.phy_phyml_tree.txt")
 
 bs_tibble <- tibble(
@@ -160,8 +210,11 @@ p <-ggtree(tree) %<+% bs_tibble +
   geom_text(aes(label=bootstrap), hjust=1.3, nudge_y = 0.5, size = 3)
 p
 
-## CP56-3 #########################################################################
+```
 
+
+## CP56-3
+``` {r}
 tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/CP56_3.phy_phyml_tree.txt")
 
 bs_tibble <- tibble(
@@ -182,8 +235,10 @@ p <-ggtree(tree) %<+% bs_tibble +
   geom_treescale() +
   geom_text(aes(label=bootstrap), hjust=1.3, nudge_y = 0.5, size = 3)
 p
+```
 
-## GP60 #########################################################################
+## GP60
+``` {r}
 tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/GP60.phy_phyml_tree.txt")
 
 bs_tibble <- tibble(
@@ -202,9 +257,10 @@ p <-ggtree(tree) %<+% bs_tibble +
   geom_treescale() +
   geom_text(aes(label=bootstrap), hjust=1.3, nudge_y = 0.5, size = 3)
 p
+```
 
-
-## MSC6-7 #########################################################################
+## MSC6-7
+``` {r}
 tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/MSC6-7.phy_phyml_tree.txt")
 
 bs_tibble <- tibble(
@@ -223,8 +279,11 @@ p <-ggtree(tree) %<+% bs_tibble +
   geom_treescale() +
   geom_text(aes(label=bootstrap), hjust=1.3, nudge_y = 0.5, size = 3)
 p
+```
 
-## SKSR #########################################################################
+
+## SKSR
+``` {r}
 tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/SKSR.phy_phyml_tree.txt")
 
 bs_tibble <- tibble(
@@ -243,9 +302,11 @@ p <-ggtree(tree) %<+% bs_tibble +
   geom_treescale() +
   geom_text(aes(label=bootstrap), hjust=1.3, nudge_y = 0.5, size = 3)
 p
+```
 
 
-## Concatenated #########################################################################
+## Concatenated
+``` {r}
 tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/cc.phy_phyml_tree.txt")
 
 bs_tibble <- tibble(
@@ -264,9 +325,10 @@ p <-ggtree(tree) %<+% bs_tibble +
   geom_treescale() +
   geom_text(aes(label=bootstrap), hjust=1.3, nudge_y = 0, size = 3)
 p %>% flip(5,15)
+```
 
-
-## Actin #########################################################################
+## Actin
+``` {r}
 tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/Actin.phy_phyml_tree.txt")
 
 bs_tibble <- tibble(
@@ -285,9 +347,10 @@ p <-ggtree(tree) %<+% bs_tibble +
   geom_treescale() +
   geom_text(aes(label=bootstrap), hjust=1.3, nudge_y = 0, size = 3)
 p
+```
 
-
-## Hsp90 #########################################################################
+## Hsp90
+``` {r}
 tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/Hsp90.phy_phyml_tree.txt")
 
 bs_tibble <- tibble(
@@ -306,5 +369,7 @@ p <-ggtree(tree) %<+% bs_tibble +
   geom_treescale() +
   geom_text(aes(label=bootstrap), hjust=1.3, nudge_y = 0, size = 3)
 p
+```
 
 
+# Map
