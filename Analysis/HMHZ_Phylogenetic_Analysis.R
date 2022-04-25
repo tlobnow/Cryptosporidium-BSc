@@ -266,5 +266,25 @@ p <-ggtree(tree) %<+% bs_tibble +
 p %>% flip(5,15)
 
 
+## Actin #########################################################################
+tree <- read.tree("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Trees%203.0/Actin.phy_phyml_tree.txt")
+
+bs_tibble <- tibble(
+  node=1:Nnode(tree) + Ntip(tree),
+  bootstrap = ifelse(tree$node.label < 1, "", tree$node.label))
+
+
+ggtree(tree) %<+% bs_tibble +
+  geom_text(aes(label=bootstrap), hjust=1.1, nudge_y = 0, size = 3) +
+  geom_tiplab(aes(label=label))
+
+
+p <-ggtree(tree) %<+% bs_tibble +
+  geom_tiplab(fontsize = 2) +
+  xlim(NA, 0.01) +
+  geom_treescale() +
+  geom_text(aes(label=bootstrap), hjust=1.3, nudge_y = 0, size = 3)
+p
+
 
 
