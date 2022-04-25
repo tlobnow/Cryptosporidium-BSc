@@ -1,0 +1,56 @@
+# File Name: Plate 1 noQuench.eds
+# Comment: 
+# Operator: DEFAULT
+# Barcode: 
+# Instrument Type: QuantStudio™ 1 System
+# Block Type: 96-Well 0.2-mL Block
+# Instrument Name: 2721220100840
+# Instrument Serial Number: 2721220100840
+# Heated Cover Serial Number: 
+# Block Serial Number: 
+# Run Start Date/Time: 2021-03-08 01:14:55 PM UTC
+# Run End Date/Time: 2021-03-08 02:16:07 PM UTC
+# Run Duration: 61 minutes 11 seconds
+# Sample Volume: 20.0
+# Cover Temperature: 105.0
+# Passive Reference: ROX
+# PCR Stage/Step Number: Stage 2 Step 2
+# Quantification Cycle Method: CT
+# Analysis Date/Time: 2021-03-09 02:01:55 PM UTC
+# Software Name and Version: Design & Analysis Software v2.5.0
+# Plugin Name and Version: Primary Analysis v1.5.0, Standard Curve v1.5.0
+# Exported By: guest
+# Exported On: 2021-03-09 02:03:59 PM UTC
+"Sample","Target","Number of Replicates","Quantity","Number of Cqs","Cq Mean","Cq SD","Cq SE","Biogroup"
+"10_1","Standard Curve","3","10.0","0","28.32089911051486","0.023687530944594193","0.013676002367299048",
+"10_2","Standard Curve","3","100.0","0","27.366162767078013","0.03178798219982126","0.018352800080061838",
+"10_3","Standard Curve","3","1000.0","0","26.325727092206524","0.025126421976848428","0.014506746492105569",
+"10_4","Standard Curve","3","10000.0","0","25.29574571592345","0.0619068874497594","0.03574195813381045",
+"10_5","Standard Curve","3","100000.0","0","24.197532083504345","0.0634371954554853","0.03662548187285935",
+"10_6","Standard Curve","3","1000000.0","0","23.326447289565056","0.029769964264043675","0.017187696881611154",
+"10_7","Standard Curve","3","1.0E7","0","22.15593963555796","0.048949906310174957","0.028261241584986472",
+"AA_0681","Unknown","3","-","0","","","",
+"AA_0682","Unknown","3","-","0","","","",
+"AA_0686","Unknown","3","-","0","","","",
+"AA_0687","Unknown","3","-","0","","","",
+"AA_0689","Unknown","3","-","0","29.193015136238074","0.03772047889184022","0.02177792864216555",
+"AA_0690","Unknown","3","-","0","31.133388335401424","0.17579251261655854","0.10149385448069076",
+"AA_0695","Unknown","3","-","0","","","",
+"AA_0700","Unknown","3","-","0","","","",
+"AA_0715","Unknown","3","-","0","","","",
+"AA_0722","Unknown","3","-","0","","","",
+"AA_0725","Unknown","3","-","0","","","",
+"AA_0741","Unknown","3","-","0","","","",
+"AA_0745","Unknown","3","-","0","","","",
+"AA_0759","Unknown","3","-","0","30.713139777365473","0.055316002862624496","0.031936709143230366",
+"AA_0769","Unknown","3","-","0","","","",
+"AA_0770","Unknown","3","-","0","","","",
+"AA_0772","Unknown","3","-","0","37.959718458270345","","",
+"AA_0789","Unknown","3","-","0","","","",
+"AA_0791","Unknown","3","-","0","","","",
+"AA_0805","Unknown","3","-","0","29.69693808284048","0.07284465896335587","0.04205688346152",
+"AA_0808","Unknown","3","-","0","","","",
+"AA_0846","Unknown","3","-","0","","","",
+"AA_0847","Unknown","3","-","0","","","",
+"AA_0853","Unknown","3","-","0","","","",
+"NTC","NTC","3","-","0","","","",

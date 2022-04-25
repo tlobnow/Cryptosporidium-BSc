@@ -192,12 +192,6 @@ a <- tre2$tip.label %>% duplicated()
 
 
 
-
-
-
-
-
-
 # Maximum Likelihood-based
 
 build simple ML Tree w/ Ape package, distances are calculated after a model by 
@@ -220,6 +214,17 @@ tre.ini <- njs(dist.dna(dna, model = "TN93"))
 pml(tre.ini, dna2)
 
 ```
+
+
+
+
+
+
+
+
+
+
+
 
 
 
