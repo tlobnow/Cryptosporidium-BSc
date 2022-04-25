@@ -730,3 +730,197 @@ map2 <- map %>%
                    options = layersControlOptions(collapsed = T))
 map2
 ```
+
+
+
+# Clades
+
+## Memberships
+``` {r, echo = F, message = F, warning = F}
+Clades <- read.csv('https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Clade_Memberships_updated.csv') %>% select(c(1:12, 17, 18, 19))
+colnames(Clades)[colnames(Clades) %in% 'GP'] <- 'GP60'
+colnames(Clades)[colnames(Clades) %in% 'C'] <- 'COWP'
+colnames(Clades)[colnames(Clades) %in% 'MS'] <- 'MSC6'
+colnames(Clades)[colnames(Clades) %in% 'G'] <- 'GST'
+colnames(Clades)[colnames(Clades) %in% 'ME'] <- 'MEDLE'
+colnames(Clades)[colnames(Clades) %in% 'S'] <- 'SKSR'
+colnames(Clades)[colnames(Clades) %in% 'CP'] <- 'CP56'
+
+Clades <- Clades %>% mutate(HI = case_when(!is.na(HI) ~ HI,
+                                is.na(HI) ~ 0.00))
+
+kable(Clades, align = c('ccccccccccccccc'))
+```
+## Statistics
+
+### GP60
+``` {r}
+Clades <- Clades  %>% filter(Mouse_ID != 'Tyz_UGA55') # exlude the RefSeq from the statistics
+
+IXa                 <- Clades %>% filter(GP60 == "IXa")# 10 samples
+IXa_Subtype_family  <- IXa[IXa$GP60 == "IXa", "HI"]
+IXb                 <- Clades %>% filter(GP60 %in% c("IXb.1", "IXb.2", "IXb.3")) # 43 samples
+IXb_Subtype_family  <- IXb[IXb$GP60 %in% c("IXb.1", "IXb.2", "IXb.3"), "HI"]
+
+
+wilcox.test(IXa_Subtype_family, IXb_Subtype_family)
+
+
+
+
+IXb.2 <- Clades %>% filter(GP60 %in% c("IXb.2")) # 2 samples
+IXb.2_Subtype_family <- IXb.2[IXb.2$GP60 == "IXb.2", "HI"]
+IXb.3 <- Clades %>% filter(GP60 %in% c("IXb.3")) # 19 samples
+IXb.3_Subtype_family <- IXb.3[IXb.3$GP60 == "IXb.3", "HI"]
+
+
+
+wilcox.test(IXb.2_Subtype_family, IXb.3_Subtype_family)
+
+
+IXb.1 <- Clades %>% filter(GP60 %in% c("IXb.1")) # 12 samples
+IXb.1_Subtype_family <- IXb.1[IXb.1$GP60 == "IXb.1", "HI"]
+IXb.23 <- Clades %>% filter(GP60 %in% c("IXb.3","IXb.2")) # 31 samples <- since IXb.3 is super tiny with 2 samples, we will join these two for analysis!
+IXb.23_Subtype_family <- IXb.23[IXb.23$GP60 %in% c("IXb.3","IXb.2"), "HI"]
+
+
+wilcox.test(IXb.23_Subtype_family, IXb.1_Subtype_family)
+
+
+```
+
+### COWP
+``` {r}
+C1        <- Clades %>% filter(COWP == "C1") # 22 samples
+C1_Clade  <- C1[C1$COWP == "C1", "HI"]
+
+C2        <- Clades %>% filter(COWP == "C2") # 22 samples
+C2_Clade  <- C2[C2$COWP == "C2", "HI"]
+
+wilcox.test(C1_Clade, C2_Clade)
+```
+
+### MSC6-7
+``` {r}  
+MS1 <- Clades %>% filter(MSC6 == "MS1")
+MS1 <- MS1[MS1$MSC6 == "MS1", "HI"]
+
+MS2 <- Clades %>% filter(MSC6 == "MS2")
+MS2 <- MS2[MS2$MSC6 == "MS2", "HI"]
+
+wilcox.test(MS1, MS2) 
+
+```
+
+### CP56
+``` {r}
+CP1 <- Clades %>% filter(CP56 == "CP1")
+CP1 <- CP1[CP1$CP56 == "CP1", "HI"]
+
+CP2 <- Clades %>% filter(CP56 == "CP2")
+CP2 <- CP2[CP2$CP56 == "CP2", "HI"]
+
+wilcox.test(CP1, CP2)
+```
+
+### GST
+``` {r}
+G1 <- Clades %>% filter(GST == "G1")
+G1 <- G1[G1$GST == "G1", "HI"]
+
+G2 <- Clades %>% filter(GST == "G2")
+G2 <- G2[G2$GST == "G2", "HI"]
+
+
+wilcox.test(G1, G2)
+
+```
+
+### SKSR
+``` {r}
+S1 <- Clades %>% filter(SKSR == "S1")
+S1 <- S1[S1$SKSR == "S1", "HI"]
+
+S2 <- Clades %>% filter(SKSR == "S2")
+S2 <- S2[S2$SKSR == "S2", "HI"]
+
+
+wilcox.test(S1, S2)
+```
+
+### MEDLE
+``` {r}
+#ME1 <- Clades %>% filter(MEDLE == "ME1")
+#ME1 <- ME1[ME1$MEDLE == "ME1", "HI"]
+#ME2 <- Clades %>% filter(MEDLE == "ME2")
+#ME2 <- ME2[ME2$MEDLE == "ME2", "HI"]
+#wilcox.test(ME1, ME2)
+```
+
+### Actin
+``` {r}
+A1 <- Clades %>% filter(Actin == "A1")
+A1 <- A1[A1$Actin == "A1", "HI"]
+
+A2 <- Clades %>% filter(Actin == "A2")
+A2 <- A2[A2$Actin == "A2", "HI"]
+
+A3 <- Clades %>% filter(Actin == "A3")
+A3 <- A3[A3$Actin == "A3", "HI"]
+
+A12 <- Clades %>% filter(Actin %in% c("A1","A2")) # 21 samples <- since IXb.1 is super tiny with 2 samples, we will join these two for analysis!
+A12 <- A12[A12$Actin %in% c("A1","A2"), "HI"]
+
+
+wilcox.test(A1, A2)
+
+wilcox.test(A12, A3)
+```
+
+### TRAP-C1
+``` {r}
+T1 <- Clades %>% filter(TRAP.C1 == "T1")
+T1 <- T1[T1$TRAP.C1 == "T1", "HI"]
+
+T2 <- Clades %>% filter(TRAP.C1 == "T2")
+T2 <- T2[T2$TRAP.C1 == "T2", "HI"]
+
+
+
+wilcox.test(T1, T2)
+```
+### TRAP-C1
+``` {r}
+E_Clades <- Clades %>% filter(GP60 == "IXa" |
+                         GP60 == "IXb.1"|
+                         COWP == "C1"|
+                         MSC6 == "MS1"|
+                         CP56 == "CP1"|
+                         GST == "G1"|
+                         SKSR == "S1"|
+                         #MEDLE == "ME1"|
+                         Actin == "A1"|
+                         TRAP.C1 == "T1")
+E <- E_Clades$HI
+
+W_Clades <- Clades %>% filter(GP60 == "IXa" |
+                         GP60 == "IXb.2"|
+                         COWP == "C2"|
+                         MSC6 == "MS2"|
+                         CP56 == "CP2"|
+                         GST == "G2"|
+                         SKSR == "S2"|
+                         #MEDLE == "ME2"|
+                         Actin == "A2"|
+                         TRAP.C1 == "T2")
+
+W <- W_Clades$HI
+
+
+
+wilcox.test(E, W)
+```
+
+
+
+
