@@ -534,6 +534,7 @@ Kvac %>%
 
 ```
 
+
 ## HMHZ Sequencing Reults
 ``` {r HMHZ-Samples-Table, echo = F, message = F, fig.align = 'left'}
 HMHZ <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/HMHZ_Samples_Locations.csv", na.strings=c(""," ","NA")) %>% filter(!is.na(Longitude))
@@ -559,22 +560,6 @@ HMHZ <- HMHZ %>%
          Species = case_when(is.na(Species) ~ 'C.tyzzeri',
                              Mouse_ID == 'AA_0325' ~ 'C.parvum', 
                              Mouse_ID == 'AA_0669' ~ 'C.meleagridis'))
-         #GP60_Ssp = case_when(Mouse_ID %in% c("CR_2085", "CR_2084", "CR_2090",
-        #                                      "CR_2125", "CR_2126", "CR_2127",
-        #                                      "CR_2128", "CR_2149", "CR_2208", "CR_2206") ~ "IXa",
-        #                      Mouse_ID %in% c("AA_0523", "AA_0282") ~ "IXb.1",
-        #                      Mouse_ID %in% c("G_2136", "CR_2163", "G_2099",
-        #                                      "CR_2147", "G_2135", "G_2177",
-        #                                      "G_2179", "G_2174", "AA_0534",
-        #                                      "G_2103", "AA_0537", "AA_0585",
-        #                                      "CR_4293", "G_2116", "G_2120",
-        #                                      "G_2134", "G_2160", "G_2108",
-        #                                      "G_2169", "G_3224") ~ "IXb.2",
-        #                      Mouse_ID %in% c("AA_0209", "AA_0144", "AA_0325", "AA_0545", "AA_0553",
-        #                                      "AA_0554", "AA_0580",  "AA_0667", "AA_0689", "AA_0793",
-        #                                      "AA_0805","AA_0900", "NZ_1633", "NZ_1634", "NZ_1635",
-        #                                      "NZ_1636", "NZ_1639", "NZ_1640", "NZ_1641",
-        #                                      "NZ_1642", "NZ_1644", "Tyz-GP60") ~ "IXb.3"))
 
 GST   <- HMHZ %>% filter(!is.na(GST_Subtype))
 MSC6  <- HMHZ %>% filter(!is.na(MSC6_Subtype))
@@ -867,23 +852,33 @@ addLayersControl(baseGroups = c("Colored by HI",
 
 ```
 
+
 ## Map of Clade Memberships
 
 ### MSC6-7
-```{r mini map Clades, echo = F, message = F, warning = F}
+```{r , echo = F, message = F, warning = F}
 #![Population Structure HMHZ](https://raw.githubusercontent.com/tlobnow/Crypto/main/Map_BSc.jpeg)
 
 HMHZ <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/HMHZ_Samples_Locations.csv", na.strings=c(""," ","NA")) %>% filter(!is.na(Longitude))
 HMHZ$HI[ HMHZ$Mouse_ID %in% "AA_0900"] <- 0.94444444
 
-Clades <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Clade_Memberships.csv")
+Clades <- read.csv('https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Clade_Memberships_updated.csv') %>% select(c(1:12, 17, 18, 19))
+colnames(Clades)[colnames(Clades) %in% 'GP'] <- 'GP60'
+colnames(Clades)[colnames(Clades) %in% 'C'] <- 'COWP'
+colnames(Clades)[colnames(Clades) %in% 'MS'] <- 'MSC6'
+colnames(Clades)[colnames(Clades) %in% 'G'] <- 'GST'
+colnames(Clades)[colnames(Clades) %in% 'ME'] <- 'MEDLE'
+colnames(Clades)[colnames(Clades) %in% 'S'] <- 'SKSR'
+colnames(Clades)[colnames(Clades) %in% 'CP'] <- 'CP56'
 
-#Sequenced <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/HMHZ_Samples_Locations.csv")
+Clades <- Clades %>% mutate(MEDLE = case_when(MEDLE = Mouse_ID %in% c("AA_0144", "AA_0325", "AA_0209", "AA_0282", "AA_0667", "AA_0900", "AA_0523") ~ 'ME1',
+                                              MEDLE = Mouse_ID %in% c("AA_0793", "AA_0689", "AA_0805") ~ 'ME2'))
+
 
 Clades$HI_Level <-  cut(Clades$HI, c(0, 0.001, 0.250, 0.500, 0.750, 0.999, 1), include.lowest = T , labels = c('HI = 0.00', 'HI < 0.25', 'HI < 0.50', 'HI < 0.75', 'HI < 1.00', 'HI = 1.00'))
 
 GST   <- Clades %>% filter(!is.na(GST))
-TRAP_C1  <- Clades %>% filter(!is.na(TRAP_C1))
+TRAP_C1  <- Clades %>% filter(!is.na(TRAP.C1))
 SKSR  <- Clades %>% filter(!is.na(SKSR))
 MEDLE <- Clades %>% filter(!is.na(MEDLE))
 CP56  <- Clades %>% filter(!is.na(CP56))
@@ -942,9 +937,266 @@ map %>%
             title = "HI",
             values = SOTA$HI_Level, 
             group = c('HI = 0.00', 'HI < 0.25', 'HI < 0.50', 'HI < 0.75', 'HI < 1.00', 'HI = 1.00'),
+            opacity = 1) %>%
+  addLegend("bottomright", 
+            colors = c('yellow', 'yellowgreen', 'darkorange', 'brown'),
+            #colors =c("#FFC125",  "#FFC125", "#8A4117", "#7D0552", "#571B7E"),
+            labels = c('1 .. East BR',
+                       '1 .. East BR/CZ',
+                       '2 .. West BR/CZ', 
+                       '3 .. West BR'),
+            title = 'Clades',
             opacity = 1)
 
 ```
+
+### GST
+```{r , echo = F, message = F, warning = F}
+GST   <- Clades %>% filter(!is.na(GST))
+  G1 <- GST %>% filter(GST == "G1")
+  G2 <- GST %>% filter(GST == "G2")
+
+map <- Clades %>%
+  leaflet() %>%
+  addProviderTiles("CartoDB") %>%
+  setView(lat = 51.676761 , lng =13.679507, zoom = 6)
+
+map %>%
+  addPolylines(lat = c(55.0000, 53.6000, 53.51885, 52.8875, 52.6053, 51.8978, 50.08506775 , 48.13659738768638, 45.0000), lng = c(10.0000, 11.4563, 12.4464,13.8119 , 13.8756, 13.8103, 12.5988909, 11.582597486663213, 11.50000), color = "purple", weight = 75, opacity = 0.1)  %>%
+  addCircleMarkers(data = Clades, 
+                   col = ~data_col_HI(HI),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  sep=" "),
+                   opacity = 0.1,
+                   radius = 10,
+                   group = "Colored by HI") %>%
+  addCircleMarkers(data = G1, 
+                   col = "yellow",
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius = 3,
+                   group = "G1") %>%
+  addCircleMarkers(data = G2, 
+                   col = "orange",
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius = 3,
+                   group = "G2") %>%
+  addLegend("bottomleft", 
+            pal = data_col_HI_Level, 
+            title = "HI",
+            values = SOTA$HI_Level, 
+            group = c('HI = 0.00', 'HI < 0.25', 'HI < 0.50', 'HI < 0.75', 'HI < 1.00', 'HI = 1.00'),
+            opacity = 1) %>%
+  addLegend("bottomright", 
+            colors = c('yellow', 'yellowgreen', 'darkorange', 'brown'),
+            #colors =c("#FFC125",  "#FFC125", "#8A4117", "#7D0552", "#571B7E"),
+            labels = c('1 .. East BR',
+                       '1 .. East BR/CZ',
+                       '2 .. West BR/CZ', 
+                       '3 .. West BR'),
+            title = 'Clades',
+            opacity = 1)
+
+```
+
+### CP56
+```{r , echo = F, message = F, warning = F}
+CP56   <- Clades %>% filter(!is.na(CP56))
+  CP1 <- CP56 %>% filter(CP56 == "CP1")
+  CP2 <- CP56 %>% filter(CP56 == "CP2")
+
+map <- Clades %>%
+  leaflet() %>%
+  addProviderTiles("CartoDB") %>%
+  setView(lat = 51.676761 , lng =13.679507, zoom = 6)
+
+map %>%
+  addPolylines(lat = c(55.0000, 53.6000, 53.51885, 52.8875, 52.6053, 51.8978, 50.08506775 , 48.13659738768638, 45.0000), lng = c(10.0000, 11.4563, 12.4464,13.8119 , 13.8756, 13.8103, 12.5988909, 11.582597486663213, 11.50000), color = "purple", weight = 75, opacity = 0.1)  %>%
+  addCircleMarkers(data = Clades, 
+                   col = ~data_col_HI(HI),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  sep=" "),
+                   opacity = 0.1,
+                   radius = 10,
+                   group = "Colored by HI") %>%
+  addCircleMarkers(data = CP1, 
+                   col = "yellow",
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius = 3,
+                   group = "CP1") %>%
+  addCircleMarkers(data = CP2, 
+                   col = "orange",
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius = 3,
+                   group = "CP2") %>%
+  addLegend("bottomleft", 
+            pal = data_col_HI_Level, 
+            title = "HI",
+            values = SOTA$HI_Level, 
+            group = c('HI = 0.00', 'HI < 0.25', 'HI < 0.50', 'HI < 0.75', 'HI < 1.00', 'HI = 1.00'),
+            opacity = 1) %>%
+  addLegend("bottomright", 
+            colors = c('yellow', 'yellowgreen', 'darkorange', 'brown'),
+            #colors =c("#FFC125",  "#FFC125", "#8A4117", "#7D0552", "#571B7E"),
+            labels = c('1 .. East BR',
+                       '1 .. East BR/CZ',
+                       '2 .. West BR/CZ', 
+                       '3 .. West BR'),
+            title = 'Clades',
+            opacity = 1)
+
+```
+
+### SKSR
+```{r , echo = F, message = F, warning = F}
+SKSR  <- Clades %>% filter(!is.na(SKSR))
+  S1 <- SKSR %>% filter(SKSR == "S1")
+  S2 <- SKSR %>% filter(SKSR == "S2")
+
+map <- Clades %>%
+  leaflet() %>%
+  addProviderTiles("CartoDB") %>%
+  setView(lat = 51.676761 , lng =13.679507, zoom = 6)
+
+map %>%
+  addPolylines(lat = c(55.0000, 53.6000, 53.51885, 52.8875, 52.6053, 51.8978, 50.08506775 , 48.13659738768638, 45.0000), lng = c(10.0000, 11.4563, 12.4464,13.8119 , 13.8756, 13.8103, 12.5988909, 11.582597486663213, 11.50000), color = "purple", weight = 75, opacity = 0.1)  %>%
+  addCircleMarkers(data = Clades, 
+                   col = ~data_col_HI(HI),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  sep=" "),
+                   opacity = 0.1,
+                   radius = 10,
+                   group = "Colored by HI") %>%
+  addCircleMarkers(data = S1, 
+                   col = "yellow",
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius = 3,
+                   group = "S1") %>%
+  addCircleMarkers(data = S2, 
+                   col = "orange",
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius = 3,
+                   group = "S2") %>%
+  addLegend("bottomleft", 
+            pal = data_col_HI_Level, 
+            title = "HI",
+            values = SOTA$HI_Level, 
+            group = c('HI = 0.00', 'HI < 0.25', 'HI < 0.50', 'HI < 0.75', 'HI < 1.00', 'HI = 1.00'),
+            opacity = 1) %>%
+  addLegend("bottomright", 
+            colors = c('yellow', 'yellowgreen', 'darkorange', 'brown'),
+            #colors =c("#FFC125",  "#FFC125", "#8A4117", "#7D0552", "#571B7E"),
+            labels = c('1 .. East BR',
+                       '1 .. East BR/CZ',
+                       '2 .. West BR/CZ', 
+                       '3 .. West BR'),
+            title = 'Clades',
+            opacity = 1)
+
+```
+
+
+
+### MEDLE
+```{r , echo = F, message = F, warning = F}
+MEDLE <- Clades %>% filter(!is.na(MEDLE))
+  ME1 <- MEDLE %>% filter(MEDLE == "ME1")
+  ME2 <- MEDLE %>% filter(MEDLE == "ME2")
+
+map <- Clades %>%
+  leaflet() %>%
+  addProviderTiles("CartoDB") %>%
+  setView(lat = 51.676761 , lng =13.679507, zoom = 6)
+
+map %>%
+  addPolylines(lat = c(55.0000, 53.6000, 53.51885, 52.8875, 52.6053, 51.8978, 50.08506775 , 48.13659738768638, 45.0000), lng = c(10.0000, 11.4563, 12.4464,13.8119 , 13.8756, 13.8103, 12.5988909, 11.582597486663213, 11.50000), color = "purple", weight = 75, opacity = 0.1)  %>%
+  addCircleMarkers(data = Clades, 
+                   col = ~data_col_HI(HI),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  sep=" "),
+                   opacity = 0.1,
+                   radius = 10,
+                   group = "Colored by HI") %>%
+  addCircleMarkers(data = ME1, 
+                   col = "yellow",
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius = 3,
+                   group = "ME1") %>%
+  addCircleMarkers(data = ME2, 
+                   col = "cadetblue",
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius = 3,
+                   group = "ME2") %>%
+  addLegend("bottomleft", 
+            pal = data_col_HI_Level, 
+            title = "HI",
+            values = SOTA$HI_Level, 
+            group = c('HI = 0.00', 'HI < 0.25', 'HI < 0.50', 'HI < 0.75', 'HI < 1.00', 'HI = 1.00'),
+            opacity = 1) %>%
+  addLegend("bottomright", 
+            colors = c('yellow', 'yellowgreen', 'darkorange', 'brown', 'cadetblue'),
+            #colors =c("#FFC125",  "#FFC125", "#8A4117", "#7D0552", "#571B7E"),
+            labels = c('1 .. East BR',
+                       '1 .. East BR/CZ',
+                       '2 .. West BR/CZ', 
+                       '3 .. West BR',
+                       '4 .. special'),
+            title = 'Clades',
+            opacity = 1)
+
+```
+
 
 ### COWP
 ```{r, echo = F, message = F, warning = F}
@@ -989,6 +1241,15 @@ map %>%
             title = "HI",
             values = SOTA$HI_Level, 
             group = c('HI = 0.00', 'HI < 0.25', 'HI < 0.50', 'HI < 0.75', 'HI < 1.00', 'HI = 1.00'),
+            opacity = 1) %>%
+  addLegend("bottomright", 
+            colors = c('yellow', 'yellowgreen', 'darkorange', 'brown'),
+            #colors =c("#FFC125",  "#FFC125", "#8A4117", "#7D0552", "#571B7E"),
+            labels = c('1 .. East BR',
+                       '1 .. East BR/CZ',
+                       '2 .. West BR/CZ', 
+                       '3 .. West BR'),
+            title = 'Clades',
             opacity = 1)
 
 ```
@@ -1059,6 +1320,199 @@ map %>%
             title = "HI",
             values = SOTA$HI_Level, 
             group = c('HI = 0.00', 'HI < 0.25', 'HI < 0.50', 'HI < 0.75', 'HI < 1.00', 'HI = 1.00'),
+            opacity = 1) %>%
+  addLegend("bottomright", 
+            colors = c('yellow', 'yellowgreen', 'darkorange', 'brown'),
+            #colors =c("#FFC125",  "#FFC125", "#8A4117", "#7D0552", "#571B7E"),
+            labels = c('1 .. East BR',
+                       '1 .. East BR/CZ',
+                       '2 .. West BR/CZ', 
+                       '3 .. West BR'),
+            title = 'Clades',
+            opacity = 1)
+
+```
+
+### Hsp90
+```{r , echo = F, message = F, warning = F}
+Hsp90   <- Clades %>% filter(!is.na(Hsp90))
+  H <- Hsp90 %>% filter(Hsp90 == "H")
+
+map <- Clades %>%
+  leaflet() %>%
+  addProviderTiles("CartoDB") %>%
+  setView(lat = 51.676761 , lng =13.679507, zoom = 6)
+
+map %>%
+  addPolylines(lat = c(55.0000, 53.6000, 53.51885, 52.8875, 52.6053, 51.8978, 50.08506775 , 48.13659738768638, 45.0000), lng = c(10.0000, 11.4563, 12.4464,13.8119 , 13.8756, 13.8103, 12.5988909, 11.582597486663213, 11.50000), color = "purple", weight = 75, opacity = 0.1)  %>%
+  addCircleMarkers(data = Clades, 
+                   col = ~data_col_HI(HI),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  sep=" "),
+                   opacity = 0.1,
+                   radius = 10,
+                   group = "Colored by HI") %>%
+  addCircleMarkers(data = G1, 
+                   col = "grey",
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius = 3,
+                   group = "G1") %>%
+  addLegend("bottomleft", 
+            pal = data_col_HI_Level, 
+            title = "HI",
+            values = SOTA$HI_Level, 
+            group = c('HI = 0.00', 'HI < 0.25', 'HI < 0.50', 'HI < 0.75', 'HI < 1.00', 'HI = 1.00'),
+            opacity = 1) %>%
+  addLegend("bottomright", 
+            colors = c('yellow', 'yellowgreen', 'darkorange', 'brown'),
+            #colors =c("#FFC125",  "#FFC125", "#8A4117", "#7D0552", "#571B7E"),
+            labels = c('1 .. East BR',
+                       '1 .. East BR/CZ',
+                       '2 .. West BR/CZ', 
+                       '3 .. West BR'),
+            title = 'Clades',
+            opacity = 1)
+
+```
+
+### TRAP-C1
+```{r , echo = F, message = F, warning = F}
+TRAP.C1  <- Clades %>% filter(!is.na(TRAP.C1))
+  T1 <- TRAP.C1 %>% filter(TRAP.C1 == "T1")
+  T2 <- TRAP.C1 %>% filter(TRAP.C1 == "T2")
+
+map <- Clades %>%
+  leaflet() %>%
+  addProviderTiles("CartoDB") %>%
+  setView(lat = 51.676761 , lng =13.679507, zoom = 6)
+
+map %>%
+  addPolylines(lat = c(55.0000, 53.6000, 53.51885, 52.8875, 52.6053, 51.8978, 50.08506775 , 48.13659738768638, 45.0000), lng = c(10.0000, 11.4563, 12.4464,13.8119 , 13.8756, 13.8103, 12.5988909, 11.582597486663213, 11.50000), color = "purple", weight = 75, opacity = 0.1)  %>%
+  addCircleMarkers(data = Clades, 
+                   col = ~data_col_HI(HI),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  sep=" "),
+                   opacity = 0.1,
+                   radius = 10,
+                   group = "Colored by HI") %>%
+  addCircleMarkers(data = T1, 
+                   col = "#8fce00",
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius = 3,
+                   group = "T1") %>%
+  addCircleMarkers(data = T2, 
+                   col = "orange",
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius = 3,
+                   group = "T2") %>%
+  addLegend("bottomleft", 
+            pal = data_col_HI_Level, 
+            title = "HI",
+            values = SOTA$HI_Level, 
+            group = c('HI = 0.00', 'HI < 0.25', 'HI < 0.50', 'HI < 0.75', 'HI < 1.00', 'HI = 1.00'),
+            opacity = 1) %>%
+  addLegend("bottomright", 
+            colors = c('yellow', 'yellowgreen', 'darkorange', 'brown'),
+            #colors =c("#FFC125",  "#FFC125", "#8A4117", "#7D0552", "#571B7E"),
+            labels = c('1 .. East BR',
+                       '1 .. East BR/CZ',
+                       '2 .. West BR/CZ', 
+                       '3 .. West BR'),
+            title = 'Clades',
+            opacity = 1)
+
+```
+
+### Actin
+```{r , echo = F, message = F, warning = F}
+Actin  <- Clades %>% filter(!is.na(Actin))
+  A1 <- Actin %>% filter(Actin == "A1")
+  A2 <- Actin %>% filter(Actin == "A2")
+  A3 <- Actin %>% filter(Actin == "A3")
+
+map <- Clades %>%
+  leaflet() %>%
+  addProviderTiles("CartoDB") %>%
+  setView(lat = 51.676761 , lng =13.679507, zoom = 6)
+
+map %>%
+  addPolylines(lat = c(55.0000, 53.6000, 53.51885, 52.8875, 52.6053, 51.8978, 50.08506775 , 48.13659738768638, 45.0000), lng = c(10.0000, 11.4563, 12.4464,13.8119 , 13.8756, 13.8103, 12.5988909, 11.582597486663213, 11.50000), color = "purple", weight = 75, opacity = 0.1)  %>%
+  addCircleMarkers(data = Clades, 
+                   col = ~data_col_HI(HI),
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  sep=" "),
+                   opacity = 0.1,
+                   radius = 10,
+                   group = "Colored by HI") %>%
+  addCircleMarkers(data = A1, 
+                   col = "#8fce00",
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius = 3,
+                   group = "A1") %>%
+  addCircleMarkers(data = A2, 
+                   col = "orange",
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius = 3,
+                   group = "A2") %>%
+  addCircleMarkers(data = A3, 
+                   col = "cadetblue",
+                   label = ~htmlEscape(Mouse_ID),
+                   popup = ~paste("<b>Mouse_ID:<b>",as.character(Mouse_ID), "<br>",
+                                  "<b>HI:<b>",      as.character(HI), "<br>",
+                                  "<b>Location:<b>", as.character(Latitude), "<b>,<b>", as.character(Longitude), "<br>",
+                                  sep=" "),
+                   opacity = 5,
+                   radius = 3,
+                   group = "A3") %>%
+  addLegend("bottomleft", 
+            pal = data_col_HI_Level, 
+            title = "HI",
+            values = SOTA$HI_Level, 
+            group = c('HI = 0.00', 'HI < 0.25', 'HI < 0.50', 'HI < 0.75', 'HI < 1.00', 'HI = 1.00'),
+            opacity = 1) %>%
+  addLegend("bottomright", 
+            colors = c('yellow', 'yellowgreen', 'darkorange', 'brown', "cadetblue"),
+            #colors =c("#FFC125",  "#FFC125", "#8A4117", "#7D0552", "#571B7E"),
+            labels = c('1 .. East BR',
+                       '1 .. East BR/CZ',
+                       '2 .. West BR/CZ', 
+                       '3 .. West BR',
+                       '4 .. New Zealand'),
+            title = 'Clades',
             opacity = 1)
 
 ```
@@ -1216,7 +1670,4 @@ map %>%
                                    '3 .. West BR'), 
                  options = layersControlOptions(collapsed = T))
   
-
-
 ```
-
