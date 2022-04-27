@@ -1,11 +1,21 @@
 ## STATISTICS MANN-WHITHNEY-U TEST
 
+library(tidyverse)
+
+Clades <- read.csv('https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Clade_Memberships_updated.csv') %>% select(c(1:12, 17, 18, 19))
+colnames(Clades)[colnames(Clades) %in% 'GP'] <- 'GP60'
+colnames(Clades)[colnames(Clades) %in% 'C'] <- 'COWP'
+colnames(Clades)[colnames(Clades) %in% 'MS'] <- 'MSC6'
+colnames(Clades)[colnames(Clades) %in% 'G'] <- 'GST'
+colnames(Clades)[colnames(Clades) %in% 'ME'] <- 'MEDLE'
+colnames(Clades)[colnames(Clades) %in% 'S'] <- 'SKSR'
+colnames(Clades)[colnames(Clades) %in% 'CP'] <- 'CP56'
+
+Clades <- Clades %>% mutate(MEDLE = case_when(MEDLE = Mouse_ID %in% c("AA_0144", "AA_0325", "AA_0209", "AA_0282", "AA_0667", "AA_0900", "AA_0523") ~ 'ME1',
+                                              MEDLE = Mouse_ID %in% c("AA_0793", "AA_0689", "AA_0805") ~ 'ME2'))
 
 
 ## GP60
-Clades <- read.csv("https://raw.githubusercontent.com/tlobnow/Cryptosporidium-BSc/Main-Branch/Analysis/Clade_Memberships.csv")
-
-
 IXa                 <- Clades %>% filter(GP60 == "IXa")# 10 samples
 IXa_Subtype_family  <- IXa[IXa$GP60 == "IXa", "HI"]
 IXb                 <- Clades %>% filter(GP60 %in% c("IXb.1", "IXb.2", "IXb.3")) # 43 samples
